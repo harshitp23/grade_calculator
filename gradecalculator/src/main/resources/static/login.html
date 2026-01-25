@@ -31,11 +31,12 @@
 <div class="card">
     <h1>Welcome Back 👋</h1>
     
-    <div th:if="${param.error}" class="error">
-        Invalid username or password.
+    <div th:if="${param.error} and ${param.logout == null}" class="error">
+        ❌ Invalid username or password.
     </div>
-    <div th:if="${param.logout}" class="error" style="color: green;">
-        You have been logged out.
+
+    <div th:if="${param.logout}" class="error" style="color: green; border-color: green;">
+        ✅ You have been logged out successfully.
     </div>
 
     <form action="/login" method="post">
@@ -76,3 +77,4 @@
 
 </body>
 </html>
+
