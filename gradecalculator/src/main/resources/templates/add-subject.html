@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Subject - Grade Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* --- COPYING THEME VARIABLES FROM INDEX.HTML --- */
+        :root {
+            --primary: #4f46e5;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --sidebar-width: 260px;
+            --border-color: #e5e7eb;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f3f4f6;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
+
+        /* --- SIDEBAR STYLE --- */
+        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; transition: background-color 0.3s ease, border-color 0.3s ease; }
+        .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
+        .nav-link:hover, .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .spacer { flex: 1; }
+        .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
+
+        /* --- MAIN CONTENT & FORM STYLE --- */
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; }
+        
+        .form-container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            margin-top: 20px;
+        }
+
+        .page-header { margin-bottom: 30px; text-align: center; }
+        .page-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .page-subtitle { color: var(--text-muted); font-size: 14px; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
+        
+        input, select { 
+            width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; 
+            font-size: 14px; outline: none; transition: 0.2s; box-sizing: border-box; 
+            font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main);
+        }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+
+        .btn-submit {
+            width: 100%; padding: 14px; background-color: var(--primary); color: white; 
+            border: none; border-radius: 8px; font-weight: 600; cursor: pointer; 
+            font-size: 16px; transition: 0.2s; margin-top: 10px;
+        }
+        .btn-submit:hover { background-color: #4338ca; }
+
+        .row { display: flex; gap: 20px; }
+        .col { flex: 1; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        <nav>
+            <a href="index.html" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="add-subject.html" class="nav-link active"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
+            <a href="#" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+        </nav>
+        <div class="spacer"></div>
+        <div class="user-profile">
+            <div style="display:flex; flex-direction:column;">
+                <span style="font-size:12px; color:var(--text-muted);">Signed in as</span>
+                <span style="font-weight:600;" sec:authentication="name">Student</span>
+            </div>
+            <i class="fa-solid fa-moon icon-btn" id="themeBtn" onclick="toggleTheme()"></i>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="form-container">
+            <div class="page-header">
+                <div class="page-title">Add New Subject</div>
+                <div class="page-subtitle">Create a class to start tracking your grades</div>
+            </div>
+
+            <form id="addSubjectForm">
+                <div class="form-group">
+                    <label>Subject Name</label>
+                    <input type="text" name="name" placeholder="e.g. Linear Algebra" required>
+                </div>
+
+                <div class="row">
+                    <div class="col form-group">
+                        <label>Course Code</label>
+                        <input type="text" name="code" placeholder="e.g. MATH201" required>
+                    </div>
+                    <div class="col form-group">
+                        <label>Credits</label>
+                        <input type="number" name="credits" placeholder="e.g. 3" min="1" max="10" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="In Progress">Current (In Progress)</option>
+                        <option value="Completed">Completed (Past Semester)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-submit">Create & Add Components <i class="fa-solid fa-arrow-right"></i></button>
+            </form>
+        </div>
+    </main>
+
+<script>
+    // --- THEME LOGIC ---
+    const themeBtn = document.getElementById('themeBtn');
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeBtn.classList.replace('fa-moon', 'fa-sun');
+    }
+    function toggleTheme() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (isDark) {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+            themeBtn.classList.replace('fa-sun', 'fa-moon');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            themeBtn.classList.replace('fa-moon', 'fa-sun');
+        }
+    }
+
+    // --- FORM SUBMISSION LOGIC ---
+    document.getElementById('addSubjectForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        // Call the Updated POST Endpoint
+        fetch('/api/subjects/add', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Failed to add subject");
+            return response.json(); // We expect the Subject Object back (with ID)
+        })
+        .then(subject => {
+            // SUCCESS: Redirect to the details page for THIS new subject
+            // We pass the new ID in the URL: ?id=5
+            window.location.href = `subject-details.html?id=${subject.subjectId}`;
+        })
+        .catch(error => {
+            console.error(error);
+            alert("Error creating subject. Please try again.");
+        });
+    });
+</script>
+
+</body>
+</html>
