@@ -8,63 +8,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root {
-            --primary: #4f46e5;
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-main: #111827;
-            --text-muted: #6b7280;
-            --sidebar-width: 260px;
-            --border-color: #e5e7eb;
-            --danger: #ef4444;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f3f4f6;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            color: var(--text-main);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-            transition: background-color 0.3s ease;
-        }
-
-        /* --- SIDEBAR --- */
-        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; transition: background-color 0.3s ease, border-color 0.3s ease; }
+        /* --- COPY THEME VARIABLES --- */
+        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --danger: #ef4444; }
+        [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
+        
+        /* SIDEBAR (Standard) */
+        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; }
         .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
         .nav-link:hover, .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
         .spacer { flex: 1; }
         .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
-
-        /* --- ICONS --- */
         .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
-        .icon-btn:hover { color: var(--primary); }
-        .icon-logout:hover { color: var(--danger); }
 
-        /* --- MAIN CONTENT --- */
+        /* CONTENT */
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .gpa-card { background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%); color: white; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); display: inline-block; min-width: 200px; }
         .gpa-label { font-size: 13px; opacity: 0.9; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
         .gpa-value { font-size: 32px; font-weight: 800; margin-top: 5px; }
 
-        /* --- TABLES --- */
+        /* TABLES */
         .section-title { font-size: 18px; font-weight: 700; margin: 40px 0 15px 0; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); overflow: hidden; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; }
         thead { background-color: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-color); }
         th { text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); }
-        td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+        td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
+        
         .grade-header-row { background-color: rgba(79, 70, 229, 0.05); }
         .grade-header-cell { font-weight: 700; color: var(--primary); padding: 8px 24px; font-size: 13px; }
         .grade-A { color: #10b981; font-weight: 700; }
@@ -72,73 +44,49 @@
         .grade-B { color: #f97316; font-weight: 700; }
         .grade-Low { color: #ef4444; font-weight: 700; }
 
-        /* --- SETTINGS MODAL --- */
+        /* ACTION BUTTONS */
+        .action-btn { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; cursor: pointer; color: var(--text-muted); margin-left: 5px; transition: 0.2s; }
+        .action-btn:hover { background: var(--bg-color); color: var(--primary); }
+        .action-btn.curved-btn { color: #8b5cf6; border-color: #ddd6fe; background: #f5f3ff; } /* Purple for curve */
+
+        /* MODALS */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
-        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: slideIn 0.2s ease-out; }
-        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
+        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-title { font-size: 20px; font-weight: 700; margin: 0; }
         .close-btn { font-size: 24px; cursor: pointer; color: var(--text-muted); }
-        .close-btn:hover { color: var(--text-main); }
-
-        .settings-section { margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
-        .settings-section:last-child { border-bottom: none; padding-bottom: 0; }
-        .section-header { font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; display: block; }
         
-        .form-group { margin-bottom: 10px; }
-        .modal-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); box-sizing: border-box; font-family: inherit; }
-        .btn-primary { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 5px; }
-        .btn-primary:hover { background: #4338ca; }
-        .btn-danger { width: 100%; padding: 10px; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; font-weight: 600; }
-        .btn-danger:hover { background: #fecaca; }
-
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted); }
+        .modal-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); box-sizing: border-box; }
+        
+        .btn-primary { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-danger { width: 100%; padding: 10px; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px; }
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
-
         <nav>
             <a href="index.html" class="nav-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
             <a href="add-subject.html" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
             <a href="#" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
         </nav>
-
         <div class="spacer"></div>
-
         <div class="user-profile">
-            <div style="display:flex; flex-direction:column;">
-                <span style="font-size:12px; color:var(--text-muted);">Signed in as</span>
-                <span style="font-weight:600;" sec:authentication="name">Student</span>
-            </div>
-            <div style="display:flex; gap:10px; align-items:center;">
-                <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle Dark Mode">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-                <button class="icon-btn" onclick="openSettings()" title="Settings">
-                    <i class="fa-solid fa-gear"></i>
-                </button>
-                <form action="/logout" method="post" style="margin:0;">
-                    <button type="submit" class="icon-btn icon-logout" title="Logout">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                    </button>
-                </form>
+            <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">Signed in as <strong sec:authentication="name" style="color:var(--text-main)">Student</strong></span>
+            <div style="display:flex; gap:10px;">
+                <button class="icon-btn" id="themeBtn" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+                <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
             </div>
         </div>
     </aside>
 
     <main class="main-content">
         <div class="header-row">
-            <div>
-                <h1 style="margin:0; font-size:28px;">Academic Overview</h1>
-                <p style="color:var(--text-muted); margin:5px 0 0 0;">Track your progress and GPA</p>
-            </div>
-            <div class="gpa-card">
-                <div class="gpa-label">Overall GPA</div>
-                <div class="gpa-value" id="overall-gpa">0.00</div>
-            </div>
+            <div><h1 style="margin:0; font-size:28px;">Academic Overview</h1></div>
+            <div class="gpa-card"><div class="gpa-label">Overall GPA</div><div class="gpa-value" id="overall-gpa">0.00</div></div>
         </div>
 
         <div class="section-title"><i class="fa-solid fa-clock" style="color:var(--primary);"></i> Current Semester</div>
@@ -158,89 +106,87 @@
         </div>
     </main>
 
-    <div id="settingsModal" class="modal" onclick="closeSettings(event)">
+    <div id="subjectModal" class="modal" onclick="if(event.target.id==='subjectModal') this.style.display='none'">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Account Settings</h2>
-                <span class="close-btn" onclick="closeModalDirectly()">&times;</span>
+            <div class="modal-header"><h2 class="modal-title">Subject Settings</h2><span class="close-btn" onclick="document.getElementById('subjectModal').style.display='none'">&times;</span></div>
+            <input type="hidden" id="editSubId">
+            
+            <div class="form-group"><label class="form-label">Subject Name</label><input type="text" class="modal-input" id="editSubName"></div>
+            <div class="form-group"><label class="form-label">Subject Code</label><input type="text" class="modal-input" id="editSubCode"></div>
+            
+            <div class="form-group" style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:15px;">
+                <label class="form-label">Grading Scale</label>
+                <label style="font-size:13px; display:flex; gap:8px; align-items:center;">
+                    <input type="checkbox" id="useDefaultScale" checked onchange="toggleScaleInputs()"> Use Default UW Madison Scale
+                </label>
+                <div id="customScaleInputs" style="display:none; margin-top:10px;">
+                    <label class="form-label" style="font-size:11px;">Min Score for: A, AB, B, BC, C, D (comma separated)</label>
+                    <input type="text" class="modal-input" id="customScaleStr" placeholder="e.g. 93,88,83,78,70,60">
+                </div>
             </div>
 
-            <div class="settings-section">
-                <span class="section-header">Profile</span>
-                <div class="form-group">
-                    <input type="text" class="modal-input" placeholder="New Username">
-                </div>
-                <div class="form-group">
-                    <input type="email" class="modal-input" placeholder="New Email">
-                </div>
-                <button class="btn-primary" onclick="alert('Backend for Profile Update coming soon!')">Update Profile</button>
-            </div>
+            <button class="btn-primary" onclick="saveSubjectSettings()">Save Changes</button>
+            <button class="btn-danger" onclick="deleteSubject()">Delete Subject</button>
+        </div>
+    </div>
 
-            <div class="settings-section">
-                <span class="section-header">Security</span>
-                <div class="form-group">
-                    <input type="password" class="modal-input" placeholder="New Password">
-                </div>
-                <button class="btn-primary" onclick="alert('Backend for Password Change coming soon!')">Change Password</button>
+    <div id="curveModal" class="modal" onclick="if(event.target.id==='curveModal') this.style.display='none'">
+        <div class="modal-content">
+            <div class="modal-header"><h2 class="modal-title">Curve Adjustment</h2><span class="close-btn" onclick="document.getElementById('curveModal').style.display='none'">&times;</span></div>
+            <input type="hidden" id="curveSubId">
+            <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Since this class is curved, select the final letter grade you received.</p>
+            
+            <div class="form-group">
+                <select class="modal-input" id="curveLetter">
+                    <option value="A">A (4.0)</option>
+                    <option value="AB">AB (3.5)</option>
+                    <option value="B">B (3.0)</option>
+                    <option value="BC">BC (2.5)</option>
+                    <option value="C">C (2.0)</option>
+                    <option value="D">D (1.0)</option>
+                    <option value="F">F (0.0)</option>
+                </select>
             </div>
-
-            <div class="settings-section">
-                <span class="section-header" style="color:var(--danger)">Danger Zone</span>
-                <button class="btn-danger" onclick="confirm('Are you surely you want to delete your account? This cannot be undone.')">Delete Account</button>
-            </div>
+            <button class="btn-primary" onclick="saveCurve()">Save Grade</button>
         </div>
     </div>
 
 <script>
-    // --- THEME LOGIC ---
+    // Theme Logic (Same as others)
     const themeBtn = document.getElementById('themeBtn');
-    const themeIcon = themeBtn.querySelector('i');
-    
-    if (localStorage.getItem('theme') === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        themeIcon.classList.replace('fa-moon', 'fa-sun');
-    }
-
+    if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); themeBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun'); }
     function toggleTheme() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        if (isDark) {
-            document.documentElement.removeAttribute('data-theme');
-            localStorage.setItem('theme', 'light');
-            themeIcon.classList.replace('fa-sun', 'fa-moon');
-        } else {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            localStorage.setItem('theme', 'dark');
-            themeIcon.classList.replace('fa-moon', 'fa-sun');
-        }
+        if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeBtn.querySelector('i').classList.replace('fa-sun', 'fa-moon'); } 
+        else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun'); }
     }
 
-    // --- MODAL LOGIC ---
-    function openSettings() {
-        document.getElementById('settingsModal').style.display = 'flex';
-    }
-
-    function closeSettings(e) {
-        // Close only if clicked OUTSIDE the content box
-        if (e.target.id === 'settingsModal') {
-            document.getElementById('settingsModal').style.display = 'none';
-        }
-    }
-
-    function closeModalDirectly() {
-        document.getElementById('settingsModal').style.display = 'none';
-    }
-
-    // --- DATA LOGIC ---
+    // --- DATA & CALCULATION ---
     window.onload = function() { fetchSubjects(); };
 
-    function calculateGrade(score) {
-        if (score >= 93) return { grade: 'A', point: 4.0, css: 'grade-A' };
-        if (score >= 88) return { grade: 'AB', point: 3.5, css: 'grade-AB' };
-        if (score >= 83) return { grade: 'B', point: 3.0, css: 'grade-B' };
-        if (score >= 78) return { grade: 'BC', point: 2.5, css: 'grade-Low' };
-        if (score >= 70) return { grade: 'C', point: 2.0, css: 'grade-Low' };
-        if (score >= 60) return { grade: 'D', point: 1.0, css: 'grade-Low' };
+    function calculateGrade(score, customScaleStr) {
+        // Defaults: A=93, AB=88, B=83, BC=78, C=70, D=60
+        let thresholds = [93, 88, 83, 78, 70, 60];
+        
+        if (customScaleStr && customScaleStr.trim() !== "") {
+            try {
+                thresholds = customScaleStr.split(',').map(Number);
+            } catch(e) { console.error("Bad scale format"); }
+        }
+
+        if (score >= thresholds[0]) return { grade: 'A', point: 4.0, css: 'grade-A' };
+        if (score >= thresholds[1]) return { grade: 'AB', point: 3.5, css: 'grade-AB' };
+        if (score >= thresholds[2]) return { grade: 'B', point: 3.0, css: 'grade-B' };
+        if (score >= thresholds[3]) return { grade: 'BC', point: 2.5, css: 'grade-Low' };
+        if (score >= thresholds[4]) return { grade: 'C', point: 2.0, css: 'grade-Low' };
+        if (score >= thresholds[5]) return { grade: 'D', point: 1.0, css: 'grade-Low' };
         return { grade: 'F', point: 0.0, css: 'grade-Low' };
+    }
+
+    // Helper for Curved Grades
+    function getPointsForLetter(letter) {
+        const map = { 'A':4.0, 'AB':3.5, 'B':3.0, 'BC':2.5, 'C':2.0, 'D':1.0, 'F':0.0 };
+        return map[letter] || 0.0;
     }
 
     function fetchSubjects() {
@@ -253,12 +199,28 @@
             let totalPoints = 0, totalCredits = 0;
 
             data.forEach(sub => {
-                let score = sub.currentScore || 0; 
-                let gradeInfo = calculateGrade(score);
+                let gradeInfo;
+                let displayScore;
+
+                // 1. Check for Curved Override First
+                if (sub.letterGrade) {
+                    gradeInfo = { 
+                        grade: sub.letterGrade, 
+                        point: getPointsForLetter(sub.letterGrade), 
+                        css: 'grade-A' // simplified css logic
+                    };
+                    displayScore = "Curved";
+                } else {
+                    // 2. Normal Calculation
+                    let score = sub.currentScore || 0; 
+                    gradeInfo = calculateGrade(score, sub.gradingScale);
+                    displayScore = score > 0 ? score + "%" : "-";
+                }
+
                 sub.calcGrade = gradeInfo.grade;
                 sub.calcPoint = gradeInfo.point;
                 sub.cssClass = gradeInfo.css;
-                sub.displayScore = score > 0 ? score + "%" : "-";
+                sub.displayScore = displayScore;
 
                 totalCredits += sub.credits;
                 totalPoints += (gradeInfo.point * sub.credits);
@@ -267,19 +229,14 @@
                 else currentSubjects.push(sub);
             });
 
-            let gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
-            document.getElementById('overall-gpa').innerText = gpa;
-
+            document.getElementById('overall-gpa').innerText = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
             renderGroupedTable(currentSubjects, currentBody);
             renderGroupedTable(completedSubjects, completedBody);
         });
     }
 
     function renderGroupedTable(subjects, tableBody) {
-        if (subjects.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:30px;">No subjects found.</td></tr>`;
-            return;
-        }
+        if (subjects.length === 0) return;
         const grouped = subjects.reduce((acc, sub) => { (acc[sub.calcGrade] = acc[sub.calcGrade] || []).push(sub); return acc; }, {});
         const gradeOrder = ['A', 'AB', 'B', 'BC', 'C', 'D', 'F'];
 
@@ -287,14 +244,27 @@
             if (grouped[gradeKey]) {
                 tableBody.innerHTML += `<tr class="grade-header-row"><td colspan="7" class="grade-header-cell">Grade: ${gradeKey}</td></tr>`;
                 grouped[gradeKey].forEach(sub => {
+                    // Action Buttons Logic
+                    let actions = `
+                        <button class="action-btn" onclick="openSubjectModal(${sub.subjectId}, '${sub.subjectName}', '${sub.subjectCode}', '${sub.gradingScale || ''}')" title="Settings">
+                            <i class="fa-solid fa-gear"></i>
+                        </button>`;
+                    
+                    if (sub.status === 'Completed') {
+                        actions += `
+                        <button class="action-btn curved-btn" onclick="openCurveModal(${sub.subjectId})" title="Curved?">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </button>`;
+                    }
+
                     let row = `<tr>
-                        <td><span style="font-weight:600;">${sub.subjectName}</span></td>
+                        <td><a href="subject-details.html?id=${sub.subjectId}" style="text-decoration:none; color:inherit; font-weight:600;">${sub.subjectName}</a></td>
                         <td>${sub.subjectCode || ''}</td>
                         <td>${sub.credits}</td>
                         <td><span style="font-size:12px; padding:2px 8px; background:#e0e7ff; color:#4f46e5; border-radius:4px;">${sub.status}</span></td>
                         <td>${sub.displayScore}</td>
                         <td class="${sub.cssClass}">${gradeKey}</td>
-                        <td style="text-align: right;"><button class="icon-btn" onclick="deleteSubject(${sub.subjectId})"><i class="fa-regular fa-trash-can"></i></button></td>
+                        <td style="text-align: right;">${actions}</td>
                     </tr>`;
                     tableBody.innerHTML += row;
                 });
@@ -302,9 +272,52 @@
         });
     }
 
-    function deleteSubject(id) {
-        if(!confirm("Are you sure? This will delete the subject and ALL its grades.")) return;
-        fetch('/api/subjects/delete?id=' + id, { method: 'DELETE' }).then(r => r.text()).then(() => fetchSubjects());
+    // --- MODAL FUNCTIONS ---
+    function openSubjectModal(id, name, code, scale) {
+        document.getElementById('editSubId').value = id;
+        document.getElementById('editSubName').value = name;
+        document.getElementById('editSubCode').value = code;
+        document.getElementById('customScaleStr').value = scale;
+        
+        const useDefault = (!scale || scale === 'null' || scale === '');
+        document.getElementById('useDefaultScale').checked = useDefault;
+        toggleScaleInputs();
+        
+        document.getElementById('subjectModal').style.display = 'flex';
+    }
+
+    function toggleScaleInputs() {
+        const isDefault = document.getElementById('useDefaultScale').checked;
+        document.getElementById('customScaleInputs').style.display = isDefault ? 'none' : 'block';
+    }
+
+    function saveSubjectSettings() {
+        const id = document.getElementById('editSubId').value;
+        const name = document.getElementById('editSubName').value;
+        const code = document.getElementById('editSubCode').value;
+        const isDefault = document.getElementById('useDefaultScale').checked;
+        const scale = isDefault ? "" : document.getElementById('customScaleStr').value;
+
+        fetch(`/api/subjects/update-settings?id=${id}&name=${name}&code=${code}&gradingScale=${scale}`, { method: 'POST' })
+        .then(r => r.text()).then(() => { location.reload(); });
+    }
+
+    function deleteSubject() {
+        const id = document.getElementById('editSubId').value;
+        if(!confirm("Are you sure?")) return;
+        fetch('/api/subjects/delete?id=' + id, { method: 'DELETE' }).then(() => location.reload());
+    }
+
+    function openCurveModal(id) {
+        document.getElementById('curveSubId').value = id;
+        document.getElementById('curveModal').style.display = 'flex';
+    }
+
+    function saveCurve() {
+        const id = document.getElementById('curveSubId').value;
+        const letter = document.getElementById('curveLetter').value;
+        fetch(`/api/subjects/update-curve?id=${id}&letter=${letter}`, { method: 'POST' })
+        .then(() => location.reload());
     }
 </script>
 
