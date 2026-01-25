@@ -16,6 +16,7 @@
             --text-muted: #6b7280;
             --sidebar-width: 260px;
             --border-color: #e5e7eb;
+            --danger: #ef4444;
         }
 
         [data-theme="dark"] {
@@ -33,154 +34,76 @@
             color: var(--text-main);
             display: flex;
             height: 100vh;
-            overflow: hidden; /* Prevent body scroll, use inner scroll */
+            overflow: hidden;
             transition: background-color 0.3s ease;
         }
 
         /* --- SIDEBAR --- */
-        .sidebar {
-            width: var(--sidebar-width);
-            background-color: var(--card-bg);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            padding: 24px;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-        }
-
-        .logo {
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 40px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            color: var(--text-muted);
-            text-decoration: none;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            background-color: rgba(79, 70, 229, 0.1);
-            color: var(--primary);
-        }
-
+        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; transition: background-color 0.3s ease, border-color 0.3s ease; }
+        .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
+        .nav-link:hover, .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
         .spacer { flex: 1; }
+        .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
 
-        .user-profile {
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+        /* --- ICONS --- */
+        .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
+        .icon-btn:hover { color: var(--primary); }
+        .icon-logout:hover { color: var(--danger); }
 
         /* --- MAIN CONTENT --- */
-        .main-content {
-            flex: 1;
-            padding: 40px;
-            overflow-y: auto; /* Scroll inside main content */
-        }
-
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .gpa-card {
-            background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
-            color: white;
-            padding: 20px 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
-            display: inline-block;
-            min-width: 200px;
-        }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .gpa-card { background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%); color: white; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); display: inline-block; min-width: 200px; }
         .gpa-label { font-size: 13px; opacity: 0.9; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
         .gpa-value { font-size: 32px; font-weight: 800; margin-top: 5px; }
 
-        /* --- SECTIONS & TABLES --- */
-        .section-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin: 40px 0 15px 0;
-            color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
+        /* --- TABLES --- */
+        .section-title { font-size: 18px; font-weight: 700; margin: 40px 0 15px 0; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); overflow: hidden; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; }
-        
         thead { background-color: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-color); }
-        th { 
-            text-align: left; padding: 16px 24px; 
-            font-size: 12px; font-weight: 600; text-transform: uppercase; 
-            color: var(--text-muted); 
-        }
-        
+        th { text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); }
         td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
-        
-        /* Grade Headers (The separators) */
         .grade-header-row { background-color: rgba(79, 70, 229, 0.05); }
-        .grade-header-cell { 
-            font-weight: 700; color: var(--primary); padding: 8px 24px; font-size: 13px; 
-        }
+        .grade-header-cell { font-weight: 700; color: var(--primary); padding: 8px 24px; font-size: 13px; }
+        .grade-A { color: #10b981; font-weight: 700; }
+        .grade-AB { color: #f59e0b; font-weight: 700; }
+        .grade-B { color: #f97316; font-weight: 700; }
+        .grade-Low { color: #ef4444; font-weight: 700; }
 
-        /* Grade Colors */
-        .grade-A { color: #10b981; font-weight: 700; } /* Green */
-        .grade-AB { color: #f59e0b; font-weight: 700; } /* Yellow/Orange */
-        .grade-B { color: #f97316; font-weight: 700; } /* Orange */
-        .grade-Low { color: #ef4444; font-weight: 700; } /* Red */
-
-        /* Buttons */
-        .btn-icon { background: none; border: none; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
-        .btn-icon:hover { color: #ef4444; }
+        /* --- SETTINGS MODAL --- */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
+        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: slideIn 0.2s ease-out; }
+        @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        .theme-toggle { cursor: pointer; color: var(--text-muted); transition: 0.2s; }
-        .theme-toggle:hover { color: var(--primary); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 20px; font-weight: 700; margin: 0; }
+        .close-btn { font-size: 24px; cursor: pointer; color: var(--text-muted); }
+        .close-btn:hover { color: var(--text-main); }
+
+        .settings-section { margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+        .settings-section:last-child { border-bottom: none; padding-bottom: 0; }
+        .section-header { font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; display: block; }
+        
+        .form-group { margin-bottom: 10px; }
+        .modal-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); box-sizing: border-box; font-family: inherit; }
+        .btn-primary { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 5px; }
+        .btn-primary:hover { background: #4338ca; }
+        .btn-danger { width: 100%; padding: 10px; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-danger:hover { background: #fecaca; }
 
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
-        <div class="logo">
-            <i class="fa-solid fa-graduation-cap"></i> GradeCalc
-        </div>
+        <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
 
         <nav>
-            <a href="index.html" class="nav-link active">
-                <i class="fa-solid fa-chart-pie"></i> Dashboard
-            </a>
-            <a href="add-subject.html" class="nav-link">
-                <i class="fa-solid fa-plus-circle"></i> Add New Subject
-            </a>
-            <a href="#" class="nav-link">
-                <i class="fa-solid fa-bullseye"></i> Target Calculator
-            </a>
+            <a href="index.html" class="nav-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="add-subject.html" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
+            <a href="#" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
         </nav>
 
         <div class="spacer"></div>
@@ -190,97 +113,126 @@
                 <span style="font-size:12px; color:var(--text-muted);">Signed in as</span>
                 <span style="font-weight:600;" sec:authentication="name">Student</span>
             </div>
-            <div style="display:flex; gap:15px; align-items:center;">
-                <i class="fa-solid fa-moon theme-toggle" id="themeBtn" onclick="toggleTheme()"></i>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle Dark Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button class="icon-btn" onclick="openSettings()" title="Settings">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
                 <form action="/logout" method="post" style="margin:0;">
-                    <button type="submit" class="btn-icon" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+                    <button type="submit" class="icon-btn icon-logout" title="Logout">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
                 </form>
             </div>
         </div>
     </aside>
 
     <main class="main-content">
-        
         <div class="header-row">
             <div>
                 <h1 style="margin:0; font-size:28px;">Academic Overview</h1>
                 <p style="color:var(--text-muted); margin:5px 0 0 0;">Track your progress and GPA</p>
             </div>
-            
             <div class="gpa-card">
                 <div class="gpa-label">Overall GPA</div>
                 <div class="gpa-value" id="overall-gpa">0.00</div>
             </div>
         </div>
 
-        <div class="section-title">
-            <i class="fa-solid fa-clock" style="color:var(--primary);"></i> Current Semester
-        </div>
+        <div class="section-title"><i class="fa-solid fa-clock" style="color:var(--primary);"></i> Current Semester</div>
         <div class="card">
             <table>
-                <thead>
-                    <tr>
-                        <th>Subject</th>
-                        <th>Code</th>
-                        <th>Credits</th>
-                        <th>Status</th>
-                        <th>Score</th>
-                        <th>Grade</th>
-                        <th style="text-align: right;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="current-table-body">
-                    </tbody>
+                <thead><tr><th>Subject</th><th>Code</th><th>Credits</th><th>Status</th><th>Score</th><th>Grade</th><th style="text-align: right;">Actions</th></tr></thead>
+                <tbody id="current-table-body"></tbody>
             </table>
         </div>
 
-        <div class="section-title">
-            <i class="fa-solid fa-check-circle" style="color:#10b981;"></i> Completed Semesters
-        </div>
+        <div class="section-title"><i class="fa-solid fa-check-circle" style="color:#10b981;"></i> Completed Semesters</div>
         <div class="card">
             <table>
-                <thead>
-                    <tr>
-                        <th>Subject</th>
-                        <th>Code</th>
-                        <th>Credits</th>
-                        <th>Status</th>
-                        <th>Score</th>
-                        <th>Grade</th>
-                        <th style="text-align: right;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="completed-table-body">
-                    </tbody>
+                <thead><tr><th>Subject</th><th>Code</th><th>Credits</th><th>Status</th><th>Score</th><th>Grade</th><th style="text-align: right;">Actions</th></tr></thead>
+                <tbody id="completed-table-body"></tbody>
             </table>
         </div>
-
     </main>
+
+    <div id="settingsModal" class="modal" onclick="closeSettings(event)">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Account Settings</h2>
+                <span class="close-btn" onclick="closeModalDirectly()">&times;</span>
+            </div>
+
+            <div class="settings-section">
+                <span class="section-header">Profile</span>
+                <div class="form-group">
+                    <input type="text" class="modal-input" placeholder="New Username">
+                </div>
+                <div class="form-group">
+                    <input type="email" class="modal-input" placeholder="New Email">
+                </div>
+                <button class="btn-primary" onclick="alert('Backend for Profile Update coming soon!')">Update Profile</button>
+            </div>
+
+            <div class="settings-section">
+                <span class="section-header">Security</span>
+                <div class="form-group">
+                    <input type="password" class="modal-input" placeholder="New Password">
+                </div>
+                <button class="btn-primary" onclick="alert('Backend for Password Change coming soon!')">Change Password</button>
+            </div>
+
+            <div class="settings-section">
+                <span class="section-header" style="color:var(--danger)">Danger Zone</span>
+                <button class="btn-danger" onclick="confirm('Are you surely you want to delete your account? This cannot be undone.')">Delete Account</button>
+            </div>
+        </div>
+    </div>
 
 <script>
     // --- THEME LOGIC ---
     const themeBtn = document.getElementById('themeBtn');
+    const themeIcon = themeBtn.querySelector('i');
+    
     if (localStorage.getItem('theme') === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
-        themeBtn.classList.replace('fa-moon', 'fa-sun');
+        themeIcon.classList.replace('fa-moon', 'fa-sun');
     }
+
     function toggleTheme() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         if (isDark) {
             document.documentElement.removeAttribute('data-theme');
             localStorage.setItem('theme', 'light');
-            themeBtn.classList.replace('fa-sun', 'fa-moon');
+            themeIcon.classList.replace('fa-sun', 'fa-moon');
         } else {
             document.documentElement.setAttribute('data-theme', 'dark');
             localStorage.setItem('theme', 'dark');
-            themeBtn.classList.replace('fa-moon', 'fa-sun');
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
         }
+    }
+
+    // --- MODAL LOGIC ---
+    function openSettings() {
+        document.getElementById('settingsModal').style.display = 'flex';
+    }
+
+    function closeSettings(e) {
+        // Close only if clicked OUTSIDE the content box
+        if (e.target.id === 'settingsModal') {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+    }
+
+    function closeModalDirectly() {
+        document.getElementById('settingsModal').style.display = 'none';
     }
 
     // --- DATA LOGIC ---
     window.onload = function() { fetchSubjects(); };
 
-    // Helper: Calculate Grade from Score (Frontend Fallback)
     function calculateGrade(score) {
         if (score >= 93) return { grade: 'A', point: 4.0, css: 'grade-A' };
         if (score >= 88) return { grade: 'AB', point: 3.5, css: 'grade-AB' };
@@ -292,82 +244,48 @@
     }
 
     function fetchSubjects() {
-        fetch('/api/subjects/list')
-            .then(response => response.json())
-            .then(data => {
-                const currentBody = document.getElementById('current-table-body');
-                const completedBody = document.getElementById('completed-table-body');
-                
-                // Reset
-                currentBody.innerHTML = "";
-                completedBody.innerHTML = "";
+        fetch('/api/subjects/list').then(r => r.json()).then(data => {
+            const currentBody = document.getElementById('current-table-body');
+            const completedBody = document.getElementById('completed-table-body');
+            currentBody.innerHTML = ""; completedBody.innerHTML = "";
 
-                // Group Arrays
-                let currentSubjects = [];
-                let completedSubjects = [];
-                let totalPoints = 0;
-                let totalCredits = 0;
+            let currentSubjects = [], completedSubjects = [];
+            let totalPoints = 0, totalCredits = 0;
 
-                // Process Data
-                data.forEach(sub => {
-                    // Normalize data (Handling nulls from backend)
-                    let score = sub.currentScore || 0; 
-                    let gradeInfo = calculateGrade(score);
-                    
-                    // Attach calculated info to object for sorting
-                    sub.calcGrade = gradeInfo.grade;
-                    sub.calcPoint = gradeInfo.point;
-                    sub.cssClass = gradeInfo.css;
-                    sub.displayScore = score > 0 ? score + "%" : "-";
+            data.forEach(sub => {
+                let score = sub.currentScore || 0; 
+                let gradeInfo = calculateGrade(score);
+                sub.calcGrade = gradeInfo.grade;
+                sub.calcPoint = gradeInfo.point;
+                sub.cssClass = gradeInfo.css;
+                sub.displayScore = score > 0 ? score + "%" : "-";
 
-                    // GPA Math
-                    totalCredits += sub.credits;
-                    totalPoints += (gradeInfo.point * sub.credits);
+                totalCredits += sub.credits;
+                totalPoints += (gradeInfo.point * sub.credits);
 
-                    // Sort into buckets
-                    if (sub.status === 'Completed') {
-                        completedSubjects.push(sub);
-                    } else {
-                        currentSubjects.push(sub); // Default to Current
-                    }
-                });
-
-                // Update GPA Display
-                let gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
-                document.getElementById('overall-gpa').innerText = gpa;
-
-                // Render Tables with Grouping
-                renderGroupedTable(currentSubjects, currentBody);
-                renderGroupedTable(completedSubjects, completedBody);
+                if (sub.status === 'Completed') completedSubjects.push(sub);
+                else currentSubjects.push(sub);
             });
+
+            let gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
+            document.getElementById('overall-gpa').innerText = gpa;
+
+            renderGroupedTable(currentSubjects, currentBody);
+            renderGroupedTable(completedSubjects, completedBody);
+        });
     }
 
-    // Complex Function: Group by Grade -> Sort Groups -> Render
     function renderGroupedTable(subjects, tableBody) {
         if (subjects.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:30px;">No subjects found in this category.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:30px;">No subjects found.</td></tr>`;
             return;
         }
-
-        // 1. Group by Grade Key (A, AB, B...)
-        const grouped = subjects.reduce((acc, sub) => {
-            (acc[sub.calcGrade] = acc[sub.calcGrade] || []).push(sub);
-            return acc;
-        }, {});
-
-        // 2. Define Sort Order
+        const grouped = subjects.reduce((acc, sub) => { (acc[sub.calcGrade] = acc[sub.calcGrade] || []).push(sub); return acc; }, {});
         const gradeOrder = ['A', 'AB', 'B', 'BC', 'C', 'D', 'F'];
 
-        // 3. Iterate through order
         gradeOrder.forEach(gradeKey => {
             if (grouped[gradeKey]) {
-                // A. Add Header Row
-                let headerRow = `<tr class="grade-header-row">
-                    <td colspan="7" class="grade-header-cell">Grade: ${gradeKey}</td>
-                </tr>`;
-                tableBody.innerHTML += headerRow;
-
-                // B. Add Data Rows
+                tableBody.innerHTML += `<tr class="grade-header-row"><td colspan="7" class="grade-header-cell">Grade: ${gradeKey}</td></tr>`;
                 grouped[gradeKey].forEach(sub => {
                     let row = `<tr>
                         <td><span style="font-weight:600;">${sub.subjectName}</span></td>
@@ -376,11 +294,7 @@
                         <td><span style="font-size:12px; padding:2px 8px; background:#e0e7ff; color:#4f46e5; border-radius:4px;">${sub.status}</span></td>
                         <td>${sub.displayScore}</td>
                         <td class="${sub.cssClass}">${gradeKey}</td>
-                        <td style="text-align: right;">
-                            <button class="btn-icon" onclick="deleteSubject(${sub.subjectId})">
-                                <i class="fa-regular fa-trash-can"></i>
-                            </button>
-                        </td>
+                        <td style="text-align: right;"><button class="icon-btn" onclick="deleteSubject(${sub.subjectId})"><i class="fa-regular fa-trash-can"></i></button></td>
                     </tr>`;
                     tableBody.innerHTML += row;
                 });
@@ -390,9 +304,7 @@
 
     function deleteSubject(id) {
         if(!confirm("Are you sure? This will delete the subject and ALL its grades.")) return;
-        fetch('/api/subjects/delete?id=' + id, { method: 'DELETE' })
-            .then(r => r.text())
-            .then(() => fetchSubjects());
+        fetch('/api/subjects/delete?id=' + id, { method: 'DELETE' }).then(r => r.text()).then(() => fetchSubjects());
     }
 </script>
 
