@@ -8,12 +8,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* --- COPY THEME VARIABLES --- */
+        /* --- THEME VARIABLES --- */
         :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --danger: #ef4444; }
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
         
-        /* SIDEBAR (Standard) */
+        /* SIDEBAR */
         .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; }
         .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
@@ -21,6 +21,7 @@
         .spacer { flex: 1; }
         .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
         .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
+        .icon-btn:hover { color: var(--primary); }
 
         /* CONTENT */
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
@@ -47,7 +48,7 @@
         /* ACTION BUTTONS */
         .action-btn { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; cursor: pointer; color: var(--text-muted); margin-left: 5px; transition: 0.2s; }
         .action-btn:hover { background: var(--bg-color); color: var(--primary); }
-        .action-btn.curved-btn { color: #8b5cf6; border-color: #ddd6fe; background: #f5f3ff; } /* Purple for curve */
+        .action-btn.curved-btn { color: #8b5cf6; border-color: #ddd6fe; background: #f5f3ff; }
 
         /* MODALS */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
@@ -60,8 +61,9 @@
         .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted); }
         .modal-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); box-sizing: border-box; }
         
-        .btn-primary { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        .btn-primary { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 10px; }
         .btn-danger { width: 100%; padding: 10px; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px; }
+        .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
     </style>
 </head>
 <body>
@@ -78,6 +80,9 @@
             <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">Signed in as <strong sec:authentication="name" style="color:var(--text-main)">Student</strong></span>
             <div style="display:flex; gap:10px;">
                 <button class="icon-btn" id="themeBtn" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+                
+                <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
+                
                 <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
             </div>
         </div>
@@ -110,10 +115,8 @@
         <div class="modal-content">
             <div class="modal-header"><h2 class="modal-title">Subject Settings</h2><span class="close-btn" onclick="document.getElementById('subjectModal').style.display='none'">&times;</span></div>
             <input type="hidden" id="editSubId">
-            
             <div class="form-group"><label class="form-label">Subject Name</label><input type="text" class="modal-input" id="editSubName"></div>
             <div class="form-group"><label class="form-label">Subject Code</label><input type="text" class="modal-input" id="editSubCode"></div>
-            
             <div class="form-group" style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:15px;">
                 <label class="form-label">Grading Scale</label>
                 <label style="font-size:13px; display:flex; gap:8px; align-items:center;">
@@ -124,7 +127,6 @@
                     <input type="text" class="modal-input" id="customScaleStr" placeholder="e.g. 93,88,83,78,70,60">
                 </div>
             </div>
-
             <button class="btn-primary" onclick="saveSubjectSettings()">Save Changes</button>
             <button class="btn-danger" onclick="deleteSubject()">Delete Subject</button>
         </div>
@@ -135,7 +137,6 @@
             <div class="modal-header"><h2 class="modal-title">Curve Adjustment</h2><span class="close-btn" onclick="document.getElementById('curveModal').style.display='none'">&times;</span></div>
             <input type="hidden" id="curveSubId">
             <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Since this class is curved, select the final letter grade you received.</p>
-            
             <div class="form-group">
                 <select class="modal-input" id="curveLetter">
                     <option value="A">A (4.0)</option>
@@ -151,8 +152,17 @@
         </div>
     </div>
 
+    <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
+        <div class="modal-content">
+            <div class="modal-header"><h2 class="modal-title">Account Settings</h2><span class="close-btn" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
+            <div class="form-group"><label class="form-label">Profile</label><input type="text" class="modal-input" placeholder="New Username" style="margin-bottom:10px;"><input type="email" class="modal-input" placeholder="New Email"><button class="btn-save" onclick="alert('Profile Update coming soon!')">Update Profile</button></div>
+            <div class="form-group"><label class="form-label">Security</label><input type="password" class="modal-input" placeholder="New Password"><button class="btn-save" onclick="alert('Password Change coming soon!')">Change Password</button></div>
+            <div class="form-group"><label class="form-label" style="color:var(--danger)">Danger Zone</label><button class="btn-danger" style="margin-top:0;" onclick="confirm('Are you sure?')">Delete Account</button></div>
+        </div>
+    </div>
+
 <script>
-    // Theme Logic (Same as others)
+    // Theme Logic
     const themeBtn = document.getElementById('themeBtn');
     if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); themeBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun'); }
     function toggleTheme() {
@@ -161,19 +171,15 @@
         else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun'); }
     }
 
+    // Modal Functions
+    function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; }
+    
     // --- DATA & CALCULATION ---
     window.onload = function() { fetchSubjects(); };
 
     function calculateGrade(score, customScaleStr) {
-        // Defaults: A=93, AB=88, B=83, BC=78, C=70, D=60
         let thresholds = [93, 88, 83, 78, 70, 60];
-        
-        if (customScaleStr && customScaleStr.trim() !== "") {
-            try {
-                thresholds = customScaleStr.split(',').map(Number);
-            } catch(e) { console.error("Bad scale format"); }
-        }
-
+        if (customScaleStr && customScaleStr.trim() !== "") { try { thresholds = customScaleStr.split(',').map(Number); } catch(e) { console.error("Bad scale"); } }
         if (score >= thresholds[0]) return { grade: 'A', point: 4.0, css: 'grade-A' };
         if (score >= thresholds[1]) return { grade: 'AB', point: 3.5, css: 'grade-AB' };
         if (score >= thresholds[2]) return { grade: 'B', point: 3.0, css: 'grade-B' };
@@ -183,11 +189,7 @@
         return { grade: 'F', point: 0.0, css: 'grade-Low' };
     }
 
-    // Helper for Curved Grades
-    function getPointsForLetter(letter) {
-        const map = { 'A':4.0, 'AB':3.5, 'B':3.0, 'BC':2.5, 'C':2.0, 'D':1.0, 'F':0.0 };
-        return map[letter] || 0.0;
-    }
+    function getPointsForLetter(letter) { const map = { 'A':4.0, 'AB':3.5, 'B':3.0, 'BC':2.5, 'C':2.0, 'D':1.0, 'F':0.0 }; return map[letter] || 0.0; }
 
     function fetchSubjects() {
         fetch('/api/subjects/list').then(r => r.json()).then(data => {
@@ -199,34 +201,14 @@
             let totalPoints = 0, totalCredits = 0;
 
             data.forEach(sub => {
-                let gradeInfo;
-                let displayScore;
+                let gradeInfo, displayScore;
+                if (sub.letterGrade) { gradeInfo = { grade: sub.letterGrade, point: getPointsForLetter(sub.letterGrade), css: 'grade-A' }; displayScore = "Curved"; } 
+                else { let score = sub.currentScore || 0; gradeInfo = calculateGrade(score, sub.gradingScale); displayScore = score > 0 ? score + "%" : "-"; }
+                
+                sub.calcGrade = gradeInfo.grade; sub.calcPoint = gradeInfo.point; sub.cssClass = gradeInfo.css; sub.displayScore = displayScore;
+                totalCredits += sub.credits; totalPoints += (gradeInfo.point * sub.credits);
 
-                // 1. Check for Curved Override First
-                if (sub.letterGrade) {
-                    gradeInfo = { 
-                        grade: sub.letterGrade, 
-                        point: getPointsForLetter(sub.letterGrade), 
-                        css: 'grade-A' // simplified css logic
-                    };
-                    displayScore = "Curved";
-                } else {
-                    // 2. Normal Calculation
-                    let score = sub.currentScore || 0; 
-                    gradeInfo = calculateGrade(score, sub.gradingScale);
-                    displayScore = score > 0 ? score + "%" : "-";
-                }
-
-                sub.calcGrade = gradeInfo.grade;
-                sub.calcPoint = gradeInfo.point;
-                sub.cssClass = gradeInfo.css;
-                sub.displayScore = displayScore;
-
-                totalCredits += sub.credits;
-                totalPoints += (gradeInfo.point * sub.credits);
-
-                if (sub.status === 'Completed') completedSubjects.push(sub);
-                else currentSubjects.push(sub);
+                if (sub.status === 'Completed') completedSubjects.push(sub); else currentSubjects.push(sub);
             });
 
             document.getElementById('overall-gpa').innerText = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
@@ -239,24 +221,12 @@
         if (subjects.length === 0) return;
         const grouped = subjects.reduce((acc, sub) => { (acc[sub.calcGrade] = acc[sub.calcGrade] || []).push(sub); return acc; }, {});
         const gradeOrder = ['A', 'AB', 'B', 'BC', 'C', 'D', 'F'];
-
         gradeOrder.forEach(gradeKey => {
             if (grouped[gradeKey]) {
                 tableBody.innerHTML += `<tr class="grade-header-row"><td colspan="7" class="grade-header-cell">Grade: ${gradeKey}</td></tr>`;
                 grouped[gradeKey].forEach(sub => {
-                    // Action Buttons Logic
-                    let actions = `
-                        <button class="action-btn" onclick="openSubjectModal(${sub.subjectId}, '${sub.subjectName}', '${sub.subjectCode}', '${sub.gradingScale || ''}')" title="Settings">
-                            <i class="fa-solid fa-gear"></i>
-                        </button>`;
-                    
-                    if (sub.status === 'Completed') {
-                        actions += `
-                        <button class="action-btn curved-btn" onclick="openCurveModal(${sub.subjectId})" title="Curved?">
-                            <i class="fa-solid fa-chart-line"></i>
-                        </button>`;
-                    }
-
+                    let actions = `<button class="action-btn" onclick="openSubjectModal(${sub.subjectId}, '${sub.subjectName}', '${sub.subjectCode}', '${sub.gradingScale || ''}')" title="Settings"><i class="fa-solid fa-gear"></i></button>`;
+                    if (sub.status === 'Completed') actions += `<button class="action-btn curved-btn" onclick="openCurveModal(${sub.subjectId})" title="Curved?"><i class="fa-solid fa-chart-line"></i></button>`;
                     let row = `<tr>
                         <td><a href="subject-details.html?id=${sub.subjectId}" style="text-decoration:none; color:inherit; font-weight:600;">${sub.subjectName}</a></td>
                         <td>${sub.subjectCode || ''}</td>
@@ -272,53 +242,18 @@
         });
     }
 
-    // --- MODAL FUNCTIONS ---
+    // Modal Operations
     function openSubjectModal(id, name, code, scale) {
-        document.getElementById('editSubId').value = id;
-        document.getElementById('editSubName').value = name;
-        document.getElementById('editSubCode').value = code;
-        document.getElementById('customScaleStr').value = scale;
-        
+        document.getElementById('editSubId').value = id; document.getElementById('editSubName').value = name; document.getElementById('editSubCode').value = code; document.getElementById('customScaleStr').value = scale;
         const useDefault = (!scale || scale === 'null' || scale === '');
-        document.getElementById('useDefaultScale').checked = useDefault;
-        toggleScaleInputs();
-        
+        document.getElementById('useDefaultScale').checked = useDefault; toggleScaleInputs();
         document.getElementById('subjectModal').style.display = 'flex';
     }
-
-    function toggleScaleInputs() {
-        const isDefault = document.getElementById('useDefaultScale').checked;
-        document.getElementById('customScaleInputs').style.display = isDefault ? 'none' : 'block';
-    }
-
-    function saveSubjectSettings() {
-        const id = document.getElementById('editSubId').value;
-        const name = document.getElementById('editSubName').value;
-        const code = document.getElementById('editSubCode').value;
-        const isDefault = document.getElementById('useDefaultScale').checked;
-        const scale = isDefault ? "" : document.getElementById('customScaleStr').value;
-
-        fetch(`/api/subjects/update-settings?id=${id}&name=${name}&code=${code}&gradingScale=${scale}`, { method: 'POST' })
-        .then(r => r.text()).then(() => { location.reload(); });
-    }
-
-    function deleteSubject() {
-        const id = document.getElementById('editSubId').value;
-        if(!confirm("Are you sure?")) return;
-        fetch('/api/subjects/delete?id=' + id, { method: 'DELETE' }).then(() => location.reload());
-    }
-
-    function openCurveModal(id) {
-        document.getElementById('curveSubId').value = id;
-        document.getElementById('curveModal').style.display = 'flex';
-    }
-
-    function saveCurve() {
-        const id = document.getElementById('curveSubId').value;
-        const letter = document.getElementById('curveLetter').value;
-        fetch(`/api/subjects/update-curve?id=${id}&letter=${letter}`, { method: 'POST' })
-        .then(() => location.reload());
-    }
+    function toggleScaleInputs() { const isDefault = document.getElementById('useDefaultScale').checked; document.getElementById('customScaleInputs').style.display = isDefault ? 'none' : 'block'; }
+    function saveSubjectSettings() { const id = document.getElementById('editSubId').value; const name = document.getElementById('editSubName').value; const code = document.getElementById('editSubCode').value; const scale = document.getElementById('useDefaultScale').checked ? "" : document.getElementById('customScaleStr').value; fetch(`/api/subjects/update-settings?id=${id}&name=${name}&code=${code}&gradingScale=${scale}`, { method: 'POST' }).then(() => location.reload()); }
+    function deleteSubject() { const id = document.getElementById('editSubId').value; if(!confirm("Are you sure?")) return; fetch('/api/subjects/delete?id=' + id, { method: 'DELETE' }).then(() => location.reload()); }
+    function openCurveModal(id) { document.getElementById('curveSubId').value = id; document.getElementById('curveModal').style.display = 'flex'; }
+    function saveCurve() { const id = document.getElementById('curveSubId').value; const letter = document.getElementById('curveLetter').value; fetch(`/api/subjects/update-curve?id=${id}&letter=${letter}`, { method: 'POST' }).then(() => location.reload()); }
 </script>
 
 </body>
