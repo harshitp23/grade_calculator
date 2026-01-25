@@ -7,12 +7,23 @@
         body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: white; padding: 40px; border-radius: 10px; width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; }
         h1 { color: #2c3e50; margin-bottom: 20px; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-        button { width: 100%; padding: 12px; background: #2980b9; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px;}
+        
+        .input-group { position: relative; width: 90%; margin: 10px auto; }
+        input[type="text"], input[type="password"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        
+        /* Eye Icon */
+        .toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; background: none; border: none; font-size: 18px; }
+
+        /* Remember Me Checkbox */
+        .remember-me { text-align: left; width: 90%; margin: 10px auto; font-size: 14px; color: #555; display: flex; align-items: center; }
+        .remember-me input { width: auto; margin-right: 8px; }
+
+        button { width: 90%; padding: 12px; background: #2980b9; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px;}
         button:hover { background: #3498db; }
-        .error { color: red; margin-bottom: 10px; display: none; }
+        
         a { display: block; margin-top: 15px; color: #7f8c8d; text-decoration: none; font-size: 14px; }
         a:hover { color: #2c3e50; }
+        .error { color: #e74c3c; margin-bottom: 15px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -20,22 +31,46 @@
 <div class="card">
     <h1>Welcome Back 👋</h1>
     
-    <div id="error-msg" class="error">Invalid username or password</div>
+    <div th:if="${param.error}" class="error">
+        Invalid username or password.
+    </div>
+    <div th:if="${param.logout}" class="error" style="color: green;">
+        You have been logged out.
+    </div>
 
     <form action="/login" method="post">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
+        <div class="input-group">
+            <input type="text" name="username" placeholder="Username" required>
+        </div>
+
+        <div class="input-group">
+            <input type="password" id="password" name="password" placeholder="Password" required>
+            <span class="toggle-password" onclick="togglePassword()">👁️</span>
+        </div>
+
+        <div class="remember-me">
+            <label>
+                <input type="checkbox" name="remember-me"> Remember me
+            </label>
+        </div>
+
         <button type="submit">Login</button>
     </form>
-    
+
     <a href="register.html">Need an account? Sign Up</a>
 </div>
 
 <script>
-    // Check URL for ?error parameter (Spring adds this if login fails)
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('error')) {
-        document.getElementById('error-msg').style.display = 'block';
+    function togglePassword() {
+        const passwordInput = document.getElementById("password");
+        const icon = document.querySelector(".toggle-password");
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.innerText = "🙈";
+        } else {
+            passwordInput.type = "password";
+            icon.innerText = "👁️";
+        }
     }
 </script>
 
