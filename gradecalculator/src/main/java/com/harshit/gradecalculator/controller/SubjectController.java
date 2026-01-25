@@ -40,8 +40,8 @@ public class SubjectController {
         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
 
         Subject s = new Subject();
-        s.setSubjectName(name);
-        s.setSubjectCode(code);
+        s.setSubjectName(name); // e.g. "PHYSICS"
+        s.setSubjectCode(code); // e.g. "101"
         s.setCredits(credits);
         s.setStatus(status);
         s.setUser(user);
