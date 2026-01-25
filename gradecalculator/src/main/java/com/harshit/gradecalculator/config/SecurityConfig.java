@@ -24,9 +24,11 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable()) 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/index.html", "/login.html", "/register.html", "/css/**", "/js/**", "/error").permitAll()
-                .requestMatchers("/api/**").permitAll()
-                .anyRequest().authenticated()
+                // 1. PUBLIC PAGES: Only Login, Register, and Static files are public
+                .requestMatchers("/login.html", "/register.html", "/api/auth/**", "/css/**", "/js/**", "/error").permitAll()
+                
+                // 2. PROTECTED PAGES: Dashboard ("/") and Subject APIs require login
+                .anyRequest().authenticated() 
             )
             .formLogin(form -> form
                 .loginPage("/login.html")
@@ -40,11 +42,12 @@ public class SecurityConfig {
                 .permitAll()
             )
             .rememberMe(remember -> remember
-                .key("uniqueAndSecret") // A secret key to sign the cookie
-                .tokenValiditySeconds(86400) // Remember for 1 day (seconds)
+                .key("uniqueAndSecret")
+                .tokenValiditySeconds(86400)
             );
 
         return http.build();
     }
 }
+
 
