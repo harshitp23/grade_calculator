@@ -37,7 +37,7 @@
 
     <div class="container">
         <div class="card">
-            <h1>Welcome, <span th:text="${#authentication.name}">Student</span>! 👋</h1>
+            <h1>Welcome, <span th:text="${#request.userPrincipal.name}">Student</span>! 👋</h1>
             <p class="subtitle">Your academic success starts here.</p>
             
             <div style="margin-top: 20px;">
@@ -48,4 +48,5 @@
     </div>
 
 </body>
+
 </html>
