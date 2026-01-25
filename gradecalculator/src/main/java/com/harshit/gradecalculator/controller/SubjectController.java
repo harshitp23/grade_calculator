@@ -56,4 +56,14 @@ public class SubjectController {
         subjectRepository.deleteById(id);
         return "Subject Deleted!";
     }
+
+    // 4. UPDATE Subject Score
+    @PostMapping("/update-score")
+    public String updateScore(@RequestParam Integer id, @RequestParam Double score) {
+        Subject s = subjectRepository.findById(id).orElseThrow();
+        s.setCurrentScore(score);
+        subjectRepository.save(s);
+        return "Score Updated!";
+    }
 }
+
