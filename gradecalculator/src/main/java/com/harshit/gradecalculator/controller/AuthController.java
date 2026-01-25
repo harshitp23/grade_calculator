@@ -5,6 +5,8 @@ import com.harshit.gradecalculator.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest; 
+import jakarta.servlet.ServletException;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,9 +22,10 @@ public class AuthController {
     @PostMapping("/register")
     public String registerUser(@RequestParam String username, 
                                @RequestParam String email, 
-                               @RequestParam String password) {
+                               @RequestParam String password,
+                               HttpServletRequest request) { // 👈 1. Add Request
         
-        // 1. Check if user already exists
+        // 1. Check if user exists
         if (userRepository.existsByEmail(email)) {
             return "Error: Email already in use!";
         }
@@ -31,14 +34,20 @@ public class AuthController {
         User newUser = new User();
         newUser.setUsername(username);
         newUser.setEmail(email);
-        
-        // 3. HASH the password (Security Best Practice)
         String hashedPwd = passwordEncoder.encode(password);
         newUser.setPasswordHash(hashedPwd);
 
-        // 4. Save
+        // 3. Save
         userRepository.save(newUser);
+
+        // 4. 👇 AUTO-LOGIN MAGIC 👇
+        try {
+            request.login(username, password); // Logs the user in immediately
+        } catch (ServletException e) {
+            return "Success (But Auto-Login failed. Please login manually)";
+        }
 
         return "Success";
     }
+
 }
