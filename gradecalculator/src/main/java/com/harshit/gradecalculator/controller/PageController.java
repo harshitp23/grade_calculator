@@ -35,4 +35,10 @@ public class PageController {
     public String subjectDetails() {
         return "subject-details";
     }
+
+    // 5. 👇 THIS IS THE NEW PART 👇
+    @GetMapping("/subject-details.html")
+    public String subjectDetails() {
+        return "subject-details";
+    }
 }
