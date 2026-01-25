@@ -27,44 +27,48 @@
 
 <script>
     function register() {
-        // 1. Get values
+        // 1. Get values from the inputs
         let u = document.getElementById("username").value;
         let e = document.getElementById("email").value;
         let p = document.getElementById("password").value;
         
-        // 2. Disable button so user doesn't click twice
+        // 2. Lock the button to prevent double-clicks
         const btn = document.querySelector("button");
         btn.innerText = "Creating...";
         btn.disabled = true;
 
-        // 3. Send as JSON (Better than query params!)
+        // 3. FIX: Create "Form Data" object (This fixes the 'Missing Parameter' error!)
+        const formData = new URLSearchParams();
+        formData.append("username", u);
+        formData.append("email", e);
+        formData.append("password", p);
+
+        // 4. Send to Backend
         fetch('/api/auth/register', { 
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/x-www-form-urlencoded' // <--- Crucial match for your Java backend
             },
-            body: JSON.stringify({ username: u, email: e, password: p }) 
+            body: formData 
         })
         .then(async response => {
             const text = await response.text();
             
-            // 4. Check if the server actually said "OK"
+            // Check for success
             if (response.ok && (text === "Success" || text.includes("success"))) {
-                alert("✅ Account Created! Redirecting...");
+                alert("✅ Account Created! Redirecting to Login...");
                 window.location.href = "login.html";
             } else {
-                // If server failed, show the error!
-                alert("❌ Server Error: " + text);
-                console.error("Server Error:", text);
+                // Show the specific error from the server
+                alert("❌ Error: " + text);
             }
         })
         .catch(err => {
-            // 5. Catch network crashes
-            alert("❌ Connection Failed! Check console for details.");
-            console.error("Network Error:", err);
+            console.error(err);
+            alert("❌ Connection Failed! Check your internet or server status.");
         })
         .finally(() => {
-            // Re-enable button
+            // Unlock the button
             btn.innerText = "Create Account";
             btn.disabled = false;
         });
@@ -72,5 +76,4 @@
 </script>
 
 </body>
-
 </html>
