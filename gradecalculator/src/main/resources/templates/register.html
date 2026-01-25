@@ -84,13 +84,19 @@
             method: 'POST',
             body: formData
         })
-        .then(response => response.text()) // Read the "Success" or "Error" message
+        .then(response => response.text())
         .then(message => {
+            // 1. Perfect Success (Account created + Logged in)
             if (message === "Success") {
-                // ✅ SUCCESS: Redirect strictly to Dashboard
                 window.location.href = "/index.html";
-            } else {
-                // ❌ ERROR: Show alert (e.g., "Email already in use")
+            } 
+            // 2. Partial Success (Account created, but Auto-login failed)
+            else if (message === "Success-NoLogin") {
+                alert("Account created successfully! Please login.");
+                window.location.href = "/login.html";
+            }
+            // 3. Error (Username taken, Email taken, etc.)
+            else {
                 alert(message);
             }
         })
@@ -103,3 +109,4 @@
 
 </body>
 </html>
+
