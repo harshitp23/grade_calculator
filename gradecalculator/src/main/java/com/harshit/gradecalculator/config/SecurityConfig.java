@@ -20,8 +20,8 @@ public class SecurityConfig {
     http
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/", "/index.html", "/login.html", "/register.html", "/css/**", "/js/**").permitAll()
-            .requestMatchers("/api/auth/**").permitAll()
+            .requestMatchers("/", "/index.html", "/login.html", "/register.html", "/error", "/css/**", "/js/**").permitAll() // <--- Added "/error"
+            .requestMatchers("/api/**").permitAll() 
             .anyRequest().authenticated()
         )
         .formLogin(form -> form
@@ -40,4 +40,5 @@ public class SecurityConfig {
     }
 
 }
+
 
