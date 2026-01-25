@@ -38,8 +38,13 @@ public class SecurityConfig {
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login.html?logout")
                 .permitAll()
+            )
+            .rememberMe(remember -> remember
+                .key("uniqueAndSecret") // A secret key to sign the cookie
+                .tokenValiditySeconds(86400) // Remember for 1 day (seconds)
             );
 
         return http.build();
     }
 }
+
