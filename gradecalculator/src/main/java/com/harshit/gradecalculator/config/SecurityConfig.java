@@ -18,25 +18,26 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
-        // 1. Disable CSRF (Common cause of "403" on POST requests)
-        .csrf(csrf -> csrf.disable()) 
-        
-        // 2. Allow access to static files and the Registration API
+        .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/", "/index.html", "/login.html", "/register.html", "/css/**", "/js/**").permitAll()
-            .requestMatchers("/api/auth/**").permitAll()  // <--- CRITICAL LINE: Allows Registering!
+            .requestMatchers("/api/auth/**").permitAll()
             .anyRequest().authenticated()
         )
-        
-        // 3. Configure Login
         .formLogin(form -> form
             .loginPage("/login.html")
             .defaultSuccessUrl("/index.html", true)
             .permitAll()
         )
+        // 👇 ADD THIS BLOCK 👇
+        .rememberMe(remember -> remember
+            .key("superSecretKey")
+            .tokenValiditySeconds(7 * 24 * 60 * 60) // 7 days
+        )
         .logout(logout -> logout.permitAll());
 
-    return http.build();
-}
+        return http.build();
+    }
 
 }
+
