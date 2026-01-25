@@ -1,12 +1,13 @@
 package com.harshit.gradecalculator.repository;
 
 import com.harshit.gradecalculator.model.Subject;
+import com.harshit.gradecalculator.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import java.util.List;
+import java.util.List; // <--- Don't forget this import!
 
 public interface SubjectRepository extends JpaRepository<Subject, Integer> {
+    
+    // 👇 ADD THIS LINE 👇
+    List<Subject> findByUser(User user);
 
-    // Fetch all subjects for a specific user
-    // SQL: "SELECT * FROM Subjects WHERE user_id = ?"
-    List<Subject> findByUser_UserId(Integer userId);
 }
