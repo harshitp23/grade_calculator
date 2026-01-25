@@ -3,11 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <title>Login - Grade Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: white; padding: 40px; border-radius: 10px; width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; }
         h1 { color: #2c3e50; margin-bottom: 20px; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        
+        /* Input Styling */
+        input[type="text"], input[type="password"] { 
+            width: 100%; /* Changed to 100% of parent container */
+            padding: 12px; 
+            margin: 10px 0; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            box-sizing: border-box; /* Ensures padding doesn't break width */
+        }
+
+        /* Password Container for the Eye Icon */
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
+        
+        /* The Eye Icon Styling */
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%); /* Vertically center */
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        /* Remember Me Styling */
+        .remember-me-container {
+            text-align: left;
+            margin: 5px 0 15px 0;
+            font-size: 14px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+        }
+        .remember-me-container input {
+            width: auto;
+            margin-right: 8px;
+        }
+
         button { width: 100%; padding: 12px; background: #2980b9; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px;}
         button:hover { background: #3498db; }
         .error { color: red; margin-bottom: 10px; display: none; }
@@ -24,7 +65,17 @@
 
     <form action="/login" method="post">
         <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
+        
+        <div class="password-container">
+            <input type="password" id="password" name="password" placeholder="Password" required style="padding-right: 40px;">
+            <i class="fa fa-eye toggle-password" id="togglePassword"></i>
+        </div>
+
+        <div class="remember-me-container">
+            <input type="checkbox" id="remember-me" name="remember-me">
+            <label for="remember-me">Remember Me</label>
+        </div>
+
         <button type="submit">Login</button>
     </form>
     
@@ -32,10 +83,27 @@
 </div>
 
 <script>
-    // Check URL for ?error parameter (Spring adds this if login fails)
+    // 4. Toggle Password Visibility Logic
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#password');
+
+    togglePassword.addEventListener('click', function (e) {
+        // Toggle the type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        
+        // Toggle the eye / eye-slash icon
+        this.classList.toggle('fa-eye-slash');
+    });
+
+    // Existing Error Handling
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('error')) {
         document.getElementById('error-msg').style.display = 'block';
+    }
+    // Handle logout message
+    if (urlParams.has('logout')) {
+        // Optional: You could show a "Logged out successfully" message here
     }
 </script>
 
