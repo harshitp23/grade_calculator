@@ -22,8 +22,12 @@
 
         /* 👇 DARK MODE OVERRIDE 👇 */
         [data-theme="dark"] {
-            --bg-color: #111827; 
-            /* White cards on dark background, as requested! */
+            --bg-color: #0f172a; /* Richer Dark Navy */
+        }
+
+        /* ✅ FIX: When in Dark Mode, turn the Page Title white */
+        [data-theme="dark"] .page-title {
+            color: #f3f4f6;
         }
 
         body {
@@ -31,10 +35,10 @@
             background-color: var(--bg-color);
             margin: 0;
             color: var(--text-main);
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* ... (Navbar, Card, and Table Styles preserved) ... */
+        /* Navbar */
         .navbar { background-color: var(--card-bg); border-bottom: 1px solid var(--border-color); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-weight: 800; font-size: 20px; color: var(--primary); letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
         .user-menu { display: flex; align-items: center; gap: 20px; }
@@ -42,33 +46,33 @@
         .btn-logout { background: #fee2e2; color: #991b1b; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 13px; }
         .btn-logout:hover { background: #fecaca; }
 
-        /* THEME ICON IN NAVBAR */
-        .theme-icon-nav {
-            cursor: pointer;
-            color: var(--text-muted);
-            font-size: 18px;
-            padding: 5px;
-            transition: color 0.2s;
-        }
+        /* Theme Icon */
+        .theme-icon-nav { cursor: pointer; color: var(--text-muted); font-size: 18px; padding: 5px; transition: color 0.2s; }
         .theme-icon-nav:hover { color: var(--primary); }
 
+        /* Layout */
         .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
         .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .page-title { font-size: 24px; font-weight: 700; color: var(--text-main); }
+        .page-title { font-size: 24px; font-weight: 700; color: var(--text-main); transition: color 0.3s ease; }
 
+        /* Cards */
         .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); overflow: hidden; border: 1px solid var(--border-color); }
+        
+        /* Table */
         table { width: 100%; border-collapse: collapse; }
         thead { background-color: #f9fafb; border-bottom: 1px solid var(--border-color); }
         th { text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; }
         td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover { background-color: #f9fafb; transition: 0.2s; }
+        
         .subject-link { color: var(--text-main); font-weight: 600; text-decoration: none; transition: 0.2s; }
         .subject-link:hover { color: var(--primary); }
         .badge { padding: 4px 10px; border-radius: 99px; font-size: 12px; font-weight: 600; background-color: #d1fae5; color: #065f46; }
         .btn-delete { background: none; border: none; color: #9ca3af; cursor: pointer; transition: 0.2s; font-size: 14px; padding: 5px; }
         .btn-delete:hover { color: var(--danger); }
 
+        /* Forms */
         .add-section { margin-top: 30px; background: var(--card-bg); padding: 24px; border-radius: 12px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); border: 1px solid var(--border-color); display: flex; gap: 15px; align-items: center; }
         .input-group { flex: 1; }
         input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; transition: 0.2s; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -90,9 +94,7 @@
                 <span style="color:var(--text-muted); font-weight:400;">Signed in as</span> 
                 <span sec:authentication="name">Student</span>
             </span>
-
             <i class="fa-solid fa-moon theme-icon-nav" onclick="toggleTheme()" id="themeIcon"></i>
-            
             <form action="/logout" method="post" style="margin:0;">
                 <button type="submit" class="btn-logout">Sign Out</button>
             </form>
@@ -146,7 +148,7 @@
         }
     }
 
-    // 2. Fetch/Add/Delete Logic (Preserved)
+    // 2. Fetch/Add/Delete Logic
     window.onload = function() { fetchSubjects(); };
     function fetchSubjects() {
         fetch('/api/subjects/list').then(r => r.json()).then(data => {
