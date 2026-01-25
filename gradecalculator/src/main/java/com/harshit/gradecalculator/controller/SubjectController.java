@@ -63,4 +63,30 @@ public class SubjectController {
         subjectRepository.save(s);
         return "Score Updated!";
     }
+
+    // 5. UPDATE Settings (Name, Code, Scale)
+    @PostMapping("/update-settings")
+    public String updateSettings(
+            @RequestParam Integer id,
+            @RequestParam String name,
+            @RequestParam String code,
+            @RequestParam(required = false) String gradingScale) { // Optional
+            
+        Subject s = subjectRepository.findById(id).orElseThrow();
+        s.setSubjectName(name);
+        s.setSubjectCode(code);
+        s.setGradingScale(gradingScale); // Save the custom scale string
+        subjectRepository.save(s);
+        return "Settings Updated!";
+    }
+
+    // 6. UPDATE Curved Grade
+    @PostMapping("/update-curve")
+    public String updateCurve(@RequestParam Integer id, @RequestParam String letter) {
+        Subject s = subjectRepository.findById(id).orElseThrow();
+        s.setLetterGrade(letter); // Force this letter grade
+        subjectRepository.save(s);
+        return "Curve Updated!";
+    }
 }
+
