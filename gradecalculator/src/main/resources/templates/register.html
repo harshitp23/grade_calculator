@@ -35,15 +35,15 @@
         fetch(`/api/auth/register?username=${u}&email=${e}&password=${p}`, { method: 'POST' })
             .then(res => res.text())
             .then(msg => {
-                if(msg === "Success") {
-                    alert("Account Created! Redirecting to login...");
-                    window.location.href = "login.html";
+                if (message === "Success") {
+                    window.location.href = "/index.html"; 
                 } else {
-                    alert(msg);
+                    alert(message);
                 }
             });
     }
 </script>
 
 </body>
+
 </html>
