@@ -7,9 +7,16 @@
         body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: white; padding: 40px; border-radius: 10px; width: 350px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; }
         h1 { color: #2c3e50; margin-bottom: 20px; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-        button { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px;}
-        button:hover { background: #2ecc71; }
+        
+        /* Input Wrapper for the Eye Icon */
+        .input-group { position: relative; width: 90%; margin: 10px auto; }
+        input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        
+        /* The Eye Button */
+        .toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; background: none; border: none; font-size: 18px; }
+
+        button.btn-primary { width: 90%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px;}
+        button.btn-primary:hover { background: #2ecc71; }
         a { display: block; margin-top: 15px; color: #7f8c8d; text-decoration: none; font-size: 14px; }
         a:hover { color: #2c3e50; }
     </style>
@@ -18,60 +25,98 @@
 
 <div class="card">
     <h1>Sign Up 📝</h1>
-    <input type="text" id="username" placeholder="Username">
-    <input type="email" id="email" placeholder="Email Address">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="register()">Create Account</button>
+    
+    <div class="input-group">
+        <input type="text" id="username" placeholder="Username">
+    </div>
+    
+    <div class="input-group">
+        <input type="email" id="email" placeholder="Email Address">
+    </div>
+
+    <div class="input-group">
+        <input type="password" id="password" placeholder="Password">
+        <span class="toggle-password" onclick="togglePassword()">👁️</span>
+    </div>
+
+    <button class="btn-primary" onclick="register()">Create Account</button>
     <a href="login.html">Already have an account? Login</a>
 </div>
 
 <script>
+    // 1. Logic for the Eye Icon
+    function togglePassword() {
+        const passwordInput = document.getElementById("password");
+        const icon = document.querySelector(".toggle-password");
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.innerText = "🙈"; // Change icon to 'closed eye'
+        } else {
+            passwordInput.type = "password";
+            icon.innerText = "👁️"; // Change icon to 'open eye'
+        }
+    }
+
+    // 2. Register Logic
     function register() {
-        // 1. Get values from the inputs
         let u = document.getElementById("username").value;
         let e = document.getElementById("email").value;
         let p = document.getElementById("password").value;
         
-        // 2. Lock the button to prevent double-clicks
         const btn = document.querySelector("button");
         btn.innerText = "Creating...";
         btn.disabled = true;
 
-        // 3. FIX: Create "Form Data" object (This fixes the 'Missing Parameter' error!)
         const formData = new URLSearchParams();
         formData.append("username", u);
         formData.append("email", e);
         formData.append("password", p);
 
-        // 4. Send to Backend
         fetch('/api/auth/register', { 
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded' // <--- Crucial match for your Java backend
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: formData 
         })
         .then(async response => {
             const text = await response.text();
-            
-            // Check for success
             if (response.ok && (text === "Success" || text.includes("success"))) {
-                alert("✅ Account Created! Redirecting to Login...");
-                window.location.href = "login.html";
+                // ✅ AUTO-LOGIN TRICK
+                // Instead of redirecting to login.html, we submit a hidden form to /login
+                autoLogin(u, p);
             } else {
-                // Show the specific error from the server
                 alert("❌ Error: " + text);
+                btn.innerText = "Create Account";
+                btn.disabled = false;
             }
         })
         .catch(err => {
             console.error(err);
-            alert("❌ Connection Failed! Check your internet or server status.");
-        })
-        .finally(() => {
-            // Unlock the button
+            alert("❌ Connection Failed!");
             btn.innerText = "Create Account";
             btn.disabled = false;
         });
+    }
+
+    function autoLogin(username, password) {
+        // Create a hidden form and submit it to the login endpoint
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/login';
+
+        const uField = document.createElement('input');
+        uField.type = 'hidden';
+        uField.name = 'username';
+        uField.value = username;
+        form.appendChild(uField);
+
+        const pField = document.createElement('input');
+        pField.type = 'hidden';
+        pField.name = 'password';
+        pField.value = password;
+        form.appendChild(pField);
+
+        document.body.appendChild(form);
+        form.submit(); // This logs them in and sends them to the dashboard!
     }
 </script>
 
