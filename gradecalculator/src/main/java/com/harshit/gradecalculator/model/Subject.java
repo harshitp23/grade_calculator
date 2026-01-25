@@ -40,6 +40,10 @@ public class Subject {
     @Column(name = "current_grade")
     private String currentGrade;
 
+    private String gradingScale;
+
+    private String letterGrade;
+
     // --- Getters and Setters ---
 
     public Integer getSubjectId() { return subjectId; }
@@ -74,4 +78,10 @@ public class Subject {
 
     public java.util.List<Component> getComponents() { return components; }
     public void setComponents(java.util.List<Component> components) { this.components = components; }
+
+    public String getGradingScale() { return gradingScale; }
+    public void setGradingScale(String gradingScale) { this.gradingScale = gradingScale; }
+    public String getLetterGrade() { return letterGrade; }
+    public void setLetterGrade(String letterGrade) { this.letterGrade = letterGrade; }
+
 }
