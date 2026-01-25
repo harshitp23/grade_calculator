@@ -51,8 +51,9 @@ public class SubjectController {
 
     // 3. DELETE a Subject
     @DeleteMapping("/delete")
-    public String deleteSubject(@RequestParam Long id) {
+    public String deleteSubject(@RequestParam Integer id) {
         subjectRepository.deleteById(id);
         return "Subject Deleted!";
     }
 }
+
