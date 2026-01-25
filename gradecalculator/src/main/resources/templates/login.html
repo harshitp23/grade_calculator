@@ -9,144 +9,77 @@
     
     <style>
         :root {
-            --primary: #4f46e5; /* Indigo */
+            --primary: #4f46e5;
             --primary-hover: #4338ca;
-            --bg-color: #f3f4f6;
+            --bg-color: #f3f4f6; /* Light Mode Background */
             --card-bg: #ffffff;
             --text-main: #111827;
             --text-muted: #6b7280;
             --border-color: #d1d5db;
         }
 
+        /* 👇 DARK MODE OVERRIDE 👇 */
+        [data-theme="dark"] {
+            --bg-color: #111827; /* Dark Navy/Black Background */
+            /* We keep --card-bg white as you requested! */
+        }
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
+            background-color: var(--bg-color); /* This changes dynamically now */
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
             color: var(--text-main);
+            transition: background-color 0.3s ease; /* Smooth fade effect */
         }
 
-        .card {
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 16px;
-            width: 360px; /* Slightly wider for modern look */
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
+        /* ... (Keep Card, Input, Button styles exactly the same) ... */
+        .card { background: var(--card-bg); padding: 40px; border-radius: 16px; width: 360px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); text-align: center; }
+        h1 { color: var(--text-main); margin-bottom: 8px; font-weight: 700; font-size: 24px; }
+        .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
+        input { width: 100%; padding: 12px 16px; margin: 8px 0; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .password-container { position: relative; width: 100%; margin-bottom: 10px; }
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); font-size: 14px; }
+        .remember-me-container { text-align: left; margin: 10px 0 20px 0; font-size: 14px; color: var(--text-main); display: flex; align-items: center; }
+        .remember-me-container input { width: 16px; height: 16px; margin-right: 8px; accent-color: var(--primary); cursor: pointer; }
+        button { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: background-color 0.2s; }
+        button:hover { background-color: var(--primary-hover); }
+        .error { background-color: #fef2f2; color: #991b1b; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 20px; display: none; border: 1px solid #fecaca; }
+        a { display: block; margin-top: 20px; color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+        a:hover { color: var(--primary); }
 
-        h1 {
-            color: var(--text-main);
-            margin-bottom: 8px;
-            font-weight: 700;
-            font-size: 24px;
-        }
-        
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-bottom: 30px;
-        }
-
-        /* Input Styling */
-        input[type="text"], input[type="password"] { 
-            width: 100%; 
-            padding: 12px 16px; 
-            margin: 8px 0; 
-            border: 1px solid var(--border-color); 
-            border-radius: 8px; 
-            box-sizing: border-box; 
-            font-size: 14px;
-            outline: none;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-        }
-
-        input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        /* Password Container */
-        .password-container {
-            position: relative;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        
-        /* Eye Icon */
-        .toggle-password {
+        /* 👇 THEME SWITCH BUTTON STYLE 👇 */
+        .theme-toggle {
             position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 50%;
             cursor: pointer;
-            color: var(--text-muted);
-            font-size: 14px;
-        }
-        .toggle-password:hover { color: var(--text-main); }
-
-        /* Remember Me */
-        .remember-me-container {
-            text-align: left;
-            margin: 10px 0 20px 0;
-            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             color: var(--text-main);
+            font-size: 18px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
         }
-        .remember-me-container input {
-            width: 16px;
-            height: 16px;
-            margin-right: 8px;
-            accent-color: var(--primary);
-            cursor: pointer;
-        }
-        .remember-me-container label { cursor: pointer; }
-
-        /* Buttons */
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
-        button:hover { background-color: var(--primary-hover); }
-
-        /* Error Message */
-        .error {
-            background-color: #fef2f2;
-            color: #991b1b;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 13px;
-            margin-bottom: 20px;
-            display: none;
-            border: 1px solid #fecaca;
-        }
-
-        /* Links */
-        a {
-            display: block;
-            margin-top: 20px;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 14px;
-            transition: color 0.2s;
-        }
-        a:hover { color: var(--primary); }
+        .theme-toggle:hover { transform: scale(1.1); }
     </style>
 </head>
 <body>
+
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
+        <i class="fa-solid fa-moon"></i>
+    </button>
 
 <div class="card">
     <h1>Welcome Back 👋</h1>
@@ -174,17 +107,39 @@
 </div>
 
 <script>
-    // Toggle Password Visibility
+    // 1. Theme Logic (Copy this to all pages)
+    const themeBtn = document.getElementById('themeBtn');
+    const icon = themeBtn.querySelector('i');
+
+    // Check saved theme on load
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        icon.classList.replace('fa-moon', 'fa-sun');
+    }
+
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+            icon.classList.replace('fa-sun', 'fa-moon');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+            icon.classList.replace('fa-moon', 'fa-sun');
+        }
+    }
+
+    // 2. Existing Password Logic
     const togglePassword = document.querySelector('#togglePassword');
     const password = document.querySelector('#password');
-
     togglePassword.addEventListener('click', function (e) {
         const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
         password.setAttribute('type', type);
         this.classList.toggle('fa-eye-slash');
     });
 
-    // Error Handling
+    // 3. Error Logic
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('error')) {
         document.getElementById('error-msg').style.display = 'block';
