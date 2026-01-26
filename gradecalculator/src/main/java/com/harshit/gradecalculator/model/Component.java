@@ -37,4 +37,13 @@ public class Component {
     
     public Subject getSubject() { return subject; }
     public void setSubject(Subject subject) { this.subject = subject; }
+
+    public Double getPointsScored() {
+        return this.score;
+    }
+
+    public Double getWeightage() {
+        return this.weight;
+    }
 }
+
