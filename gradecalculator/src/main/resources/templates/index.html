@@ -66,38 +66,39 @@
         .btn-danger { width: 100%; padding: 10px; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px; }
         .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
 
-        /* --- MOBILE ELEMENTS (Hidden on Desktop) --- */
+        /* --- MOBILE STYLES --- */
         .mobile-nav { display: none; }
         .mobile-overlay { display: none; }
         .mobile-close-sidebar { display: none; }
 
-        /* --- MEDIA QUERIES (Phone Mode) --- */
         @media (max-width: 768px) {
             body { flex-direction: column; }
             
-            /* 1. Show Mobile Nav */
+            /* Top Navigation Bar */
             .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
             
-            /* 2. Hide Sidebar by default & Style as Drawer */
+            /* Sidebar Drawer Logic */
             .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.1); z-index: 999; }
             .sidebar.active { transform: translateX(0); }
-            
-            /* 3. Mobile Close Button inside Sidebar */
             .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
 
-            /* 4. Content Adjustments */
+            /* Content Adjustments */
             .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
             .header-row { flex-direction: column; align-items: flex-start; gap: 15px; }
             .gpa-card { width: 100%; box-sizing: border-box; }
             
-            /* 5. Make Tables Scrollable */
+            /* Table Scrolling & Button Fixes */
             .card { overflow-x: auto; }
-            table { min-width: 600px; } /* Ensures table doesn't squish */
+            table { min-width: 650px; } /* Ensures buttons don't squash */
+            td { white-space: nowrap; } /* Prevents wrapping in cells */
+            
+            /* Larger Action Buttons for Touch */
+            .action-btn { padding: 8px 12px; margin-left: 8px; font-size: 16px; }
 
-            /* 6. Modal Fixes */
+            /* Modal Fixes */
             .modal-content { width: 85%; max-height: 90vh; overflow-y: auto; }
 
-            /* 7. Overlay when sidebar is open */
+            /* Overlay */
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
             .mobile-overlay.active { display: block; }
         }
@@ -106,20 +107,26 @@
 <body>
 
     <div class="mobile-nav">
-        <div class="logo" style="margin:0;"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
-        <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
+        <div style="display:flex; align-items:center; gap:15px;">
+            <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
+            <div class="logo" style="margin:0; font-size:18px;"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        </div>
+        <div style="display:flex; gap:15px;">
+            <button class="icon-btn" id="themeBtnMobile" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+            <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
+            <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+        </div>
     </div>
 
     <div class="mobile-overlay" onclick="toggleSidebar()"></div>
 
     <aside class="sidebar">
         <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
-
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
             <a href="index.html" class="nav-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
             <a href="add-subject.html" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
-            <a href="#" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+            <a href="target-grade.html" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
         </nav>
         <div class="spacer"></div>
         <div class="user-profile">
@@ -197,16 +204,36 @@
     </div>
 
 <script>
+    // Theme Logic
     const themeBtn = document.getElementById('themeBtn');
-    if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); themeBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun'); }
-    function toggleTheme() { const isDark = document.documentElement.getAttribute('data-theme') === 'dark'; if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeBtn.querySelector('i').classList.replace('fa-sun', 'fa-moon'); } else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun'); } }
-    function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; }
+    const themeBtnMobile = document.getElementById('themeBtnMobile');
     
-    // --- MOBILE SIDEBAR TOGGLE ---
-    function toggleSidebar() {
-        document.querySelector('.sidebar').classList.toggle('active');
-        document.querySelector('.mobile-overlay').classList.toggle('active');
+    function updateIcons(isDark) {
+        const iconClass = isDark ? 'fa-sun' : 'fa-moon';
+        themeBtn.querySelector('i').className = `fa-solid ${iconClass}`;
+        if(themeBtnMobile) themeBtnMobile.querySelector('i').className = `fa-solid ${iconClass}`;
     }
+
+    if (localStorage.getItem('theme') === 'dark') { 
+        document.documentElement.setAttribute('data-theme', 'dark'); 
+        updateIcons(true);
+    }
+
+    function toggleTheme() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (isDark) { 
+            document.documentElement.removeAttribute('data-theme'); 
+            localStorage.setItem('theme', 'light'); 
+            updateIcons(false);
+        } else { 
+            document.documentElement.setAttribute('data-theme', 'dark'); 
+            localStorage.setItem('theme', 'dark'); 
+            updateIcons(true);
+        }
+    }
+
+    function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; }
+    function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
 
     window.onload = function() { fetchSubjects(); };
 
