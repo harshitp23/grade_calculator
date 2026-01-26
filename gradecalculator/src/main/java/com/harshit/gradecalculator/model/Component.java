@@ -19,7 +19,8 @@ public class Component {
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
-    // Getters and Setters
+    // --- 👇 THESE ARE CRITICAL FOR THE FRONTEND 👇 ---
+
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     
@@ -37,13 +38,4 @@ public class Component {
     
     public Subject getSubject() { return subject; }
     public void setSubject(Subject subject) { this.subject = subject; }
-
-    public Double getPointsScored() {
-        return this.score;
-    }
-
-    public Double getWeightage() {
-        return this.weight;
-    }
 }
-
