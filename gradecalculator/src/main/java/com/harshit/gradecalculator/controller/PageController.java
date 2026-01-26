@@ -30,4 +30,9 @@ public class PageController {
     public String subjectDetails() {
         return "subject-details";
     }
+
+    @GetMapping("/target-grade.html")
+    public String targetGrade() {
+        return "target-grade";
+    }
 }
