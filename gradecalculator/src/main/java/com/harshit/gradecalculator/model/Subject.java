@@ -1,56 +1,45 @@
 package com.harshit.gradecalculator.model;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal; 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.math.BigDecimal; // Import for Score
 
 @Entity
-@Table(name = "Subjects")
+@Table(name = "subjects")
 public class Subject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "subject_id")
-    private Integer subjectId;
+    private Integer id; // Changed from subjectId to id for consistency
 
-    // Link to the User who owns this subject
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore
-    private User user;
-
-    @Column(name = "subject_name", nullable = false)
+    @Column(nullable = false)
     private String subjectName;
 
-    @Column(name = "subject_code")
+    @Column(nullable = false)
     private String subjectCode;
 
-    @Column(nullable = false)
-    private Integer credits = 3;
+    private int credits;
+    private String status;
 
-    @Column(nullable = false)
-    private String status = "Current";
-
-    @Column(name = "grading_mode", nullable = false)
-    private String gradingMode = "WEIGHTED";
-
-    @Column(name = "current_score")
+    // Score can be null initially, use BigDecimal for precision
     private BigDecimal currentScore;
 
-    @Column(name = "current_grade")
-    private String currentGrade;
-
+    // Custom Settings
     private String gradingScale;
-
     private String letterGrade;
 
-    // --- Getters and Setters ---
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    public Integer getSubjectId() { return subjectId; }
-    public void setSubjectId(Integer subjectId) { this.subjectId = subjectId; }
+    // --- 👇 GETTERS AND SETTERS 👇 ---
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    // Note: The frontend expects 'subjectId' sometimes, we map 'id' to it.
+    public Integer getSubjectId() { return id; } 
+    public void setSubjectId(Integer id) { this.id = id; }
+    
+    // Standard Getters
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
     public String getSubjectName() { return subjectName; }
     public void setSubjectName(String subjectName) { this.subjectName = subjectName; }
@@ -58,30 +47,21 @@ public class Subject {
     public String getSubjectCode() { return subjectCode; }
     public void setSubjectCode(String subjectCode) { this.subjectCode = subjectCode; }
 
-    public Integer getCredits() { return credits; }
-    public void setCredits(Integer credits) { this.credits = credits; }
+    public int getCredits() { return credits; }
+    public void setCredits(int credits) { this.credits = credits; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public String getGradingMode() { return gradingMode; }
-    public void setGradingMode(String gradingMode) { this.gradingMode = gradingMode; }
-
     public BigDecimal getCurrentScore() { return currentScore; }
     public void setCurrentScore(BigDecimal currentScore) { this.currentScore = currentScore; }
 
-    public String getCurrentGrade() { return currentGrade; }
-    public void setCurrentGrade(String currentGrade) { this.currentGrade = currentGrade; }
-    
-    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.List<Component> components;
-
-    public java.util.List<Component> getComponents() { return components; }
-    public void setComponents(java.util.List<Component> components) { this.components = components; }
-
     public String getGradingScale() { return gradingScale; }
     public void setGradingScale(String gradingScale) { this.gradingScale = gradingScale; }
+
     public String getLetterGrade() { return letterGrade; }
     public void setLetterGrade(String letterGrade) { this.letterGrade = letterGrade; }
 
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }
