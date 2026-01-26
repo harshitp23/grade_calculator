@@ -48,6 +48,7 @@
         /* ACTION BUTTONS */
         .action-btn { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; cursor: pointer; color: var(--text-muted); margin-left: 5px; transition: 0.2s; }
         .action-btn:hover { background: var(--bg-color); color: var(--primary); }
+        .action-btn.manage-btn { color: var(--primary); border-color: #c7d2fe; background: #eef2ff; } /* Highlight for Manage */
         .action-btn.curved-btn { color: #8b5cf6; border-color: #ddd6fe; background: #f5f3ff; }
 
         /* MODALS */
@@ -60,7 +61,6 @@
         .form-group { margin-bottom: 15px; }
         .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted); }
         .modal-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); box-sizing: border-box; }
-        
         .btn-primary { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 10px; }
         .btn-danger { width: 100%; padding: 10px; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px; }
         .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
@@ -115,15 +115,7 @@
             <input type="hidden" id="editSubId">
             <div class="form-group"><label class="form-label">Subject Name</label><input type="text" class="modal-input" id="editSubName"></div>
             <div class="form-group"><label class="form-label">Subject Code</label><input type="text" class="modal-input" id="editSubCode"></div>
-            
-            <div class="form-group">
-                <label class="form-label">Semester Status</label>
-                <select class="modal-input" id="editSubStatus">
-                    <option value="In Progress">Current (In Progress)</option>
-                    <option value="Completed">Completed (Past Semester)</option>
-                </select>
-            </div>
-
+            <div class="form-group"><label class="form-label">Semester Status</label><select class="modal-input" id="editSubStatus"><option value="In Progress">Current (In Progress)</option><option value="Completed">Completed (Past Semester)</option></select></div>
             <div class="form-group" style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:15px;">
                 <label class="form-label">Grading Scale</label>
                 <label style="font-size:13px; display:flex; gap:8px; align-items:center;">
@@ -143,18 +135,8 @@
         <div class="modal-content">
             <div class="modal-header"><h2 class="modal-title">Curve Adjustment</h2><span class="close-btn" onclick="document.getElementById('curveModal').style.display='none'">&times;</span></div>
             <input type="hidden" id="curveSubId">
-            <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Since this class is curved, select the final letter grade you received.</p>
-            <div class="form-group">
-                <select class="modal-input" id="curveLetter">
-                    <option value="A">A (4.0)</option>
-                    <option value="AB">AB (3.5)</option>
-                    <option value="B">B (3.0)</option>
-                    <option value="BC">BC (2.5)</option>
-                    <option value="C">C (2.0)</option>
-                    <option value="D">D (1.0)</option>
-                    <option value="F">F (0.0)</option>
-                </select>
-            </div>
+            <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Select the final letter grade you received.</p>
+            <div class="form-group"><select class="modal-input" id="curveLetter"><option value="A">A (4.0)</option><option value="AB">AB (3.5)</option><option value="B">B (3.0)</option><option value="BC">BC (2.5)</option><option value="C">C (2.0)</option><option value="D">D (1.0)</option><option value="F">F (0.0)</option></select></div>
             <button class="btn-primary" onclick="saveCurve()">Save Grade</button>
         </div>
     </div>
@@ -169,18 +151,11 @@
     </div>
 
 <script>
-    // Theme Logic
     const themeBtn = document.getElementById('themeBtn');
     if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); themeBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun'); }
-    function toggleTheme() {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeBtn.querySelector('i').classList.replace('fa-sun', 'fa-moon'); } 
-        else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun'); }
-    }
-
+    function toggleTheme() { const isDark = document.documentElement.getAttribute('data-theme') === 'dark'; if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeBtn.querySelector('i').classList.replace('fa-sun', 'fa-moon'); } else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun'); } }
     function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; }
     
-    // --- DATA & CALCULATION ---
     window.onload = function() { fetchSubjects(); };
 
     function calculateGrade(score, customScaleStr) {
@@ -194,7 +169,6 @@
         if (score >= thresholds[5]) return { grade: 'D', point: 1.0, css: 'grade-Low' };
         return { grade: 'F', point: 0.0, css: 'grade-Low' };
     }
-
     function getPointsForLetter(letter) { const map = { 'A':4.0, 'AB':3.5, 'B':3.0, 'BC':2.5, 'C':2.0, 'D':1.0, 'F':0.0 }; return map[letter] || 0.0; }
 
     function fetchSubjects() {
@@ -202,21 +176,16 @@
             const currentBody = document.getElementById('current-table-body');
             const completedBody = document.getElementById('completed-table-body');
             currentBody.innerHTML = ""; completedBody.innerHTML = "";
-
             let currentSubjects = [], completedSubjects = [];
             let totalPoints = 0, totalCredits = 0;
-
             data.forEach(sub => {
                 let gradeInfo, displayScore;
                 if (sub.letterGrade) { gradeInfo = { grade: sub.letterGrade, point: getPointsForLetter(sub.letterGrade), css: 'grade-A' }; displayScore = "Curved"; } 
                 else { let score = sub.currentScore || 0; gradeInfo = calculateGrade(score, sub.gradingScale); displayScore = score > 0 ? score + "%" : "-"; }
-                
                 sub.calcGrade = gradeInfo.grade; sub.calcPoint = gradeInfo.point; sub.cssClass = gradeInfo.css; sub.displayScore = displayScore;
                 totalCredits += sub.credits; totalPoints += (gradeInfo.point * sub.credits);
-
                 if (sub.status === 'Completed') completedSubjects.push(sub); else currentSubjects.push(sub);
             });
-
             document.getElementById('overall-gpa').innerText = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
             renderGroupedTable(currentSubjects, currentBody);
             renderGroupedTable(completedSubjects, completedBody);
@@ -231,9 +200,16 @@
             if (grouped[gradeKey]) {
                 tableBody.innerHTML += `<tr class="grade-header-row"><td colspan="7" class="grade-header-cell">Grade: ${gradeKey}</td></tr>`;
                 grouped[gradeKey].forEach(sub => {
-                    // Update: Pass 'status' to the modal function
-                    let actions = `<button class="action-btn" onclick="openSubjectModal(${sub.subjectId}, '${sub.subjectName}', '${sub.subjectCode}', '${sub.gradingScale || ''}', '${sub.status}')" title="Settings"><i class="fa-solid fa-gear"></i></button>`;
+                    // 👇 UPDATED ACTIONS: Added Manage Scores button 👇
+                    let actions = `
+                        <button class="action-btn manage-btn" onclick="window.location.href='subject-details.html?id=${sub.subjectId}'" title="Manage Scores">
+                            <i class="fa-solid fa-list-check"></i>
+                        </button>
+                        <button class="action-btn" onclick="openSubjectModal(${sub.subjectId}, '${sub.subjectName}', '${sub.subjectCode}', '${sub.gradingScale || ''}', '${sub.status}')" title="Settings">
+                            <i class="fa-solid fa-gear"></i>
+                        </button>`;
                     if (sub.status === 'Completed') actions += `<button class="action-btn curved-btn" onclick="openCurveModal(${sub.subjectId})" title="Curved?"><i class="fa-solid fa-chart-line"></i></button>`;
+                    
                     let row = `<tr>
                         <td><a href="subject-details.html?id=${sub.subjectId}" style="text-decoration:none; color:inherit; font-weight:600;">${sub.subjectName}</a></td>
                         <td>${sub.subjectCode || ''}</td>
@@ -251,30 +227,13 @@
 
     // Modal Operations
     function openSubjectModal(id, name, code, scale, status) {
-        document.getElementById('editSubId').value = id; 
-        document.getElementById('editSubName').value = name; 
-        document.getElementById('editSubCode').value = code; 
-        document.getElementById('editSubStatus').value = status; // 👈 Pre-select Status
-        document.getElementById('customScaleStr').value = scale;
+        document.getElementById('editSubId').value = id; document.getElementById('editSubName').value = name; document.getElementById('editSubCode').value = code; document.getElementById('editSubStatus').value = status; document.getElementById('customScaleStr').value = scale;
         const useDefault = (!scale || scale === 'null' || scale === '');
         document.getElementById('useDefaultScale').checked = useDefault; toggleScaleInputs();
         document.getElementById('subjectModal').style.display = 'flex';
     }
-
     function toggleScaleInputs() { const isDefault = document.getElementById('useDefaultScale').checked; document.getElementById('customScaleInputs').style.display = isDefault ? 'none' : 'block'; }
-    
-    function saveSubjectSettings() { 
-        const id = document.getElementById('editSubId').value; 
-        const name = document.getElementById('editSubName').value; 
-        const code = document.getElementById('editSubCode').value; 
-        const status = document.getElementById('editSubStatus').value; // 👈 Get New Status
-        const scale = document.getElementById('useDefaultScale').checked ? "" : document.getElementById('customScaleStr').value; 
-        
-        // Pass 'status' to backend
-        fetch(`/api/subjects/update-settings?id=${id}&name=${name}&code=${code}&gradingScale=${scale}&status=${status}`, { method: 'POST' })
-        .then(() => location.reload()); 
-    }
-
+    function saveSubjectSettings() { const id = document.getElementById('editSubId').value; const name = document.getElementById('editSubName').value; const code = document.getElementById('editSubCode').value; const status = document.getElementById('editSubStatus').value; const scale = document.getElementById('useDefaultScale').checked ? "" : document.getElementById('customScaleStr').value; fetch(`/api/subjects/update-settings?id=${id}&name=${name}&code=${code}&gradingScale=${scale}&status=${status}`, { method: 'POST' }).then(() => location.reload()); }
     function deleteSubject() { const id = document.getElementById('editSubId').value; if(!confirm("Are you sure?")) return; fetch('/api/subjects/delete?id=' + id, { method: 'DELETE' }).then(() => location.reload()); }
     function openCurveModal(id) { document.getElementById('curveSubId').value = id; document.getElementById('curveModal').style.display = 'flex'; }
     function saveCurve() { const id = document.getElementById('curveSubId').value; const letter = document.getElementById('curveLetter').value; fetch(`/api/subjects/update-curve?id=${id}&letter=${letter}`, { method: 'POST' }).then(() => location.reload()); }
