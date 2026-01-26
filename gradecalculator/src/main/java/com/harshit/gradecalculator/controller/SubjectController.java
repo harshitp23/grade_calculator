@@ -54,12 +54,10 @@ public class SubjectController {
         return "Subject Deleted!";
     }
 
-    // 👇 FIXED THIS METHOD 👇
     @PostMapping("/update-score")
     public String updateScore(@RequestParam Integer id, @RequestParam Double score) {
         Subject s = subjectRepository.findById(id).orElseThrow();
-        // Convert Double to BigDecimal
-        s.setCurrentScore(BigDecimal.valueOf(score)); 
+        s.setCurrentScore(java.math.BigDecimal.valueOf(score)); // Make sure this conversion is here
         subjectRepository.save(s);
         return "Score Updated!";
     }
@@ -91,5 +89,6 @@ public class SubjectController {
         return "Curve Updated!";
     }
 }
+
 
 
