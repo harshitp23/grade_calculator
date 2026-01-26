@@ -80,9 +80,7 @@
             <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">Signed in as <strong sec:authentication="name" style="color:var(--text-main)">Student</strong></span>
             <div style="display:flex; gap:10px;">
                 <button class="icon-btn" id="themeBtn" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
-                
                 <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
-                
                 <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
             </div>
         </div>
@@ -117,6 +115,15 @@
             <input type="hidden" id="editSubId">
             <div class="form-group"><label class="form-label">Subject Name</label><input type="text" class="modal-input" id="editSubName"></div>
             <div class="form-group"><label class="form-label">Subject Code</label><input type="text" class="modal-input" id="editSubCode"></div>
+            
+            <div class="form-group">
+                <label class="form-label">Semester Status</label>
+                <select class="modal-input" id="editSubStatus">
+                    <option value="In Progress">Current (In Progress)</option>
+                    <option value="Completed">Completed (Past Semester)</option>
+                </select>
+            </div>
+
             <div class="form-group" style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:15px;">
                 <label class="form-label">Grading Scale</label>
                 <label style="font-size:13px; display:flex; gap:8px; align-items:center;">
@@ -171,7 +178,6 @@
         else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun'); }
     }
 
-    // Modal Functions
     function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; }
     
     // --- DATA & CALCULATION ---
@@ -225,7 +231,8 @@
             if (grouped[gradeKey]) {
                 tableBody.innerHTML += `<tr class="grade-header-row"><td colspan="7" class="grade-header-cell">Grade: ${gradeKey}</td></tr>`;
                 grouped[gradeKey].forEach(sub => {
-                    let actions = `<button class="action-btn" onclick="openSubjectModal(${sub.subjectId}, '${sub.subjectName}', '${sub.subjectCode}', '${sub.gradingScale || ''}')" title="Settings"><i class="fa-solid fa-gear"></i></button>`;
+                    // Update: Pass 'status' to the modal function
+                    let actions = `<button class="action-btn" onclick="openSubjectModal(${sub.subjectId}, '${sub.subjectName}', '${sub.subjectCode}', '${sub.gradingScale || ''}', '${sub.status}')" title="Settings"><i class="fa-solid fa-gear"></i></button>`;
                     if (sub.status === 'Completed') actions += `<button class="action-btn curved-btn" onclick="openCurveModal(${sub.subjectId})" title="Curved?"><i class="fa-solid fa-chart-line"></i></button>`;
                     let row = `<tr>
                         <td><a href="subject-details.html?id=${sub.subjectId}" style="text-decoration:none; color:inherit; font-weight:600;">${sub.subjectName}</a></td>
@@ -243,14 +250,31 @@
     }
 
     // Modal Operations
-    function openSubjectModal(id, name, code, scale) {
-        document.getElementById('editSubId').value = id; document.getElementById('editSubName').value = name; document.getElementById('editSubCode').value = code; document.getElementById('customScaleStr').value = scale;
+    function openSubjectModal(id, name, code, scale, status) {
+        document.getElementById('editSubId').value = id; 
+        document.getElementById('editSubName').value = name; 
+        document.getElementById('editSubCode').value = code; 
+        document.getElementById('editSubStatus').value = status; // 👈 Pre-select Status
+        document.getElementById('customScaleStr').value = scale;
         const useDefault = (!scale || scale === 'null' || scale === '');
         document.getElementById('useDefaultScale').checked = useDefault; toggleScaleInputs();
         document.getElementById('subjectModal').style.display = 'flex';
     }
+
     function toggleScaleInputs() { const isDefault = document.getElementById('useDefaultScale').checked; document.getElementById('customScaleInputs').style.display = isDefault ? 'none' : 'block'; }
-    function saveSubjectSettings() { const id = document.getElementById('editSubId').value; const name = document.getElementById('editSubName').value; const code = document.getElementById('editSubCode').value; const scale = document.getElementById('useDefaultScale').checked ? "" : document.getElementById('customScaleStr').value; fetch(`/api/subjects/update-settings?id=${id}&name=${name}&code=${code}&gradingScale=${scale}`, { method: 'POST' }).then(() => location.reload()); }
+    
+    function saveSubjectSettings() { 
+        const id = document.getElementById('editSubId').value; 
+        const name = document.getElementById('editSubName').value; 
+        const code = document.getElementById('editSubCode').value; 
+        const status = document.getElementById('editSubStatus').value; // 👈 Get New Status
+        const scale = document.getElementById('useDefaultScale').checked ? "" : document.getElementById('customScaleStr').value; 
+        
+        // Pass 'status' to backend
+        fetch(`/api/subjects/update-settings?id=${id}&name=${name}&code=${code}&gradingScale=${scale}&status=${status}`, { method: 'POST' })
+        .then(() => location.reload()); 
+    }
+
     function deleteSubject() { const id = document.getElementById('editSubId').value; if(!confirm("Are you sure?")) return; fetch('/api/subjects/delete?id=' + id, { method: 'DELETE' }).then(() => location.reload()); }
     function openCurveModal(id) { document.getElementById('curveSubId').value = id; document.getElementById('curveModal').style.display = 'flex'; }
     function saveCurve() { const id = document.getElementById('curveSubId').value; const letter = document.getElementById('curveLetter').value; fetch(`/api/subjects/update-curve?id=${id}&letter=${letter}`, { method: 'POST' }).then(() => location.reload()); }
