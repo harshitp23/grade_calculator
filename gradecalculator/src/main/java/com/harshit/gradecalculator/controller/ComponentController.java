@@ -7,7 +7,6 @@ import com.harshit.gradecalculator.repository.SubjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -20,43 +19,38 @@ public class ComponentController {
     @Autowired
     private SubjectRepository subjectRepository;
 
-    // TEST URL: 
-    // http://localhost:8080/api/components/add?subjectId=1&name=Midterm&weight=20&score=85&total=100
-    @GetMapping("/add")
-    public String addTestComponent(
+    // 1. LIST Components for a Subject
+    @GetMapping("/list")
+    public List<Component> getComponents(@RequestParam Integer subjectId) {
+        Subject subject = subjectRepository.findById(subjectId).orElseThrow();
+        return componentRepository.findBySubject(subject);
+    }
+
+    // 2. ADD a Component
+    @PostMapping("/add")
+    public Component addComponent(
             @RequestParam Integer subjectId,
             @RequestParam String name,
             @RequestParam Double weight,
             @RequestParam Double score,
-            @RequestParam Double total
-    ) {
-        // 1. Find the Subject (e.g., Calculus)
-        Subject subject = subjectRepository.findById(subjectId).orElse(null);
+            @RequestParam Double total) {
+
+        Subject subject = subjectRepository.findById(subjectId).orElseThrow();
         
-        if (subject == null) {
-            return "Error: Subject with ID " + subjectId + " not found.";
-        }
+        Component c = new Component();
+        c.setSubject(subject);
+        c.setName(name);
+        c.setWeight(weight);
+        c.setScore(score);
+        c.setTotalPoints(total);
 
-        // 2. Create the Component
-        Component comp = new Component();
-        comp.setComponentName(name);
-        comp.setWeightage(BigDecimal.valueOf(weight));
-        comp.setPointsScored(BigDecimal.valueOf(score));
-        comp.setTotalPoints(BigDecimal.valueOf(total));
-        comp.setSubject(subject); // Link it!
-
-        // 3. Save it
-        componentRepository.save(comp);
-
-        return "Success! Added " + name + " to " + subject.getSubjectName();
+        return componentRepository.save(c);
     }
-    
-    // Check what components a subject has
-    // http://localhost:8080/api/components/list?subjectId=1
-    @GetMapping("/list")
-    public List<Component> getComponents(@RequestParam Integer subjectId) {
-        Subject subject = subjectRepository.findById(subjectId).orElse(null);
-        if (subject == null) return null;
-        return subject.getComponents();
+
+    // 3. DELETE a Component
+    @DeleteMapping("/delete")
+    public String deleteComponent(@RequestParam Integer id) {
+        componentRepository.deleteById(id);
+        return "Deleted";
     }
 }
