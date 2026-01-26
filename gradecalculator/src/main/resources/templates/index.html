@@ -13,8 +13,8 @@
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
         
-        /* SIDEBAR */
-        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; }
+        /* SIDEBAR (Desktop Default) */
+        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; transition: transform 0.3s ease; }
         .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
         .nav-link:hover, .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
@@ -41,17 +41,16 @@
         .grade-header-row { background-color: rgba(79, 70, 229, 0.05); }
         .grade-header-cell { font-weight: 700; color: var(--primary); padding: 8px 24px; font-size: 13px; }
         
-        /* COLOR CODING - Updated to match your request */
-        .grade-A { color: #10b981; font-weight: 700; } /* Green */
-        .grade-AB { color: #f59e0b; font-weight: 700; } /* Yellow */
-        .grade-B { color: #f97316; font-weight: 700; } /* Orange */
-        .grade-Low { color: #ef4444; font-weight: 700; } /* Red */
+        .grade-A { color: #10b981; font-weight: 700; } 
+        .grade-AB { color: #f59e0b; font-weight: 700; } 
+        .grade-B { color: #f97316; font-weight: 700; } 
+        .grade-Low { color: #ef4444; font-weight: 700; } 
 
-        /* ACTION BUTTONS */
+        /* ACTIONS */
         .action-btn { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; cursor: pointer; color: var(--text-muted); margin-left: 5px; transition: 0.2s; }
         .action-btn:hover { background: var(--bg-color); color: var(--primary); }
-        .action-btn.manage-btn { color: var(--primary); border-color: #c7d2fe; background: #eef2ff; } /* Highlight for Manage */
-        .action-btn.curved-btn { color: #8b5cf6; border-color: #ddd6fe; background: #f5f3ff; } /* Purple for Curve */
+        .action-btn.manage-btn { color: var(--primary); border-color: #c7d2fe; background: #eef2ff; }
+        .action-btn.curved-btn { color: #8b5cf6; border-color: #ddd6fe; background: #f5f3ff; }
 
         /* MODALS */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
@@ -66,11 +65,56 @@
         .btn-primary { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 10px; }
         .btn-danger { width: 100%; padding: 10px; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px; }
         .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
+
+        /* --- MOBILE ELEMENTS (Hidden on Desktop) --- */
+        .mobile-nav { display: none; }
+        .mobile-overlay { display: none; }
+        .mobile-close-sidebar { display: none; }
+
+        /* --- MEDIA QUERIES (Phone Mode) --- */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            
+            /* 1. Show Mobile Nav */
+            .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+            
+            /* 2. Hide Sidebar by default & Style as Drawer */
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.1); z-index: 999; }
+            .sidebar.active { transform: translateX(0); }
+            
+            /* 3. Mobile Close Button inside Sidebar */
+            .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+
+            /* 4. Content Adjustments */
+            .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
+            .header-row { flex-direction: column; align-items: flex-start; gap: 15px; }
+            .gpa-card { width: 100%; box-sizing: border-box; }
+            
+            /* 5. Make Tables Scrollable */
+            .card { overflow-x: auto; }
+            table { min-width: 600px; } /* Ensures table doesn't squish */
+
+            /* 6. Modal Fixes */
+            .modal-content { width: 85%; max-height: 90vh; overflow-y: auto; }
+
+            /* 7. Overlay when sidebar is open */
+            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
+            .mobile-overlay.active { display: block; }
+        }
     </style>
 </head>
 <body>
 
+    <div class="mobile-nav">
+        <div class="logo" style="margin:0;"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
+    </div>
+
+    <div class="mobile-overlay" onclick="toggleSidebar()"></div>
+
     <aside class="sidebar">
+        <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
+
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
             <a href="index.html" class="nav-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
@@ -158,20 +202,24 @@
     function toggleTheme() { const isDark = document.documentElement.getAttribute('data-theme') === 'dark'; if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeBtn.querySelector('i').classList.replace('fa-sun', 'fa-moon'); } else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun'); } }
     function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; }
     
+    // --- MOBILE SIDEBAR TOGGLE ---
+    function toggleSidebar() {
+        document.querySelector('.sidebar').classList.toggle('active');
+        document.querySelector('.mobile-overlay').classList.toggle('active');
+    }
+
     window.onload = function() { fetchSubjects(); };
 
     function calculateGrade(score, customScaleStr) {
         let thresholds = [93, 88, 83, 78, 70, 60];
         if (customScaleStr && customScaleStr.trim() !== "") { try { thresholds = customScaleStr.split(',').map(Number); } catch(e) { console.error("Bad scale"); } }
-        
-        // Updated colors via CSS class mapping
         if (score >= thresholds[0]) return { grade: 'A', point: 4.0, css: 'grade-A' };
         if (score >= thresholds[1]) return { grade: 'AB', point: 3.5, css: 'grade-AB' };
         if (score >= thresholds[2]) return { grade: 'B', point: 3.0, css: 'grade-B' };
-        if (score >= thresholds[3]) return { grade: 'BC', point: 2.5, css: 'grade-Low' }; // Red
-        if (score >= thresholds[4]) return { grade: 'C', point: 2.0, css: 'grade-Low' };  // Red
-        if (score >= thresholds[5]) return { grade: 'D', point: 1.0, css: 'grade-Low' };  // Red
-        return { grade: 'F', point: 0.0, css: 'grade-Low' };                               // Red
+        if (score >= thresholds[3]) return { grade: 'BC', point: 2.5, css: 'grade-Low' }; 
+        if (score >= thresholds[4]) return { grade: 'C', point: 2.0, css: 'grade-Low' };  
+        if (score >= thresholds[5]) return { grade: 'D', point: 1.0, css: 'grade-Low' };  
+        return { grade: 'F', point: 0.0, css: 'grade-Low' };                               
     }
     function getPointsForLetter(letter) { const map = { 'A':4.0, 'AB':3.5, 'B':3.0, 'BC':2.5, 'C':2.0, 'D':1.0, 'F':0.0 }; return map[letter] || 0.0; }
 
@@ -204,20 +252,11 @@
             if (grouped[gradeKey]) {
                 tableBody.innerHTML += `<tr class="grade-header-row"><td colspan="7" class="grade-header-cell">Grade: ${gradeKey}</td></tr>`;
                 grouped[gradeKey].forEach(sub => {
-                    
-                    // 👇 UPDATED BUTTON ORDER LOGIC 👇
-                    // 1. Always start with Manage Scores
                     let actions = `
                         <button class="action-btn manage-btn" onclick="window.location.href='subject-details.html?id=${sub.subjectId}'" title="Manage Scores">
                             <i class="fa-solid fa-list-check"></i>
                         </button>`;
-                    
-                    // 2. If Completed, Add Curve button MIDDLE
-                    if (sub.status === 'Completed') {
-                        actions += `<button class="action-btn curved-btn" onclick="openCurveModal(${sub.subjectId})" title="Curved?"><i class="fa-solid fa-chart-line"></i></button>`;
-                    }
-
-                    // 3. Settings button is ALWAYS LAST
+                    if (sub.status === 'Completed') actions += `<button class="action-btn curved-btn" onclick="openCurveModal(${sub.subjectId})" title="Curved?"><i class="fa-solid fa-chart-line"></i></button>`;
                     actions += `
                         <button class="action-btn" onclick="openSubjectModal(${sub.subjectId}, '${sub.subjectName}', '${sub.subjectCode}', '${sub.gradingScale || ''}', '${sub.status}')" title="Settings">
                             <i class="fa-solid fa-gear"></i>
