@@ -40,16 +40,18 @@
         
         .grade-header-row { background-color: rgba(79, 70, 229, 0.05); }
         .grade-header-cell { font-weight: 700; color: var(--primary); padding: 8px 24px; font-size: 13px; }
-        .grade-A { color: #10b981; font-weight: 700; }
-        .grade-AB { color: #f59e0b; font-weight: 700; }
-        .grade-B { color: #f97316; font-weight: 700; }
-        .grade-Low { color: #ef4444; font-weight: 700; }
+        
+        /* COLOR CODING - Updated to match your request */
+        .grade-A { color: #10b981; font-weight: 700; } /* Green */
+        .grade-AB { color: #f59e0b; font-weight: 700; } /* Yellow */
+        .grade-B { color: #f97316; font-weight: 700; } /* Orange */
+        .grade-Low { color: #ef4444; font-weight: 700; } /* Red */
 
         /* ACTION BUTTONS */
         .action-btn { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; cursor: pointer; color: var(--text-muted); margin-left: 5px; transition: 0.2s; }
         .action-btn:hover { background: var(--bg-color); color: var(--primary); }
         .action-btn.manage-btn { color: var(--primary); border-color: #c7d2fe; background: #eef2ff; } /* Highlight for Manage */
-        .action-btn.curved-btn { color: #8b5cf6; border-color: #ddd6fe; background: #f5f3ff; }
+        .action-btn.curved-btn { color: #8b5cf6; border-color: #ddd6fe; background: #f5f3ff; } /* Purple for Curve */
 
         /* MODALS */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
@@ -161,13 +163,15 @@
     function calculateGrade(score, customScaleStr) {
         let thresholds = [93, 88, 83, 78, 70, 60];
         if (customScaleStr && customScaleStr.trim() !== "") { try { thresholds = customScaleStr.split(',').map(Number); } catch(e) { console.error("Bad scale"); } }
+        
+        // Updated colors via CSS class mapping
         if (score >= thresholds[0]) return { grade: 'A', point: 4.0, css: 'grade-A' };
         if (score >= thresholds[1]) return { grade: 'AB', point: 3.5, css: 'grade-AB' };
         if (score >= thresholds[2]) return { grade: 'B', point: 3.0, css: 'grade-B' };
-        if (score >= thresholds[3]) return { grade: 'BC', point: 2.5, css: 'grade-Low' };
-        if (score >= thresholds[4]) return { grade: 'C', point: 2.0, css: 'grade-Low' };
-        if (score >= thresholds[5]) return { grade: 'D', point: 1.0, css: 'grade-Low' };
-        return { grade: 'F', point: 0.0, css: 'grade-Low' };
+        if (score >= thresholds[3]) return { grade: 'BC', point: 2.5, css: 'grade-Low' }; // Red
+        if (score >= thresholds[4]) return { grade: 'C', point: 2.0, css: 'grade-Low' };  // Red
+        if (score >= thresholds[5]) return { grade: 'D', point: 1.0, css: 'grade-Low' };  // Red
+        return { grade: 'F', point: 0.0, css: 'grade-Low' };                               // Red
     }
     function getPointsForLetter(letter) { const map = { 'A':4.0, 'AB':3.5, 'B':3.0, 'BC':2.5, 'C':2.0, 'D':1.0, 'F':0.0 }; return map[letter] || 0.0; }
 
@@ -200,15 +204,24 @@
             if (grouped[gradeKey]) {
                 tableBody.innerHTML += `<tr class="grade-header-row"><td colspan="7" class="grade-header-cell">Grade: ${gradeKey}</td></tr>`;
                 grouped[gradeKey].forEach(sub => {
-                    // 👇 UPDATED ACTIONS: Added Manage Scores button 👇
+                    
+                    // 👇 UPDATED BUTTON ORDER LOGIC 👇
+                    // 1. Always start with Manage Scores
                     let actions = `
                         <button class="action-btn manage-btn" onclick="window.location.href='subject-details.html?id=${sub.subjectId}'" title="Manage Scores">
                             <i class="fa-solid fa-list-check"></i>
-                        </button>
+                        </button>`;
+                    
+                    // 2. If Completed, Add Curve button MIDDLE
+                    if (sub.status === 'Completed') {
+                        actions += `<button class="action-btn curved-btn" onclick="openCurveModal(${sub.subjectId})" title="Curved?"><i class="fa-solid fa-chart-line"></i></button>`;
+                    }
+
+                    // 3. Settings button is ALWAYS LAST
+                    actions += `
                         <button class="action-btn" onclick="openSubjectModal(${sub.subjectId}, '${sub.subjectName}', '${sub.subjectCode}', '${sub.gradingScale || ''}', '${sub.status}')" title="Settings">
                             <i class="fa-solid fa-gear"></i>
                         </button>`;
-                    if (sub.status === 'Completed') actions += `<button class="action-btn curved-btn" onclick="openCurveModal(${sub.subjectId})" title="Curved?"><i class="fa-solid fa-chart-line"></i></button>`;
                     
                     let row = `<tr>
                         <td><a href="subject-details.html?id=${sub.subjectId}" style="text-decoration:none; color:inherit; font-weight:600;">${sub.subjectName}</a></td>
