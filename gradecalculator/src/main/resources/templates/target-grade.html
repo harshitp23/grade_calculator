@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Target Calculator - Grade Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* (Using same CSS variables and sidebar styles as add-subject.html) */
+        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --danger: #ef4444; }
+        [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
+        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; transition: transform 0.3s ease; }
+        .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
+        .nav-link:hover, .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .spacer { flex: 1; }
+        .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
+        .icon-btn:hover { color: var(--primary); }
+        
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; }
+        .form-container { width: 100%; max-width: 500px; background: var(--card-bg); padding: 40px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid var(--border-color); margin-top: 20px; }
+        .page-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; text-align: center; }
+        .page-subtitle { color: var(--text-muted); font-size: 14px; text-align: center; margin-bottom: 30px; }
+        
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
+        input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; box-sizing: border-box; background: var(--bg-color); color: var(--text-main); }
+        .btn-calc { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        
+        .result-box { margin-top: 25px; padding: 20px; background: rgba(79, 70, 229, 0.05); border-radius: 8px; text-align: center; border: 1px solid rgba(79, 70, 229, 0.1); display: none; }
+        .result-title { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .result-value { font-size: 32px; font-weight: 800; color: var(--primary); }
+
+        /* Mobile */
+        .mobile-nav { display: none; }
+        .mobile-overlay { display: none; }
+        .mobile-close-sidebar { display: none; }
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.1); z-index: 999; }
+            .sidebar.active { transform: translateX(0); }
+            .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+            .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
+            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
+            .mobile-overlay.active { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-nav">
+        <div style="display:flex; align-items:center; gap:15px;">
+            <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
+            <div class="logo" style="margin:0; font-size:18px;"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        </div>
+        <div style="display:flex; gap:15px;">
+            <button class="icon-btn" id="themeBtnMobile" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+            <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+        </div>
+    </div>
+    
+    <div class="mobile-overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar">
+        <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
+        <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        <nav>
+            <a href="index.html" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="add-subject.html" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
+            <a href="target-grade.html" class="nav-link active"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+        </nav>
+        <div class="spacer"></div>
+        <div class="user-profile">
+            <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">Signed in as <strong>Student</strong></span>
+            <div style="display:flex; gap:10px;">
+                <button class="icon-btn" id="themeBtn" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+                <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="form-container">
+            <div class="page-title">Final Exam Target</div>
+            <div class="page-subtitle">Calculate what you need to score on your final exam</div>
+
+            <div class="form-group"><label>Current Grade (%)</label><input type="number" id="current" placeholder="e.g. 85"></div>
+            <div class="form-group"><label>Desired Grade (%)</label><input type="number" id="desired" placeholder="e.g. 90"></div>
+            <div class="form-group"><label>Weight of Final Exam (%)</label><input type="number" id="weight" placeholder="e.g. 20"></div>
+
+            <button class="btn-calc" onclick="calculateTarget()">Calculate</button>
+
+            <div class="result-box" id="resultBox">
+                <div class="result-title">You need to score</div>
+                <div class="result-value" id="resultValue">0%</div>
+            </div>
+        </div>
+    </main>
+
+<script>
+    // Theme Logic
+    const themeBtn = document.getElementById('themeBtn');
+    const themeBtnMobile = document.getElementById('themeBtnMobile');
+    function updateIcons(isDark) {
+        const iconClass = isDark ? 'fa-sun' : 'fa-moon';
+        themeBtn.querySelector('i').className = `fa-solid ${iconClass}`;
+        if(themeBtnMobile) themeBtnMobile.querySelector('i').className = `fa-solid ${iconClass}`;
+    }
+    if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
+    function toggleTheme() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); updateIcons(false); } 
+        else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); updateIcons(true); }
+    }
+    function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
+
+    // Calc Logic
+    function calculateTarget() {
+        const current = parseFloat(document.getElementById('current').value);
+        const desired = parseFloat(document.getElementById('desired').value);
+        const weight = parseFloat(document.getElementById('weight').value);
+
+        if (!current || !desired || !weight) { alert("Please fill all fields"); return; }
+
+        const w = weight / 100.0;
+        const required = (desired - (current * (1 - w))) / w;
+
+        document.getElementById('resultBox').style.display = 'block';
+        document.getElementById('resultValue').innerText = required.toFixed(2) + "%";
+    }
+</script>
+</body>
+</html>
