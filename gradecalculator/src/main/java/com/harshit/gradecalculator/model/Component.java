@@ -1,5 +1,5 @@
 package com.harshit.gradecalculator.model;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -35,7 +35,9 @@ public class Component {
     
     public Double getTotalPoints() { return totalPoints; }
     public void setTotalPoints(Double totalPoints) { this.totalPoints = totalPoints; }
-    
+
+    @JsonIgnore
     public Subject getSubject() { return subject; }
     public void setSubject(Subject subject) { this.subject = subject; }
 }
+
