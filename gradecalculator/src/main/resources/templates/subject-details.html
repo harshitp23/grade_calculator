@@ -129,7 +129,9 @@
 
             <div class="calc-card">
                 <div class="toolbar">
-                    <label class="toggle-label"><input type="checkbox" id="ignoreWeights" onchange="recalculate()"> Use Total Points Grading (Ignore Weights)</label>
+                    <label class="toggle-label"><input type="checkbox" id="totalPointsCheck" 
+       th:checked="${subject.useTotalPoints}" 
+       onchange="toggleGradingMode()"> Use Total Points Grading (Ignore Weights)</label>
                 </div>
 
                 <div class="input-row">
@@ -316,3 +318,4 @@
 </script>
 </body>
 </html>
+
