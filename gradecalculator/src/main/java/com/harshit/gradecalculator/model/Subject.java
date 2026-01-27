@@ -1,4 +1,5 @@
 package com.harshit.gradecalculator.model;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal; // Import for Score
@@ -62,6 +63,8 @@ public class Subject {
     public String getLetterGrade() { return letterGrade; }
     public void setLetterGrade(String letterGrade) { this.letterGrade = letterGrade; }
 
+    @JsonIgnore
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 }
+
