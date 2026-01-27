@@ -28,6 +28,8 @@ public class Subject {
     private String gradingScale;
     private String letterGrade;
 
+    private boolean useTotalPoints;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -66,5 +68,9 @@ public class Subject {
     @JsonIgnore
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+
+    public boolean isUseTotalPoints() { return useTotalPoints; }
+    public void setUseTotalPoints(boolean useTotalPoints) { this.useTotalPoints = useTotalPoints; }
 }
+
 
