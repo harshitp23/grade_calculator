@@ -37,7 +37,7 @@
         /* INPUT GRID */
         .input-row { padding: 20px; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 15px; align-items: end; border-bottom: 1px solid var(--border-color); }
         .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); box-sizing: border-box; }
+        .input-group input, .form-control { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); box-sizing: border-box; }
         .btn-add { padding: 10px 20px; background: var(--success); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; height: 42px; }
         
         /* TABLES */
@@ -54,8 +54,6 @@
         .stat-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
         .stat-value { font-size: 18px; font-weight: 700; color: var(--primary); }
         .btn-save { padding: 12px 24px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; }
-        
-        .badge-ec { background: #d1fae5; color: #065f46; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-left: 8px; }
         
         /* Modal */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
@@ -84,7 +82,6 @@
             
             .footer { flex-direction: column; align-items: flex-start; gap: 20px; }
             .btn-save { width: 100%; }
-            
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
             .mobile-overlay.active { display: block; }
         }
@@ -103,9 +100,8 @@
         <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
-            <a href="index.html" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a href="add-subject.html" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
-            <a href="#" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+            <a href="/" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="/add-subject" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
         </nav>
         <div class="spacer"></div>
         <div class="user-profile">
@@ -115,7 +111,6 @@
             </div>
             <div style="display:flex; gap:10px;">
                 <button class="icon-btn" id="themeBtn" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
-                <button class="icon-btn" onclick="openSettings()"><i class="fa-solid fa-gear"></i></button>
                 <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
             </div>
         </div>
@@ -129,9 +124,12 @@
 
             <div class="calc-card">
                 <div class="toolbar">
-                    <label class="toggle-label"><input type="checkbox" id="totalPointsCheck" 
-       th:checked="${subject.useTotalPoints}" 
-       onchange="toggleGradingMode()"> Use Total Points Grading (Ignore Weights)</label>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="totalPointsCheck" 
+                               th:checked="${subject.useTotalPoints}" 
+                               onchange="toggleGradingMode()"> 
+                        Use Total Points Grading (Ignore Weights)
+                    </label>
                 </div>
 
                 <div class="input-row">
@@ -143,8 +141,17 @@
                 </div>
 
                 <table>
-                    <thead><tr><th>Component Name</th><th>Weight (%)</th><th>Percentage</th><th>Score</th><th style="text-align: right;">Action</th></tr></thead>
-                    <tbody id="componentTable"></tbody>
+                    <thead><tr><th>Component Name</th><th>Weight (%)</th><th>Score</th><th>Total Points</th><th style="text-align: right;">Action</th></tr></thead>
+                    <tbody id="componentTableBody">
+                        <tr th:each="component : ${subject.components}" class="component-row">
+                            <input type="hidden" class="comp-id" th:value="${component.id}">
+                            <td><input type="text" class="form-control comp-name" th:value="${component.name}"></td>
+                            <td><input type="number" class="form-control comp-weight" th:value="${component.weight}" step="any" oninput="calculateGrade()"></td>
+                            <td><input type="number" class="form-control comp-score" th:value="${component.score}" step="any" oninput="calculateGrade()"></td>
+                            <td><input type="number" class="form-control comp-total" th:value="${component.totalPoints}" step="any" oninput="calculateGrade()"></td>
+                            <td style="text-align: right;"><button class="btn-delete" onclick="removeRow(this)">Delete</button></td>
+                        </tr>
+                    </tbody>
                 </table>
 
                 <div class="footer">
@@ -157,15 +164,9 @@
             </div>
         </div>
     </main>
-    
-    <div id="settingsModal" class="modal" onclick="if(event.target.id==='settingsModal') this.style.display='none'">
-        <div class="modal-content"><h2 style="margin-top:0">Settings</h2><p>Use the dashboard for global settings.</p><button class="btn-save" onclick="document.getElementById('settingsModal').style.display='none'">Close</button></div>
-    </div>
 
-<script>
-    let components = [];
-    const urlParams = new URLSearchParams(window.location.search);
-    const subjectId = urlParams.get('id');
+<script th:inline="javascript">
+    const subjectId = [[${subject.id}]]; // Thymeleaf injects the ID directly
 
     // Theme Logic
     const themeBtn = document.getElementById('themeBtn');
@@ -175,116 +176,107 @@
         if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); themeBtn.querySelector('i').classList.replace('fa-sun', 'fa-moon'); } 
         else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); themeBtn.querySelector('i').classList.replace('fa-moon', 'fa-sun'); }
     }
-    function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
     function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
 
-    // --- 1. FETCH DATA ON LOAD ---
-    window.onload = function() {
-        if (!subjectId) { window.location.href = "index.html"; return; }
-        fetch(`/api/components/list?subjectId=${subjectId}`)
-            .then(r => r.json())
-            .then(data => {
-                components = data.map(c => ({
-                    id: c.id,
-                    name: c.name,
-                    weight: c.weight,
-                    score: c.score,
-                    total: c.totalPoints, // Ensure frontend 'total' maps to backend 'totalPoints'
-                    isExtraCredit: (c.totalPoints === 0 && c.score > 0)
-                }));
-                renderTable();
-                recalculate();
-            });
-    };
+    // --- 1. INITIALIZE ---
+    document.addEventListener("DOMContentLoaded", function() {
+        toggleGradingMode(); // Ensure UI matches the saved checkbox state immediately
+    });
 
-    // --- 2. ADD COMPONENT (FIXED MAPPING) ---
+    // --- 2. ADD COMPONENT (Adds to UI only) ---
     function addComponent() {
         const name = document.getElementById('cName').value;
-        const weight = parseFloat(document.getElementById('cWeight').value) || 0;
-        const score = parseFloat(document.getElementById('cScore').value) || 0;
-        const total = parseFloat(document.getElementById('cTotal').value) || 0;
+        const weight = document.getElementById('cWeight').value || 0;
+        const score = document.getElementById('cScore').value || 0;
+        const total = document.getElementById('cTotal').value || 0;
 
         if (!name) { alert("Please enter a name"); return; }
 
-        fetch(`/api/components/add?subjectId=${subjectId}&name=${name}&weight=${weight}&score=${score}&total=${total}`, { method: 'POST' })
-        .then(r => r.json())
-        .then(newComp => {
-            // 👇 FIX: Map backend 'totalPoints' to frontend 'total' property
-            components.push({
-                id: newComp.id,
-                name: newComp.name,
-                weight: newComp.weight,
-                score: newComp.score,
-                total: newComp.totalPoints, // Correct mapping here!
-                isExtraCredit: (newComp.totalPoints === 0 && newComp.score > 0)
-            });
-            
-            document.getElementById('cName').value = "";
-            document.getElementById('cWeight').value = "";
-            document.getElementById('cScore').value = "";
-            document.getElementById('cTotal').value = "";
+        const tbody = document.getElementById('componentTableBody');
+        const row = document.createElement('tr');
+        row.classList.add('component-row');
 
-            renderTable();
-            recalculate();
-        });
+        row.innerHTML = `
+            <input type="hidden" class="comp-id" value=""> <td><input type="text" class="form-control comp-name" value="${name}"></td>
+            <td><input type="number" class="form-control comp-weight" value="${weight}" oninput="calculateGrade()"></td>
+            <td><input type="number" class="form-control comp-score" value="${score}" oninput="calculateGrade()"></td>
+            <td><input type="number" class="form-control comp-total" value="${total}" oninput="calculateGrade()"></td>
+            <td style="text-align: right;"><button class="btn-delete" onclick="removeRow(this)">Delete</button></td>
+        `;
+
+        tbody.appendChild(row);
+
+        // Clear Inputs
+        document.getElementById('cName').value = "";
+        document.getElementById('cWeight').value = "";
+        document.getElementById('cScore').value = "";
+        document.getElementById('cTotal').value = "";
+        
+        calculateGrade();
     }
 
-    // --- 3. DELETE COMPONENT ---
-    function deleteComponent(id) {
-        fetch(`/api/components/delete?id=${id}`, { method: 'DELETE' })
-        .then(() => {
-            components = components.filter(c => c.id !== id);
-            renderTable();
-            recalculate();
-        });
+    // --- 3. REMOVE ROW (UI Only) ---
+    function removeRow(btn) {
+        btn.closest('tr').remove();
+        calculateGrade();
     }
 
-    function renderTable() {
-        const tbody = document.getElementById('componentTable');
-        const ignoreWeights = document.getElementById('ignoreWeights').checked;
-        tbody.innerHTML = "";
-        components.forEach(c => {
-            let percentDisplay = "0%";
-            if (c.total > 0) percentDisplay = ((c.score / c.total) * 100).toFixed(2) + "%";
-            else if (c.isExtraCredit) percentDisplay = "Bonus";
-            
-            let row = `<tr>
-                <td>${c.name} ${c.isExtraCredit ? '<span class="badge-ec">Extra Credit</span>' : ''}</td>
-                <td style="color: ${ignoreWeights ? 'var(--text-muted)' : 'inherit'}">${ignoreWeights ? '-' : c.weight + '%'}</td>
-                <td>${percentDisplay}</td>
-                <td>${c.score} / ${c.total}</td>
-                <td style="text-align: right;"><button class="btn-delete" onclick="deleteComponent(${c.id})">Delete</button></td>
-            </tr>`;
-            tbody.innerHTML += row;
+    // --- 4. CALCULATE GRADE (Live from Inputs) ---
+    function toggleGradingMode() {
+        const isTotalPoints = document.getElementById('totalPointsCheck').checked;
+        const weightInputs = document.querySelectorAll('.comp-weight');
+        const weightStat = document.getElementById('weightStat');
+
+        // Visually disable weights if Total Points mode
+        weightInputs.forEach(input => {
+            input.disabled = isTotalPoints;
+            input.style.opacity = isTotalPoints ? "0.5" : "1";
         });
+        weightStat.style.opacity = isTotalPoints ? "0.3" : "1";
+        
+        calculateGrade();
     }
 
-    function recalculate() {
-        const ignoreWeights = document.getElementById('ignoreWeights').checked;
+    function calculateGrade() {
+        const rows = document.querySelectorAll('.component-row');
+        const isTotalPoints = document.getElementById('totalPointsCheck').checked;
         const finalDisplay = document.getElementById('finalScoreDisplay');
         const weightDisplay = document.getElementById('totalWeightDisplay');
-        
-        document.getElementById('weightStat').style.opacity = ignoreWeights ? "0.3" : "1";
-        
+
         let finalGrade = 0.0;
         let totalWeight = 0.0;
+        let sumScore = 0;
+        let sumTotal = 0;
 
-        if (components.length === 0) {
-            finalDisplay.innerText = "N/A"; weightDisplay.innerText = "0%"; return;
+        if (rows.length === 0) {
+            finalDisplay.innerText = "N/A";
+            weightDisplay.innerText = "0%";
+            return;
         }
 
-        if (ignoreWeights) {
-            let sumScore = 0, sumTotal = 0;
-            components.forEach(c => { sumScore += c.score; sumTotal += c.total; });
+        rows.forEach(row => {
+            const weight = parseFloat(row.querySelector('.comp-weight').value) || 0;
+            const score = parseFloat(row.querySelector('.comp-score').value) || 0;
+            const total = parseFloat(row.querySelector('.comp-total').value) || 0;
+
+            if (isTotalPoints) {
+                sumScore += score;
+                sumTotal += total;
+            } else {
+                totalWeight += weight;
+                if (total > 0) {
+                    finalGrade += (score / total) * weight;
+                } else if (score > 0) { // Extra credit logic
+                    finalGrade += score; 
+                }
+            }
+        });
+
+        if (isTotalPoints) {
             if (sumTotal === 0) finalDisplay.innerText = "N/A";
             else finalDisplay.innerText = ((sumScore / sumTotal) * 100).toFixed(2) + "%";
             weightDisplay.innerText = "-";
         } else {
-            components.forEach(c => {
-                totalWeight += c.weight;
-                if (c.total > 0) finalGrade += (c.score / c.total) * c.weight;
-                else if (c.isExtraCredit) finalGrade += c.score;
-            });
             weightDisplay.innerText = totalWeight + "%";
             finalDisplay.innerText = finalGrade.toFixed(2) + "%";
         }
@@ -292,30 +284,52 @@
         // Color Logic
         if (finalDisplay.innerText !== "N/A") {
             let val = parseFloat(finalDisplay.innerText);
-            if (val >= 93) finalDisplay.style.color = "#10b981";      // A (Green)
-            else if (val >= 88) finalDisplay.style.color = "#f59e0b"; // AB (Yellow)
-            else if (val >= 83) finalDisplay.style.color = "#f97316"; // B (Orange)
-            else finalDisplay.style.color = "#ef4444";                // BC/C/D/F (Red)
-        } else {
-            finalDisplay.style.color = "var(--text-muted)";
+            if (val >= 93) finalDisplay.style.color = "#10b981";      // A
+            else if (val >= 88) finalDisplay.style.color = "#f59e0b"; // AB
+            else if (val >= 83) finalDisplay.style.color = "#f97316"; // B
+            else finalDisplay.style.color = "#ef4444";                // Red
         }
     }
 
-    // --- 4. SAVE FINAL GRADE (FIXED) ---
+    // --- 5. SAVE EVERYTHING (New Logic) ---
     function saveFinalGrade() {
-        const scoreText = document.getElementById('finalScoreDisplay').innerText;
-        if (scoreText === "N/A" || scoreText.includes("NaN")) { alert("Calculate a valid grade first!"); return; }
-        
-        // Remove % before sending to backend
-        const cleanScore = scoreText.replace('%', ''); 
-        const scoreValue = parseFloat(cleanScore);
-        
-        fetch(`/api/subjects/update-score?id=${subjectId}&score=${scoreValue}`, { method: 'POST' })
-        .then(r => r.text())
-        .then(() => { alert("Saved!"); window.location.href = "index.html"; })
-        .catch(e => { console.error(e); alert("Failed to save."); });
+        const components = [];
+
+        document.querySelectorAll('.component-row').forEach(row => {
+            const id = row.querySelector('.comp-id').value;
+            components.push({
+                id: id ? parseInt(id) : null,
+                name: row.querySelector('.comp-name').value,
+                weight: parseFloat(row.querySelector('.comp-weight').value) || 0,
+                score: parseFloat(row.querySelector('.comp-score').value) || 0,
+                totalPoints: parseFloat(row.querySelector('.comp-total').value) || 0
+            });
+        });
+
+        const subjectData = {
+            id: subjectId,
+            subjectName: "[[${subject.subjectName}]]",
+            subjectCode: "[[${subject.subjectCode}]]",
+            credits: [[${subject.credits}]],
+            status: "[[${subject.status}]]", 
+            useTotalPoints: document.getElementById('totalPointsCheck').checked,
+            components: components
+        };
+
+        fetch('/api/subjects/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(subjectData)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Saved!");
+                window.location.reload(); // Reloads to show saved state
+            } else {
+                alert("Failed to save grade.");
+            }
+        });
     }
 </script>
 </body>
 </html>
-
