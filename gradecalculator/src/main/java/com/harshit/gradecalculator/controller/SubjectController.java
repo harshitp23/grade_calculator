@@ -43,6 +43,7 @@ public class SubjectController {
         s.setSubjectCode(code);
         s.setCredits(credits);
         s.setStatus(status);
+        s.setIncludeInGpa(true);
         s.setUser(user);
 
         return subjectRepository.save(s);
@@ -69,13 +70,17 @@ public class SubjectController {
             @RequestParam String name,
             @RequestParam String code,
             @RequestParam(required = false) String gradingScale,
-            @RequestParam String status) { // 👈 New Field
+            @RequestParam String status,
+            @RequestParam(required = false) Boolean includeInGpa) { // 👈 New Field
             
         Subject s = subjectRepository.findById(id).orElseThrow();
         s.setSubjectName(name);
         s.setSubjectCode(code);
         s.setGradingScale(gradingScale);
         s.setStatus(status); // 👈 Save the new status
+        if (includeInGpa != null) {
+            s.setIncludeInGpa(includeInGpa);
+        }
         subjectRepository.save(s);
         return "Settings Updated!";
     }
@@ -89,6 +94,3 @@ public class SubjectController {
         return "Curve Updated!";
     }
 }
-
-
-
