@@ -169,6 +169,12 @@
             <div class="form-group"><label class="form-label">Subject Name</label><input type="text" class="modal-input" id="editSubName"></div>
             <div class="form-group"><label class="form-label">Subject Code</label><input type="text" class="modal-input" id="editSubCode"></div>
             <div class="form-group"><label class="form-label">Semester Status</label><select class="modal-input" id="editSubStatus"><option value="In Progress">Current (In Progress)</option><option value="Completed">Completed (Past Semester)</option></select></div>
+            <div class="form-group">
+                <label class="form-label">GPA Inclusion</label>
+                <label style="font-size:13px; display:flex; gap:8px; align-items:center;">
+                    <input type="checkbox" id="editIncludeInGpa" checked> Include this subject in GPA
+                </label>
+            </div>
             <div class="form-group" style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:15px;">
                 <label class="form-label">Grading Scale</label>
                 <label style="font-size:13px; display:flex; gap:8px; align-items:center;">
@@ -199,6 +205,12 @@
             <div class="modal-header"><h2 class="modal-title">Account Settings</h2><span class="close-btn" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
             <div class="form-group"><label class="form-label">Profile</label><input type="text" class="modal-input" placeholder="New Username" style="margin-bottom:10px;"><input type="email" class="modal-input" placeholder="New Email"><button class="btn-save" onclick="alert('Profile Update coming soon!')">Update Profile</button></div>
             <div class="form-group"><label class="form-label">Security</label><input type="password" class="modal-input" placeholder="New Password"><button class="btn-save" onclick="alert('Password Change coming soon!')">Change Password</button></div>
+            <div class="form-group">
+                <label class="form-label">Canvas Integration</label>
+                <input type="text" class="modal-input" id="canvasApiToken" readonly placeholder="Loading API token...">
+                <button class="btn-save" onclick="resetCanvasToken()">Regenerate Token</button>
+                <p style="font-size:12px; color:var(--text-muted); margin-top:8px;">Use this token in your Canvas extension as the <strong>X-Api-Token</strong> header.</p>
+            </div>
             <div class="form-group"><label class="form-label" style="color:var(--danger)">Danger Zone</label><button class="btn-danger" style="margin-top:0;" onclick="confirm('Are you sure?')">Delete Account</button></div>
         </div>
     </div>
@@ -232,10 +244,39 @@
         }
     }
 
-    function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; }
+    function openGlobalSettings() {
+        document.getElementById('globalSettingsModal').style.display = 'flex';
+        loadCanvasToken();
+    }
     function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
 
     window.onload = function() { fetchSubjects(); };
+
+    async function loadCanvasToken() {
+        const tokenField = document.getElementById('canvasApiToken');
+        if (!tokenField) return;
+        try {
+            const response = await fetch('/api/account/token');
+            if (!response.ok) throw new Error('Failed to load token');
+            const data = await response.json();
+            tokenField.value = data.token || '';
+        } catch (error) {
+            tokenField.value = 'Unable to load token';
+        }
+    }
+
+    async function resetCanvasToken() {
+        const tokenField = document.getElementById('canvasApiToken');
+        if (!tokenField) return;
+        try {
+            const response = await fetch('/api/account/token/reset', { method: 'POST' });
+            if (!response.ok) throw new Error('Failed to reset token');
+            const data = await response.json();
+            tokenField.value = data.token || '';
+        } catch (error) {
+            tokenField.value = 'Unable to reset token';
+        }
+    }
 
     function calculateGrade(score, customScaleStr) {
         let thresholds = [93, 88, 83, 78, 70, 60];
@@ -262,7 +303,9 @@
                 if (sub.letterGrade) { gradeInfo = { grade: sub.letterGrade, point: getPointsForLetter(sub.letterGrade), css: 'grade-A' }; displayScore = "Curved"; } 
                 else { let score = sub.currentScore || 0; gradeInfo = calculateGrade(score, sub.gradingScale); displayScore = score > 0 ? score + "%" : "-"; }
                 sub.calcGrade = gradeInfo.grade; sub.calcPoint = gradeInfo.point; sub.cssClass = gradeInfo.css; sub.displayScore = displayScore;
-                totalCredits += sub.credits; totalPoints += (gradeInfo.point * sub.credits);
+                if (sub.includeInGpa !== false) {
+                    totalCredits += sub.credits; totalPoints += (gradeInfo.point * sub.credits);
+                }
                 if (sub.status === 'Completed') completedSubjects.push(sub); else currentSubjects.push(sub);
             });
             document.getElementById('overall-gpa').innerText = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
@@ -285,15 +328,16 @@
                         </button>`;
                     if (sub.status === 'Completed') actions += `<button class="action-btn curved-btn" onclick="openCurveModal(${sub.subjectId})" title="Curved?"><i class="fa-solid fa-chart-line"></i></button>`;
                     actions += `
-                        <button class="action-btn" onclick="openSubjectModal(${sub.subjectId}, '${sub.subjectName}', '${sub.subjectCode}', '${sub.gradingScale || ''}', '${sub.status}')" title="Settings">
+                        <button class="action-btn" onclick="openSubjectModal(${sub.subjectId}, '${sub.subjectName}', '${sub.subjectCode}', '${sub.gradingScale || ''}', '${sub.status}', ${sub.includeInGpa !== false})" title="Settings">
                             <i class="fa-solid fa-gear"></i>
                         </button>`;
                     
+                    const statusLabel = sub.includeInGpa === false ? `${sub.status} (Excluded)` : sub.status;
                     let row = `<tr>
                         <td><a href="subject-details.html?id=${sub.subjectId}" style="text-decoration:none; color:inherit; font-weight:600;">${sub.subjectName}</a></td>
                         <td>${sub.subjectCode || ''}</td>
                         <td>${sub.credits}</td>
-                        <td><span style="font-size:12px; padding:2px 8px; background:#e0e7ff; color:#4f46e5; border-radius:4px;">${sub.status}</span></td>
+                        <td><span style="font-size:12px; padding:2px 8px; background:#e0e7ff; color:#4f46e5; border-radius:4px;">${statusLabel}</span></td>
                         <td>${sub.displayScore}</td>
                         <td class="${sub.cssClass}">${gradeKey}</td>
                         <td style="text-align: right;">${actions}</td>
@@ -305,14 +349,15 @@
     }
 
     // Modal Operations
-    function openSubjectModal(id, name, code, scale, status) {
+    function openSubjectModal(id, name, code, scale, status, includeInGpa) {
         document.getElementById('editSubId').value = id; document.getElementById('editSubName').value = name; document.getElementById('editSubCode').value = code; document.getElementById('editSubStatus').value = status; document.getElementById('customScaleStr').value = scale;
+        document.getElementById('editIncludeInGpa').checked = includeInGpa !== false;
         const useDefault = (!scale || scale === 'null' || scale === '');
         document.getElementById('useDefaultScale').checked = useDefault; toggleScaleInputs();
         document.getElementById('subjectModal').style.display = 'flex';
     }
     function toggleScaleInputs() { const isDefault = document.getElementById('useDefaultScale').checked; document.getElementById('customScaleInputs').style.display = isDefault ? 'none' : 'block'; }
-    function saveSubjectSettings() { const id = document.getElementById('editSubId').value; const name = document.getElementById('editSubName').value; const code = document.getElementById('editSubCode').value; const status = document.getElementById('editSubStatus').value; const scale = document.getElementById('useDefaultScale').checked ? "" : document.getElementById('customScaleStr').value; fetch(`/api/subjects/update-settings?id=${id}&name=${name}&code=${code}&gradingScale=${scale}&status=${status}`, { method: 'POST' }).then(() => location.reload()); }
+    function saveSubjectSettings() { const id = document.getElementById('editSubId').value; const name = document.getElementById('editSubName').value; const code = document.getElementById('editSubCode').value; const status = document.getElementById('editSubStatus').value; const scale = document.getElementById('useDefaultScale').checked ? "" : document.getElementById('customScaleStr').value; const includeInGpa = document.getElementById('editIncludeInGpa').checked; fetch(`/api/subjects/update-settings?id=${id}&name=${name}&code=${code}&gradingScale=${scale}&status=${status}&includeInGpa=${includeInGpa}`, { method: 'POST' }).then(() => location.reload()); }
     function deleteSubject() { const id = document.getElementById('editSubId').value; if(!confirm("Are you sure?")) return; fetch('/api/subjects/delete?id=' + id, { method: 'DELETE' }).then(() => location.reload()); }
     function openCurveModal(id) { document.getElementById('curveSubId').value = id; document.getElementById('curveModal').style.display = 'flex'; }
     function saveCurve() { const id = document.getElementById('curveSubId').value; const letter = document.getElementById('curveLetter').value; fetch(`/api/subjects/update-curve?id=${id}&letter=${letter}`, { method: 'POST' }).then(() => location.reload()); }
