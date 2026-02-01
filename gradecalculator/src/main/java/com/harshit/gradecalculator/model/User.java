@@ -21,6 +21,9 @@ public class User {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
+    @Column(name = "api_token", unique = true)
+    private String apiToken;
+
     // Link to Subjects: One User has Many Subjects
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Subject> subjects;
@@ -38,6 +41,9 @@ public class User {
 
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+
+    public String getApiToken() { return apiToken; }
+    public void setApiToken(String apiToken) { this.apiToken = apiToken; }
 
     public List<Subject> getSubjects() { return subjects; }
     public void setSubjects(List<Subject> subjects) { this.subjects = subjects; }
