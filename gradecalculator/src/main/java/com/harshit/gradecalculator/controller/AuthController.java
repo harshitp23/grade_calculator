@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest; 
 import jakarta.servlet.ServletException;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -40,6 +41,7 @@ public class AuthController {
         newUser.setEmail(email);
         String hashedPwd = passwordEncoder.encode(password);
         newUser.setPasswordHash(hashedPwd);
+        newUser.setApiToken(UUID.randomUUID().toString());
 
         // 4. Save
         userRepository.save(newUser);
@@ -55,4 +57,3 @@ public class AuthController {
     }
 
 }
-
