@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ComponentRepository extends JpaRepository<Component, Integer> {
     List<Component> findBySubject(Subject subject);
+    void deleteBySubject(Subject subject);
 }
