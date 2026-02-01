@@ -29,6 +29,7 @@ public class Subject {
     private String letterGrade;
 
     private boolean useTotalPoints;
+    private Boolean includeInGpa = true;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -71,6 +72,7 @@ public class Subject {
 
     public boolean isUseTotalPoints() { return useTotalPoints; }
     public void setUseTotalPoints(boolean useTotalPoints) { this.useTotalPoints = useTotalPoints; }
+
+    public Boolean getIncludeInGpa() { return includeInGpa == null ? Boolean.TRUE : includeInGpa; }
+    public void setIncludeInGpa(Boolean includeInGpa) { this.includeInGpa = includeInGpa; }
 }
-
-
