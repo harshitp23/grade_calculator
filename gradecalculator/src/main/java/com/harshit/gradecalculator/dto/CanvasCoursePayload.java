@@ -10,6 +10,7 @@ public class CanvasCoursePayload {
     private Integer credits;
     private Double currentScore;
     private Boolean includeInGpa;
+    private Boolean useTotalPoints;
     private List<CanvasAssignmentPayload> assignments;
 
     public String getName() { return name; }
@@ -29,6 +30,10 @@ public class CanvasCoursePayload {
 
     public Boolean getIncludeInGpa() { return includeInGpa; }
     public void setIncludeInGpa(Boolean includeInGpa) { this.includeInGpa = includeInGpa; }
+
+    public Boolean getUseTotalPoints() { return useTotalPoints; }
+    public void setUseTotalPoints(Boolean useTotalPoints) { this.useTotalPoints = useTotalPoints; }
+    public Boolean isUseTotalPoints() { return useTotalPoints; }
 
     public List<CanvasAssignmentPayload> getAssignments() { return assignments; }
     public void setAssignments(List<CanvasAssignmentPayload> assignments) { this.assignments = assignments; }
