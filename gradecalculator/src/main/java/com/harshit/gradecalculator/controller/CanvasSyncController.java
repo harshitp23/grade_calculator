@@ -90,7 +90,7 @@ public class CanvasSyncController {
                 subject.setIncludeInGpa(true);
             }
 
-            Boolean useTotalPoints = course.getUseTotalPoints();
+            Boolean useTotalPoints = course.isUseTotalPoints();
             if (useTotalPoints == null && course.getAssignments() != null && !course.getAssignments().isEmpty()) {
                 useTotalPoints = course.getAssignments().stream()
                         .noneMatch(assignment -> assignment.getWeight() != null && assignment.getWeight() > 0);
