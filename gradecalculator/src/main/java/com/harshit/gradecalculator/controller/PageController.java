@@ -1,10 +1,34 @@
 package com.harshit.gradecalculator.controller;
 
+import com.harshit.gradecalculator.model.Component;
+import com.harshit.gradecalculator.model.Subject;
+import com.harshit.gradecalculator.model.User;
+import com.harshit.gradecalculator.repository.ComponentRepository;
+import com.harshit.gradecalculator.repository.SubjectRepository;
+import com.harshit.gradecalculator.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Controller
 public class PageController {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
+    private ComponentRepository componentRepository;
 
     @GetMapping({"/", "/index.html"})
     public String dashboard() {
@@ -27,7 +51,28 @@ public class PageController {
     }
 
     @GetMapping("/subject-details.html")
-    public String subjectDetails() {
+    public String subjectDetails(
+            @RequestParam("id") Integer id,
+            @AuthenticationPrincipal UserDetails userDetails,
+            Model model
+    ) {
+        User user = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+        Subject subject = subjectRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found"));
+
+        // Ownership check (critical)
+        if (subject.getUser() == null || subject.getUser().getUserId() == null
+                || !subject.getUser().getUserId().equals(user.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
+        }
+
+        List<Component> components = componentRepository.findBySubject(subject);
+
+        model.addAttribute("subject", subject);
+        model.addAttribute("components", components);
+
         return "subject-details";
     }
 
