@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 import jakarta.persistence.*;
 import java.math.BigDecimal; // Import for Score
 
@@ -52,6 +53,7 @@ public class Subject {
     public void setComponents(List<Component> components) { this.components = components; }
 
     // Standard Getters
+    @JsonIgnore
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
@@ -86,4 +88,5 @@ public class Subject {
     public Boolean getIncludeInGpa() { return includeInGpa == null ? Boolean.TRUE : includeInGpa; }
     public void setIncludeInGpa(Boolean includeInGpa) { this.includeInGpa = includeInGpa; }
 }
+
 
