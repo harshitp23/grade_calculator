@@ -73,15 +73,18 @@ public class SubjectController {
     }
 
     @DeleteMapping("/delete")
-    public String deleteSubject(@RequestParam Integer id) {
-        subjectRepository.deleteById(id);
+    public String deleteSubject(@RequestParam Integer id, @AuthenticationPrincipal UserDetails userDetails) {
+        Subject s = loadOwnedSubject(id, userDetails);
+        subjectRepository.delete(s);
         return "Subject Deleted!";
     }
 
+
     @PostMapping("/update-score")
-    public String updateScore(@RequestParam Integer id, @RequestParam Double score) {
-        Subject s = subjectRepository.findById(id).orElseThrow();
-        s.setCurrentScore(java.math.BigDecimal.valueOf(score)); // Make sure this conversion is here
+    public String updateScore(@RequestParam Integer id, @RequestParam Double score,
+                          @AuthenticationPrincipal UserDetails userDetails) {
+        Subject s = loadOwnedSubject(id, userDetails);
+        s.setCurrentScore(java.math.BigDecimal.valueOf(score));
         subjectRepository.save(s);
         return "Score Updated!";
     }
@@ -94,38 +97,40 @@ public class SubjectController {
             @RequestParam String code,
             @RequestParam(required = false) String gradingScale,
             @RequestParam String status,
-            @RequestParam(required = false) Boolean includeInGpa) { // 👈 New Field
-            
-        Subject s = subjectRepository.findById(id).orElseThrow();
+            @RequestParam(required = false) Boolean includeInGpa,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        Subject s = loadOwnedSubject(id, userDetails);
         s.setSubjectName(name);
         s.setSubjectCode(code);
         s.setGradingScale(gradingScale);
-        s.setStatus(status); // 👈 Save the new status
-        if (includeInGpa != null) {
-            s.setIncludeInGpa(includeInGpa);
-        }
+        s.setStatus(status);
+        if (includeInGpa != null) s.setIncludeInGpa(includeInGpa);
         subjectRepository.save(s);
         return "Settings Updated!";
     }
 
+
     // 6. UPDATE Curved Grade
     @PostMapping("/update-curve")
-    public String updateCurve(@RequestParam Integer id, @RequestParam String letter) {
-        Subject s = subjectRepository.findById(id).orElseThrow();
-        s.setLetterGrade(letter); // Force this letter grade
+    public String updateCurve(@RequestParam Integer id, @RequestParam String letter,
+                          @AuthenticationPrincipal UserDetails userDetails) {
+        Subject s = loadOwnedSubject(id, userDetails);
+        s.setLetterGrade(letter);
         subjectRepository.save(s);
         return "Curve Updated!";
     }
 
+
     @PostMapping("/save")
-@Transactional
-public ResponseEntity<?> saveSubjectAndComponents(
-        @RequestBody SubjectSaveRequest payload,
-        @AuthenticationPrincipal UserDetails userDetails
-) {
-    if (payload == null || payload.getId() == null) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing subject id");
-    }
+    @Transactional
+    public ResponseEntity<?> saveSubjectAndComponents(
+            @RequestBody SubjectSaveRequest payload,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        if (payload == null || payload.getId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing subject id");
+        }
 
     User user = userRepository.findByUsername(userDetails.getUsername())
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
@@ -291,5 +296,6 @@ public ResponseEntity<?> saveSubjectAndComponents(
 
     
 }
+
 
 
