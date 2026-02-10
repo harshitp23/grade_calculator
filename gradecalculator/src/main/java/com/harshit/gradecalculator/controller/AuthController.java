@@ -50,10 +50,12 @@ public class AuthController {
         try {
             request.login(username, password);
         } catch (ServletException e) {
-            return "Success (But Auto-Login failed. Please login manually)";
+            return "Success-NoLogin";
         }
+
 
         return "Success";
     }
 
 }
+
