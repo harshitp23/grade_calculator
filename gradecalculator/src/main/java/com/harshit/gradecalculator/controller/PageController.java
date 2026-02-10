@@ -15,6 +15,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 
@@ -50,6 +52,7 @@ public class PageController {
         return "add-subject";
     }
 
+    @Transactional(readOnly = true)
     @GetMapping("/subject-details.html")
     public String subjectDetails(
             @RequestParam("id") Integer id,
@@ -68,10 +71,8 @@ public class PageController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
         }
 
-        List<Component> components = componentRepository.findBySubject(subject);
 
         model.addAttribute("subject", subject);
-        model.addAttribute("components", components);
 
         return "subject-details";
     }
