@@ -12,6 +12,21 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal; // Import this!
 import java.util.List;
 
+import com.harshit.gradecalculator.dto.SubjectSaveRequest;
+import com.harshit.gradecalculator.dto.ComponentSaveRequest;
+import com.harshit.gradecalculator.model.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.server.ResponseStatusException;
+import jakarta.transaction.Transactional;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+
 @RestController
 @RequestMapping("/api/subjects")
 public class SubjectController {
@@ -21,6 +36,10 @@ public class SubjectController {
     
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ComponentRepository componentRepository;
+
 
     @GetMapping("/list")
     public List<Subject> getSubjects(@AuthenticationPrincipal UserDetails userDetails) {
@@ -93,4 +112,168 @@ public class SubjectController {
         subjectRepository.save(s);
         return "Curve Updated!";
     }
+
+    @PostMapping("/save")
+@Transactional
+public ResponseEntity<?> saveSubjectAndComponents(
+        @RequestBody SubjectSaveRequest payload,
+        @AuthenticationPrincipal UserDetails userDetails
+) {
+    if (payload == null || payload.getId() == null) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing subject id");
+    }
+
+    User user = userRepository.findByUsername(userDetails.getUsername())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+    Subject subject = subjectRepository.findById(payload.getId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found"));
+
+    // Ownership check (critical)
+    if (subject.getUser() == null || subject.getUser().getUserId() == null
+            || !subject.getUser().getUserId().equals(user.getUserId())) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
+    }
+
+    // Update allowed fields (keep tight)
+    if (payload.getUseTotalPoints() != null) {
+        subject.setUseTotalPoints(payload.getUseTotalPoints());
+    }
+
+    // Replace components
+    componentRepository.deleteBySubject(subject);
+
+    if (payload.getComponents() != null) {
+        for (ComponentSaveRequest cReq : payload.getComponents()) {
+            if (cReq == null || !StringUtils.hasText(cReq.getName())) continue;
+
+            Component c = new Component();
+            c.setSubject(subject);
+            c.setName(cReq.getName().trim());
+            c.setWeight(cReq.getWeight() != null ? cReq.getWeight() : 0.0);
+            c.setScore(cReq.getScore() != null ? cReq.getScore() : 0.0);
+            c.setTotalPoints(cReq.getTotalPoints() != null ? cReq.getTotalPoints() : 0.0);
+
+            componentRepository.save(c);
+        }
+    }
+
+    // Recompute currentScore server-side
+    BigDecimal computed = computeSubjectPercent(subject);
+    subject.setCurrentScore(computed);
+
+    subjectRepository.save(subject);
+
+    return ResponseEntity.ok().build();
+    }
+
+
+    @PostMapping("/save")
+    @Transactional
+    public ResponseEntity<?> saveSubjectAndComponents(
+            @RequestBody SubjectSaveRequest payload,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        if (payload == null || payload.getId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing subject id");
+        }
+
+        User user = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+        Subject subject = subjectRepository.findById(payload.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found"));
+
+        // Ownership check (critical)
+        if (subject.getUser() == null || subject.getUser().getUserId() == null
+                || !subject.getUser().getUserId().equals(user.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
+        }
+
+        // Update allowed fields (keep tight)
+        if (payload.getUseTotalPoints() != null) {
+            subject.setUseTotalPoints(payload.getUseTotalPoints());
+        }
+
+        // Replace components
+        componentRepository.deleteBySubject(subject);
+
+        if (payload.getComponents() != null) {
+            for (ComponentSaveRequest cReq : payload.getComponents()) {
+                if (cReq == null || !StringUtils.hasText(cReq.getName())) continue;
+
+                Component c = new Component();
+                c.setSubject(subject);
+                c.setName(cReq.getName().trim());
+                c.setWeight(cReq.getWeight() != null ? cReq.getWeight() : 0.0);
+                c.setScore(cReq.getScore() != null ? cReq.getScore() : 0.0);
+                c.setTotalPoints(cReq.getTotalPoints() != null ? cReq.getTotalPoints() : 0.0);
+
+                componentRepository.save(c);
+            }
+        }
+
+        // Recompute currentScore server-side
+        BigDecimal computed = computeSubjectPercent(subject);
+        subject.setCurrentScore(computed);
+
+        subjectRepository.save(subject);
+
+        return ResponseEntity.ok().build();
+    }
+
+
+    private BigDecimal computeSubjectPercent(Subject subject) {
+        boolean useTotalPoints = subject.isUseTotalPoints();
+        List<Component> comps = componentRepository.findBySubject(subject);
+
+        if (comps == null || comps.isEmpty()) {
+            return null;
+        }
+
+        double percent;
+
+        if (useTotalPoints) {
+            double sumScore = 0.0;
+            double sumTotal = 0.0;
+            for (Component c : comps) {
+                double s = c.getScore() != null ? c.getScore() : 0.0;
+                double t = c.getTotalPoints() != null ? c.getTotalPoints() : 0.0;
+                sumScore += s;
+                sumTotal += t;
+            }
+            if (sumTotal <= 0.0) return null;
+            percent = (sumScore / sumTotal) * 100.0;
+        } else {
+            double totalWeight = 0.0;
+            double weighted = 0.0;
+
+            for (Component c : comps) {
+                double w = c.getWeight() != null ? c.getWeight() : 0.0;
+                double s = c.getScore() != null ? c.getScore() : 0.0;
+                double t = c.getTotalPoints() != null ? c.getTotalPoints() : 0.0;
+
+                totalWeight += w;
+
+                if (t > 0.0) {
+                    weighted += (s / t) * w;
+                } else if (s > 0.0) {
+                    // Extra credit behavior (matches your JS intent)
+                    weighted += s;
+                }
+            }
+
+            // If no weights entered, treat as null
+            if (totalWeight <= 0.0 && weighted == 0.0) return null;
+
+            percent = weighted;
+        }
+
+        // store with 2 decimal places
+        return BigDecimal.valueOf(percent).setScale(2, RoundingMode.HALF_UP);
+    }
+
+
+    
 }
+
