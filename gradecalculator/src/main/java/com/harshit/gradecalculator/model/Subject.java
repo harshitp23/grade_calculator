@@ -1,5 +1,8 @@
 package com.harshit.gradecalculator.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.List;
+
 
 import jakarta.persistence.*;
 import java.math.BigDecimal; // Import for Score
@@ -35,12 +38,19 @@ public class Subject {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Component> components = new ArrayList<>();
+
+
     // --- 👇 GETTERS AND SETTERS 👇 ---
 
     // Note: The frontend expects 'subjectId' sometimes, we map 'id' to it.
     public Integer getSubjectId() { return id; } 
     public void setSubjectId(Integer id) { this.id = id; }
-    
+
+    public List<Component> getComponents() { return components; }
+    public void setComponents(List<Component> components) { this.components = components; }
+
     // Standard Getters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
@@ -76,3 +86,4 @@ public class Subject {
     public Boolean getIncludeInGpa() { return includeInGpa == null ? Boolean.TRUE : includeInGpa; }
     public void setIncludeInGpa(Boolean includeInGpa) { this.includeInGpa = includeInGpa; }
 }
+
