@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .loginPage("/login.html")
                 .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/index.html", true)
+                .failureUrl("/login.html?error")
                 .permitAll()
             )
             .logout(logout -> logout
@@ -49,5 +50,6 @@ public class SecurityConfig {
         return http.build();
     }
 }
+
 
 
