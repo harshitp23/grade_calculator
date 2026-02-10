@@ -33,7 +33,7 @@ public class CanvasCoursePayload {
 
     public Boolean getUseTotalPoints() { return useTotalPoints; }
     public void setUseTotalPoints(Boolean useTotalPoints) { this.useTotalPoints = useTotalPoints; }
-    public Boolean isUseTotalPoints() { return useTotalPoints; }
+
 
     public List<CanvasAssignmentPayload> getAssignments() { return assignments; }
     public void setAssignments(List<CanvasAssignmentPayload> assignments) { this.assignments = assignments; }
