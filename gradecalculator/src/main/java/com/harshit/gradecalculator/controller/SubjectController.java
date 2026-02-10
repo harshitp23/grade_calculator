@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal; // Import this!
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+
 import com.harshit.gradecalculator.dto.SubjectSaveRequest;
 import com.harshit.gradecalculator.dto.ComponentSaveRequest;
 import com.harshit.gradecalculator.model.Component;
@@ -273,7 +277,19 @@ public ResponseEntity<?> saveSubjectAndComponents(
         return BigDecimal.valueOf(percent).setScale(2, RoundingMode.HALF_UP);
     }
 
+    private Subject loadOwnedSubject(Integer subjectId, UserDetails userDetails) {
+        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
+        Subject subject = subjectRepository.findById(subjectId).orElseThrow();
+        if (subject.getUser() == null || !subject.getUser().getUserId().equals(user.getUserId())) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.FORBIDDEN, "Not allowed");
+        }
+        return subject;
+    }
+
+
 
     
 }
+
 
