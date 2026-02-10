@@ -1,4 +1,6 @@
 package com.harshit.gradecalculator.model;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 import jakarta.persistence.*;
 import java.util.List;
@@ -30,6 +32,10 @@ public class User {
 
     // --- Getters and Setters ---
 
+    @JsonIgnore
+    public List<Subject> getSubjects() { return subjects; }
+
+
     public Integer getUserId() { return userId; }
     public void setUserId(Integer userId) { this.userId = userId; }
 
@@ -48,3 +54,4 @@ public class User {
     public List<Subject> getSubjects() { return subjects; }
     public void setSubjects(List<Subject> subjects) { this.subjects = subjects; }
 }
+
