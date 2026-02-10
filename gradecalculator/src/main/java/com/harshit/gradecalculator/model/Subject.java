@@ -40,7 +40,10 @@ public class Subject {
     private User user;
 
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("subject")
     private List<Component> components = new ArrayList<>();
+
+
 
 
     // --- 👇 GETTERS AND SETTERS 👇 ---
@@ -88,5 +91,6 @@ public class Subject {
     public Boolean getIncludeInGpa() { return includeInGpa == null ? Boolean.TRUE : includeInGpa; }
     public void setIncludeInGpa(Boolean includeInGpa) { this.includeInGpa = includeInGpa; }
 }
+
 
 
