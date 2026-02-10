@@ -37,8 +37,8 @@ public class AuthController {
 
         // 3. Create User
         User newUser = new User();
-        newUser.setUsername(username);
-        newUser.setEmail(email);
+        newUser.setUsername(username.trim());
+        newUser.setEmail(email.trim());
         String hashedPwd = passwordEncoder.encode(password);
         newUser.setPasswordHash(hashedPwd);
         newUser.setApiToken(UUID.randomUUID().toString());
@@ -58,4 +58,5 @@ public class AuthController {
     }
 
 }
+
 
