@@ -90,11 +90,17 @@ public class CanvasSyncController {
                 subject.setIncludeInGpa(true);
             }
 
-            Boolean useTotalPoints = course.isUseTotalPoints();
-            if (useTotalPoints == null && course.getAssignments() != null && !course.getAssignments().isEmpty()) {
-                useTotalPoints = course.getAssignments().stream()
-                        .noneMatch(assignment -> assignment.getWeight() != null && assignment.getWeight() > 0);
+            Boolean useTotalPoints = course.getUseTotalPoints();
+
+            if (useTotalPoints == null) {
+                List<CanvasAssignmentPayload> assignments = course.getAssignments();
+                if (assignments != null && !assignments.isEmpty()) {
+                    // Infer mode: if no assignment has a positive weight, treat as total-points mode
+                    useTotalPoints = assignments.stream()
+                    .noneMatch(a -> a.getWeight() != null && a.getWeight() > 0);
+                }
             }
+
             if (useTotalPoints != null) {
                 subject.setUseTotalPoints(useTotalPoints);
             }
@@ -102,22 +108,26 @@ public class CanvasSyncController {
             Subject savedSubject = subjectRepository.save(subject);
             subjectsUpdated += 1;
 
-            if (course.getAssignments() != null) {
+            // Only replace components when assignments are present AND non-empty
+            List<CanvasAssignmentPayload> assignments = course.getAssignments();
+            if (assignments != null && !assignments.isEmpty()) {
                 componentRepository.deleteBySubject(savedSubject);
-                for (CanvasAssignmentPayload assignment : course.getAssignments()) {
-                    if (!StringUtils.hasText(assignment.getName())) {
-                        continue;
-                    }
+
+                for (CanvasAssignmentPayload assignment : assignments) {
+                    if (!StringUtils.hasText(assignment.getName())) continue;
+
                     Component component = new Component();
                     component.setSubject(savedSubject);
                     component.setName(assignment.getName());
                     component.setScore(assignment.getScore());
                     component.setTotalPoints(assignment.getTotalPoints());
                     component.setWeight(assignment.getWeight() != null ? assignment.getWeight() : 0.0);
+
                     componentRepository.save(component);
                     componentsUpdated += 1;
                 }
             }
+
         }
 
         return ResponseEntity.ok(new CanvasSyncResponse(subjectsUpdated, componentsUpdated));
