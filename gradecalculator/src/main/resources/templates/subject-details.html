@@ -143,7 +143,8 @@
                 <table>
                     <thead><tr><th>Component Name</th><th>Weight (%)</th><th>Score</th><th>Total Points</th><th style="text-align: right;">Action</th></tr></thead>
                     <tbody id="componentTableBody">
-                        <tr th:each="component : ${components}" class="component-row">
+                        <tr th:each="component : ${subject.components}" class="component-row">
+
                             <input type="hidden" class="comp-id" th:value="${component.id}">
                             <td><input type="text" class="form-control comp-name" th:value="${component.name}"></td>
                             <td><input type="number" class="form-control comp-weight" th:value="${component.weight}" step="any" oninput="calculateGrade()"></td>
@@ -333,4 +334,5 @@
 </script>
 </body>
 </html>
+
 
