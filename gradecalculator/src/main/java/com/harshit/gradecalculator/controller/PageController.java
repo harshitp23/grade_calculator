@@ -47,13 +47,13 @@ public class PageController {
         return "register";
     }
 
-    @GetMapping("/add-subject.html")
+    @GetMapping({"/add-subject", "/add-subject.html"})
     public String addSubject() {
         return "add-subject";
     }
 
     @Transactional(readOnly = true)
-    @GetMapping("/subject-details.html")
+    @GetMapping({"/subject-details", "/subject-details.html"})
     public String subjectDetails(
             @RequestParam("id") Integer id,
             @AuthenticationPrincipal UserDetails userDetails,
@@ -77,7 +77,7 @@ public class PageController {
         return "subject-details";
     }
 
-    @GetMapping("/target-grade.html")
+    @GetMapping({"/target-grade", "/target-grade.html"})
     public String targetGrade() {
         return "target-grade";
     }
