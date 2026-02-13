@@ -78,7 +78,15 @@ public class PageController {
     }
 
     @GetMapping({"/target-grade", "/target-grade.html"})
-    public String targetGrade() {
-        return "target-grade";
+    public String targetGrade(Model model, @AuthenticationPrincipal UserDetails userDetails) {
+        // 🔥 FIX: We must fetch and add the subjects here, otherwise the HTML will throw a 500 error
+        User user = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+    
+        // Only show "In Progress" subjects for the target calculator
+        List<Subject> currentSubjects = subjectRepository.findByUserAndStatus(user, "In Progress");
+    
+        model.addAttribute("subjects", currentSubjects);
+        return "target-grade"; // We will name the HTML file target-grade.html
     }
 }
