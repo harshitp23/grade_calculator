@@ -1,17 +1,7 @@
 package com.harshit.gradecalculator.model;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import jakarta.persistence.*;
-import java.math.BigDecimal; // Import for Score
-
-package com.harshit.gradecalculator.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // 👈 ADD THIS LINE
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // Fix: Added this import
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -24,7 +14,7 @@ public class Subject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id; // Changed from subjectId to id for consistency
+    private Integer id;
 
     @Column(nullable = false)
     private String subjectName;
@@ -35,7 +25,6 @@ public class Subject {
     private int credits;
     private String status;
 
-    // Score can be null initially, use BigDecimal for precision
     private BigDecimal currentScore;
 
     // Custom Settings
@@ -53,21 +42,15 @@ public class Subject {
     @JsonIgnoreProperties("subject")
     private List<Component> components = new ArrayList<>();
 
+    // --- GETTERS AND SETTERS ---
 
-
-
-    // --- 👇 GETTERS AND SETTERS 👇 ---
-
-    // Note: The frontend expects 'subjectId' sometimes, we map 'id' to it.
+    // Map 'id' to 'subjectId' for Frontend compatibility
     @JsonProperty("subjectId")
-    public Integer getSubjectId() { return id; } 
+    public Integer getSubjectId() { return id; }
     public void setSubjectId(Integer id) { this.id = id; }
 
-    public List<Component> getComponents() { return components; }
-    public void setComponents(List<Component> components) { this.components = components; }
-
     // Standard Getters
-    @com.fasterxml.jackson.annotation.JsonIgnore
+    @JsonIgnore
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
@@ -101,9 +84,7 @@ public class Subject {
 
     public Boolean getIncludeInGpa() { return includeInGpa == null ? Boolean.TRUE : includeInGpa; }
     public void setIncludeInGpa(Boolean includeInGpa) { this.includeInGpa = includeInGpa; }
+
+    public List<Component> getComponents() { return components; }
+    public void setComponents(List<Component> components) { this.components = components; }
 }
-
-
-
-
-
