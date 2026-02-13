@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
 import java.util.List;
 
 @Controller
@@ -22,8 +21,11 @@ public class TargetCalcController {
     @GetMapping("/target-calculator")
     public String showTargetPage(Model model, @AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
-        List<Subject> subjects = subjectRepository.findByUser(user);
-        model.addAttribute("subjects", subjects);
+        
+        // 🔥 Filter: Only show subjects that are currently "In Progress"
+        List<Subject> currentSubjects = subjectRepository.findByUserAndStatus(user, "In Progress");
+        
+        model.addAttribute("subjects", currentSubjects);
         return "target-calculator";
     }
 }
