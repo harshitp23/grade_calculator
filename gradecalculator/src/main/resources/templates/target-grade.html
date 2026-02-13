@@ -1,72 +1,111 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Target Grade - GradeCalc</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Target Calculator - GradeCalc</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; }
+        /* CSS Copied Exactly from Dashboard */
+        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --danger: #ef4444; }
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
+        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; transition: transform 0.3s ease; }
+        .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
+        .nav-link:hover, .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .spacer { flex: 1; }
+        .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
+        .icon-btn:hover { color: var(--primary); }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; }
+        .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); padding: 25px; margin-bottom: 20px; }
         
-        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; }
-        .logo { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 40px; }
-        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; }
-        .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
-        .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: auto; }
+        /* Specific Page UI */
+        .container { max-width: 800px; margin: 0 auto; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; }
+        select, input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); color: var(--text-main); margin-bottom: 20px; }
+        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .result-huge { font-size: 48px; font-weight: 900; color: var(--primary); margin: 10px 0; text-align: center; }
 
-        .main-content { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 800px; }
-        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 25px; margin-bottom: 25px; }
-        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
-        select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 15px; }
-        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; }
-        .result-huge { font-size: 44px; font-weight: 900; color: var(--primary); }
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; z-index: 999; }
+            .sidebar.active { transform: translateX(0); }
+            .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; }
+            .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
+            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
+            .mobile-overlay.active { display: block; }
+        }
     </style>
 </head>
 <body>
+
+    <div class="mobile-nav">
+        <div style="display:flex; align-items:center; gap:15px;">
+            <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
+            <div class="logo" style="margin:0; font-size:18px;"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        </div>
+        <div style="display:flex; gap:15px;">
+            <button class="icon-btn" id="themeBtnMobile" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+            <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+        </div>
+    </div>
+
+    <div class="mobile-overlay" onclick="toggleSidebar()"></div>
+
     <aside class="sidebar">
+        <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
             <a th:href="@{/index}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Subject</a>
-            <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Simulator</a>
+            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
+            <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
             <a th:href="@{/target-grade}" class="nav-link active"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
         </nav>
-        <div class="sidebar-footer">
-            <div style="display: flex; justify-content: space-around; margin-bottom: 15px;">
-                <button onclick="toggleTheme()" style="background:none; border:none; cursor:pointer; color:var(--text-muted);"><i class="fa-solid fa-circle-half-stroke"></i></button>
-                <a th:href="@{/settings}" style="color:var(--text-muted);"><i class="fa-solid fa-gear"></i></a>
-                <form th:action="@{/logout}" method="post" style="display:inline;"><button type="submit" style="background:none; border:none; cursor:pointer; color:var(--text-muted);"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+        <div class="spacer"></div>
+        <div class="user-profile">
+            <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">Signed in as <strong sec:authentication="name" style="color:var(--text-main)">Student</strong></span>
+            <div style="display:flex; gap:10px;">
+                <button class="icon-btn" id="themeBtn" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+                <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
             </div>
-            <div style="font-size: 11px; color: var(--text-muted); text-align: center;">Signed in as <br><strong th:text="${#authentication.name}">User</strong></div>
         </div>
     </aside>
 
     <main class="main-content">
         <div class="container">
-            <h1>Target Grade Calculator 🎯</h1>
+            <h1 style="margin-top:0;">Target Calculator 🎯</h1>
+            
             <div class="card">
-                <label>In-Progress Subject</label>
-                <select id="subSelect" onchange="loadData()">
-                    <option value="" disabled selected>Select a course...</option>
-                    <th:block th:each="sub : ${subjects}"><option th:value="${sub.id}" th:text="${sub.subjectName}"></option></th:block>
+                <label>Select Subject</label>
+                <select id="subSelect" onchange="loadTargetData()">
+                    <option value="" disabled selected>Choose an in-progress course...</option>
+                    <th:block th:each="sub : ${subjects}">
+                        <option th:value="${sub.id}" th:text="${sub.subjectName}"></option>
+                    </th:block>
                 </select>
-                <div id="quickStats" style="display:none; justify-content:space-between; text-align:center;">
-                    <div><label>Current</label><div id="cGrade" style="font-weight:800; font-size:18px;">-</div></div>
-                    <div><label>System</label><div id="mDisplay" style="font-weight:600;">-</div></div>
+                <div id="quickStats" style="display:none; justify-content:space-around; text-align:center; padding-top:10px; border-top:1px solid var(--border-color);">
+                    <div><label>Current Grade</label><div id="cGrade" style="font-weight:800; font-size:20px; color:var(--primary);">-</div></div>
+                    <div><label>Mode</label><div id="mDisplay" style="font-weight:600;">-</div></div>
                 </div>
             </div>
-            <div id="inputs" class="card" style="display:none;">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                    <div><label>Goal %</label><input type="number" id="goal" value="90"></div>
-                    <div><label>Assignment Points</label><input type="number" id="pts" placeholder="e.g. 100"></div>
+
+            <div id="calcCard" class="card" style="display:none;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                    <div><label>Goal Percentage (%)</label><input type="number" id="goal" value="90"></div>
+                    <div><label>Assignment Weight/Points</label><input type="number" id="pts" placeholder="e.g. 100"></div>
                 </div>
-                <label>Target Category</label><select id="compSelect"></select>
-                <button class="btn-calc" onclick="calc()">Calculate</button>
+                <label>Category</label>
+                <select id="compSelect"></select>
+                <button class="btn-calc" onclick="calculate()">Calculate Score Needed</button>
             </div>
-            <div id="res" class="card" style="display:none; text-align:center;">
+
+            <div id="resCard" class="card" style="display:none; text-align:center;">
+                <div style="text-transform:uppercase; font-size:12px; font-weight:700; color:var(--text-muted);">Score Needed:</div>
                 <div id="finalResult" class="result-huge">0%</div>
                 <div id="desc" style="color:var(--text-muted);"></div>
             </div>
@@ -74,24 +113,34 @@
     </main>
 
     <script>
-        (function() { document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); })();
+        // Universal Sidebar/Theme Logic
+        function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
         function toggleTheme() {
-            const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', t); localStorage.setItem('theme', t);
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); updateIcons(false); }
+            else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); updateIcons(true); }
         }
+        function updateIcons(isDark) {
+            const icon = isDark ? 'fa-sun' : 'fa-moon';
+            document.getElementById('themeBtn').querySelector('i').className = `fa-solid ${icon}`;
+            document.getElementById('themeBtnMobile').querySelector('i').className = `fa-solid ${icon}`;
+        }
+        if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
+
+        // Logic
         let sd = null;
-        async function loadData() {
+        async function loadTargetData() {
             const res = await fetch(`/api/simulator/load?subjectId=${document.getElementById('subSelect').value}`);
             sd = await res.json();
             document.getElementById('quickStats').style.display = 'flex';
-            document.getElementById('inputs').style.display = 'block';
+            document.getElementById('calcCard').style.display = 'block';
             document.getElementById('cGrade').innerText = (sd.currentScore || 0) + '%';
             const iw = sd.components.some(c => c.weight > 0);
             document.getElementById('mDisplay').innerText = iw ? "Weighted" : "Points";
             const cs = document.getElementById('compSelect'); cs.innerHTML = "";
             sd.components.forEach(c => cs.innerHTML += `<option value="${c.id}">${c.name}</option>`);
         }
-        function calc() {
+        function calculate() {
             const g = parseFloat(document.getElementById('goal').value), p = parseFloat(document.getElementById('pts').value);
             const comp = sd.components.find(c => c.id == document.getElementById('compSelect').value);
             const iw = sd.components.some(c => c.weight > 0);
@@ -104,9 +153,11 @@
                 let te=0, tp=0; sd.components.forEach(c => { te+=c.score; tp+=c.totalPoints; });
                 n = (((g/100)*(tp+p))-te)/p*100;
             }
-            document.getElementById('res').style.display = 'block';
-            document.getElementById('finalResult').innerText = n.toFixed(1) + "%";
-            document.getElementById('desc').innerText = `You need ${((n/100)*p).toFixed(1)} / ${p} points.`;
+            document.getElementById('resCard').style.display = 'block';
+            const resEl = document.getElementById('finalResult');
+            resEl.innerText = n.toFixed(1) + "%";
+            resEl.style.color = n > 100 ? "var(--danger)" : "var(--primary)";
+            document.getElementById('desc').innerText = `Target points: ${((n/100)*p).toFixed(1)} / ${p}`;
         }
     </script>
 </body>
