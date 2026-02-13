@@ -2,17 +2,16 @@ package com.harshit.gradecalculator.controller;
 
 import com.harshit.gradecalculator.model.Component;
 import com.harshit.gradecalculator.model.Subject;
+import com.harshit.gradecalculator.model.User; // Import User
 import com.harshit.gradecalculator.repository.ComponentRepository;
 import com.harshit.gradecalculator.repository.SubjectRepository;
+import com.harshit.gradecalculator.repository.UserRepository; // 👈 THIS WAS MISSING
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
-import com.harshit.gradecalculator.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 
 import java.util.List;
 
@@ -82,4 +81,3 @@ public class ComponentController {
     }
 
 }
-
