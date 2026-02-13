@@ -44,36 +44,17 @@
 
         @media (max-width: 768px) { .sidebar { display:none; } .main-content { padding:20px; } }
     </style>
+    <script>
+        (function() { document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); })();
+        function toggleTheme() {
+            const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', t); localStorage.setItem('theme', t);
+        }
+    </script>
 </head>
-<body data-theme="light">
+<body>
 
-    <aside class="sidebar">
-        <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
-        <nav>
-            <a th:href="@{/index}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a th:href="@{/simulator}" class="nav-link active"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
-            <a th:href="@{/target-calculator}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <div style="display: flex; justify-content: space-around; margin-bottom: 15px;">
-                <button onclick="toggleTheme()" title="Toggle Theme" style="background:none; border:none; cursor:pointer; color:var(--text-muted);">
-                    <i class="fa-solid fa-circle-half-stroke"></i>
-                </button>
-                <a th:href="@{/settings}" title="Account Settings" style="color:var(--text-muted);">
-                    <i class="fa-solid fa-gear"></i>
-                </a>
-                <form th:action="@{/logout}" method="post" style="display:inline;">
-                    <button type="submit" title="Logout" style="background:none; border:none; cursor:pointer; color:var(--text-muted);">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                    </button>
-                </form>
-            </div>
-            <div style="font-size: 11px; color: var(--text-muted); text-align: center;">
-                Signed in as <br><strong th:text="${#authentication.name}">User</strong>
-            </div>
-        </div>
-    </aside>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
     <main class="main-content">
         <div class="container">
@@ -106,14 +87,6 @@
 
     <script>
         let currentSubject = null;
-
-        // Theme initialization
-        if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-theme', 'dark');
-        function toggleTheme() {
-            const target = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            document.body.setAttribute('data-theme', target);
-            localStorage.setItem('theme', target);
-        }
 
         async function loadSubject() {
             const id = document.getElementById('subjectSelect').value;
