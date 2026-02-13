@@ -3,137 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Target Calculator - Grade Calculator</title>
+    <title>Target Grade Calculator - GradeCalc</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* (Using same CSS variables and sidebar styles as add-subject.html) */
-        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --danger: #ef4444; }
+        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --success: #10b981; }
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
-        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; transition: transform 0.3s ease; }
-        .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
-        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
+        
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition:0.2s;}
         .nav-link:hover, .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
-        .spacer { flex: 1; }
-        .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
-        .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
-        .icon-btn:hover { color: var(--primary); }
+        .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
         
-        .main-content { flex: 1; padding: 40px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; }
-        .form-container { width: 100%; max-width: 500px; background: var(--card-bg); padding: 40px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid var(--border-color); margin-top: 20px; }
-        .page-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; text-align: center; }
-        .page-subtitle { color: var(--text-muted); font-size: 14px; text-align: center; margin-bottom: 30px; }
-        
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
-        input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; box-sizing: border-box; background: var(--bg-color); color: var(--text-main); }
-        .btn-calc { width: 100%; padding: 14px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px; margin-top: 10px; }
-        
-        .result-box { margin-top: 25px; padding: 20px; background: rgba(79, 70, 229, 0.05); border-radius: 8px; text-align: center; border: 1px solid rgba(79, 70, 229, 0.1); display: none; }
-        .result-title { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
-        .result-value { font-size: 32px; font-weight: 800; color: var(--primary); }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; display:flex; flex-direction:column; align-items:center; }
+        .container { width: 100%; max-width: 800px; }
 
-        /* Mobile */
-        .mobile-nav { display: none; }
-        .mobile-overlay { display: none; }
-        .mobile-close-sidebar { display: none; }
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.1); z-index: 999; }
-            .sidebar.active { transform: translateX(0); }
-            .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
-            .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
-            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
-            .mobile-overlay.active { display: block; }
-        }
+        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 25px; margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        
+        label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+        select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; box-sizing: border-box; }
+        
+        .status-box { display: flex; justify-content: space-around; text-align: center; margin-top: 10px; }
+        .status-val { font-size: 22px; font-weight: 800; color: var(--primary); }
+
+        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn-calc:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); }
+
+        #resultArea { margin-top: 20px; text-align: center; display:none; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .result-huge { font-size: 48px; font-weight: 900; color: var(--primary); margin: 10px 0; }
     </style>
 </head>
 <body>
 
-    <div class="mobile-nav">
-        <div style="display:flex; align-items:center; gap:15px;">
-            <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
-            <div class="logo" style="margin:0; font-size:18px;"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
-        </div>
-        <div style="display:flex; gap:15px;">
-            <button class="icon-btn" id="themeBtnMobile" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
-            <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
-        </div>
-    </div>
-    
-    <div class="mobile-overlay" onclick="toggleSidebar()"></div>
-
     <aside class="sidebar">
-        <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
-            <a href="index.html" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a href="add-subject.html" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
+            <a href="/index" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
             <a href="/simulator" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
-            <a href="target-grade.html" class="nav-link active"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+            <a href="/target-calculator" class="nav-link active"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
         </nav>
-        <div class="spacer"></div>
-        <div class="user-profile">
-            <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">Signed in as <strong>Student</strong></span>
-            <div style="display:flex; gap:10px;">
-                <button class="icon-btn" id="themeBtn" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
-                <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
-            </div>
-        </div>
     </aside>
 
     <main class="main-content">
-        <div class="form-container">
-            <div class="page-title">Final Exam Target</div>
-            <div class="page-subtitle">Calculate what you need to score on your final exam</div>
+        <div class="container">
+            <h1 style="margin-top:0;">Target Grade Calculator 🎯</h1>
+            
+            <div class="card">
+                <label>Select Subject</label>
+                <select id="subjectSelect" onchange="onSubjectChange()">
+                    <option value="" disabled selected>Choose a subject...</option>
+                    <th:block th:each="sub : ${subjects}">
+                        <option th:value="${sub.id}" th:text="${sub.subjectName}">Math 101</option>
+                    </th:block>
+                </select>
 
-            <div class="form-group"><label>Current Grade (%)</label><input type="number" id="current" placeholder="e.g. 85"></div>
-            <div class="form-group"><label>Desired Grade (%)</label><input type="number" id="desired" placeholder="e.g. 90"></div>
-            <div class="form-group"><label>Weight of Final Exam (%)</label><input type="number" id="weight" placeholder="e.g. 20"></div>
+                <div id="statusArea" style="display:none; margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                    <div class="status-box">
+                        <div>
+                            <label>Current Grade</label>
+                            <div class="status-val" id="currentGradeVal">--</div>
+                        </div>
+                        <div>
+                            <label>Grading Mode</label>
+                            <div id="gradingModeVal" style="font-weight: 600;">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <button class="btn-calc" onclick="calculateTarget()">Calculate</button>
+            <div id="predictArea" style="display:none;">
+                <div class="card">
+                    <div class="grid">
+                        <div>
+                            <label>Target Grade</label>
+                            <select id="targetLetter" onchange="updateTargetPercent()">
+                                </select>
+                        </div>
+                        <div>
+                            <label>OR Target %</label>
+                            <input type="number" id="targetPercent" step="0.1" value="90">
+                        </div>
+                    </div>
 
-            <div class="result-box" id="resultBox">
-                <div class="result-title">You need to score</div>
-                <div class="result-value" id="resultValue">0%</div>
+                    <div class="grid" style="margin-top: 20px;">
+                        <div>
+                            <label>Which Component?</label>
+                            <select id="componentSelect">
+                                </select>
+                        </div>
+                        <div>
+                            <label>Points in Assignment</label>
+                            <input type="number" id="nextPoints" placeholder="e.g. 100">
+                        </div>
+                    </div>
+
+                    <button class="btn-calc" onclick="calculateRequiredScore()">Calculate Target Score</button>
+                </div>
+
+                <div id="resultArea" class="card">
+                    <div style="text-transform: uppercase; font-size: 12px; font-weight: 700; color: var(--text-muted);">You need a</div>
+                    <div class="result-huge" id="requiredScore">88%</div>
+                    <div id="resultText" style="color: var(--text-muted);">to reach your goal.</div>
+                </div>
             </div>
         </div>
     </main>
 
-<script>
-    // Theme Logic
-    const themeBtn = document.getElementById('themeBtn');
-    const themeBtnMobile = document.getElementById('themeBtnMobile');
-    function updateIcons(isDark) {
-        const iconClass = isDark ? 'fa-sun' : 'fa-moon';
-        themeBtn.querySelector('i').className = `fa-solid ${iconClass}`;
-        if(themeBtnMobile) themeBtnMobile.querySelector('i').className = `fa-solid ${iconClass}`;
-    }
-    if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
-    function toggleTheme() {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); updateIcons(false); } 
-        else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); updateIcons(true); }
-    }
-    function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
+    <script>
+        let currentSubData = null;
 
-    // Calc Logic
-    function calculateTarget() {
-        const current = parseFloat(document.getElementById('current').value);
-        const desired = parseFloat(document.getElementById('desired').value);
-        const weight = parseFloat(document.getElementById('weight').value);
+        async function onSubjectChange() {
+            const id = document.getElementById('subjectSelect').value;
+            const res = await fetch(`/api/simulator/load?subjectId=${id}`);
+            currentSubData = await res.json();
 
-        if (!current || !desired || !weight) { alert("Please fill all fields"); return; }
+            // 1. Update Status
+            document.getElementById('statusArea').style.display = 'block';
+            document.getElementById('predictArea').style.display = 'block';
+            document.getElementById('currentGradeVal').innerText = (currentSubData.currentScore || 0) + '%';
+            
+            // Check if weighted
+            const isWeighted = currentSubData.components.some(c => c.weight > 0);
+            document.getElementById('gradingModeVal').innerText = isWeighted ? "Weighted Categories" : "Total Points";
 
-        const w = weight / 100.0;
-        const required = (desired - (current * (1 - w))) / w;
+            // 2. Populate Target Letters based on subject scale
+            const letterSelect = document.getElementById('targetLetter');
+            letterSelect.innerHTML = '<option value="">Custom %</option>';
+            if (currentSubData.gradingScale) {
+                // Assuming gradingScale is a JSON string like {"A":93, "B":80}
+                const scale = JSON.parse(currentSubData.gradingScale);
+                Object.keys(scale).sort((a,b) => scale[b] - scale[a]).forEach(letter => {
+                    const opt = document.createElement('option');
+                    opt.value = scale[letter];
+                    opt.innerText = `${letter} (>= ${scale[letter]}%)`;
+                    letterSelect.appendChild(opt);
+                });
+            }
 
-        document.getElementById('resultBox').style.display = 'block';
-        document.getElementById('resultValue').innerText = required.toFixed(2) + "%";
-    }
-</script>
+            // 3. Populate Components
+            const compSelect = document.getElementById('componentSelect');
+            compSelect.innerHTML = "";
+            currentSubData.components.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.innerText = c.name + (isWeighted ? ` (${c.weight}%)` : "");
+                compSelect.appendChild(opt);
+            });
+        }
+
+        function updateTargetPercent() {
+            const val = document.getElementById('targetLetter').value;
+            if(val) document.getElementById('targetPercent').value = val;
+        }
+
+        function calculateRequiredScore() {
+            const targetVal = parseFloat(document.getElementById('targetPercent').value);
+            const nextPoints = parseFloat(document.getElementById('nextPoints').value);
+            const compId = document.getElementById('componentSelect').value;
+            
+            if(!nextPoints || isNaN(targetVal)) { alert("Please enter all values"); return; }
+
+            const selectedComp = currentSubData.components.find(c => c.id == compId);
+            const isWeighted = currentSubData.components.some(c => c.weight > 0);
+
+            let neededPercent = 0;
+
+            if (isWeighted) {
+                // --- WEIGHTED MATH ---
+                let currentWeightedSum = 0;
+                let totalWeightSynced = 0;
+
+                currentSubData.components.forEach(c => {
+                    if (c.totalPoints > 0) {
+                        currentWeightedSum += (c.score / c.totalPoints) * c.weight;
+                        totalWeightSynced += c.weight;
+                    }
+                });
+
+                // We need to figure out what happens if we add the new points to currentWeightedSum
+                const otherWeightsSum = currentWeightedSum - ((selectedComp.score / (selectedComp.totalPoints || 1)) * selectedComp.weight);
+                
+                // Target = OtherWeights + ( (ExistingScore + NewScore) / (ExistingTotal + NewTotal) ) * CompWeight
+                // Solving for NewScore...
+                const targetCompContribution = targetVal - otherWeightsSum;
+                const requiredCompRatio = targetCompContribution / selectedComp.weight;
+                const totalCompPointsAfter = (selectedComp.totalPoints || 0) + nextPoints;
+                
+                const totalScoreNeededInComp = requiredCompRatio * totalCompPointsAfter;
+                const scoreNeededOnAssignment = totalScoreNeededInComp - (selectedComp.score || 0);
+                
+                neededPercent = (scoreNeededOnAssignment / nextPoints) * 100;
+            } else {
+                // --- TOTAL POINTS MATH ---
+                let totalPointsEarned = 0;
+                let totalPointsPossible = 0;
+                currentSubData.components.forEach(c => {
+                    totalPointsEarned += c.score;
+                    totalPointsPossible += c.totalPoints;
+                });
+
+                // Target = (Earned + X) / (Possible + NextPoints)
+                neededPercent = ((targetVal / 100 * (totalPointsPossible + nextPoints)) - totalPointsEarned) / nextPoints * 100;
+            }
+
+            // UI Update
+            const resArea = document.getElementById('resultArea');
+            const scoreDisplay = document.getElementById('requiredScore');
+            resArea.style.display = 'block';
+            
+            if (neededPercent > 100) {
+                scoreDisplay.style.color = "#ef4444"; // Red for impossible/hard
+                scoreDisplay.innerText = neededPercent.toFixed(1) + "%";
+                document.getElementById('resultText').innerText = "This might be tough! You need extra credit.";
+            } else if (neededPercent < 0) {
+                scoreDisplay.style.color = "var(--success)";
+                scoreDisplay.innerText = "0%";
+                document.getElementById('resultText').innerText = "You've already secured this grade! Even a 0% keeps you safe.";
+            } else {
+                scoreDisplay.style.color = "var(--primary)";
+                scoreDisplay.innerText = neededPercent.toFixed(1) + "%";
+                document.getElementById('resultText').innerText = `You need a score of ${(neededPercent / 100 * nextPoints).toFixed(1)} / ${nextPoints}.`;
+            }
+            
+            resArea.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
 </body>
 </html>
