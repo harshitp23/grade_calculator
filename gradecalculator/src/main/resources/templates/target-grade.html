@@ -1,95 +1,143 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Target Grade - GradeCalc</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; }
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
+        
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
-        .main-content { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+        
+        /* SIDEBAR STYLES */
+        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; }
+        .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition:0.2s;}
+        .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: auto; }
+
+        /* CONTENT */
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; display:flex; flex-direction:column; align-items:center; }
         .container { width: 100%; max-width: 800px; }
-        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 25px; margin-bottom: 25px; }
+        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 25px; margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
         label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
-        select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 15px; }
-        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .result-huge { font-size: 44px; font-weight: 900; color: var(--primary); }
+        select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; margin-bottom: 15px; box-sizing: border-box; }
+        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .result-huge { font-size: 48px; font-weight: 900; color: var(--primary); margin: 10px 0; }
     </style>
+    
     <script>
-        (function() { document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); })();
+        // Standardized Theme Script
+        (function() { 
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+        
         function toggleTheme() {
-            const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', t); localStorage.setItem('theme', t);
+            const current = document.documentElement.getAttribute('data-theme');
+            const target = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', target);
+            localStorage.setItem('theme', target);
         }
     </script>
 </head>
 <body>
+
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
     <main class="main-content">
         <div class="container">
             <h1>Target Grade Calculator 🎯</h1>
+            
             <div class="card">
                 <label>Current Semester Subject</label>
-                <select id="subSelect" onchange="loadData()">
+                <select id="subSelect" onchange="loadTargetData()">
                     <option value="" disabled selected>Select an In-Progress course...</option>
                     <th:block th:each="sub : ${subjects}">
                         <option th:value="${sub.id}" th:text="${sub.subjectName}"></option>
                     </th:block>
                 </select>
-                <div id="quickStats" style="display:none; justify-content:space-between; text-align:center; padding-top:10px;">
+                
+                <div id="quickStats" style="display:none; justify-content:space-around; text-align:center; padding-top:10px;">
                     <div><label>Current</label><div id="cGrade" style="font-weight:800; font-size:18px;">-</div></div>
-                    <div><label>System</label><div id="mDisplay" style="font-weight:600;">-</div></div>
+                    <div><label>Mode</label><div id="mDisplay" style="font-weight:600;">-</div></div>
                 </div>
             </div>
-            <div id="inputs" class="card" style="display:none;">
+
+            <div id="calcInputs" class="card" style="display:none;">
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-                    <div><label>Goal %</label><input type="number" id="goal" value="90"></div>
-                    <div><label>Assignment Points</label><input type="number" id="pts" placeholder="e.g. 100"></div>
+                    <div><label>Goal %</label><input type="number" id="goalPercent" value="90"></div>
+                    <div><label>Assignment Max Points</label><input type="number" id="ptsPossible" placeholder="e.g. 100"></div>
                 </div>
-                <label>Add to Group</label><select id="compSelect"></select>
-                <button class="btn-calc" onclick="calc()">Calculate</button>
+                <label>Add to Group/Category</label>
+                <select id="compSelect"></select>
+                <button class="btn-calc" onclick="calculateTarget()">Calculate Required Score</button>
             </div>
-            <div id="res" class="card" style="display:none; text-align:center;">
-                <div id="finalResult" class="result-huge">0%</div>
-                <div id="desc" style="color:var(--text-muted); margin-top:5px;"></div>
+
+            <div id="targetResult" class="card" style="display:none; text-align:center;">
+                <div style="font-size: 12px; font-weight: 700; color: var(--text-muted);">REQUIRED SCORE:</div>
+                <div id="finalResultVal" class="result-huge">0%</div>
+                <div id="resultDescription" style="color:var(--text-muted);"></div>
             </div>
         </div>
     </main>
-    <script>
-        let sd = null;
-        async function loadData() {
-            const val = document.getElementById('subSelect').value;
-            if(!val) return;
-            const res = await fetch(`/api/simulator/load?subjectId=${val}`);
-            sd = await res.json();
+
+    <script th:inline="javascript">
+        let subjectData = null;
+
+        async function loadTargetData() {
+            const subId = document.getElementById('subSelect').value;
+            const res = await fetch(`/api/simulator/load?subjectId=${subId}`);
+            subjectData = await res.json();
+            
             document.getElementById('quickStats').style.display = 'flex';
-            document.getElementById('inputs').style.display = 'block';
-            document.getElementById('cGrade').innerText = (sd.currentScore || 0) + '%';
-            const iw = sd.components.some(c => c.weight > 0);
-            document.getElementById('mDisplay').innerText = iw ? "Weighted" : "Points";
-            const cs = document.getElementById('compSelect'); cs.innerHTML = "";
-            sd.components.forEach(c => cs.innerHTML += `<option value="${c.id}">${c.name}</option>`);
+            document.getElementById('calcInputs').style.display = 'block';
+            document.getElementById('cGrade').innerText = (subjectData.currentScore || 0) + '%';
+            
+            const isWeighted = subjectData.components.some(c => c.weight > 0);
+            document.getElementById('mDisplay').innerText = isWeighted ? "Weighted" : "Points";
+            
+            const cs = document.getElementById('compSelect');
+            cs.innerHTML = "";
+            subjectData.components.forEach(c => {
+                cs.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+            });
         }
-        function calc() {
-            const g = parseFloat(document.getElementById('goal').value), p = parseFloat(document.getElementById('pts').value);
-            if(!p || isNaN(g)) { alert("Enter goal and assignment points"); return; }
-            const comp = sd.components.find(c => c.id == document.getElementById('compSelect').value);
-            const iw = sd.components.some(c => c.weight > 0);
-            let n = 0;
-            if (iw) {
-                let wp = 0; sd.components.forEach(c => { if(c.totalPoints > 0) wp += (c.score/c.totalPoints)*c.weight; });
-                const oc = wp - ((comp.score/(comp.totalPoints||1))*comp.weight);
-                n = (((g - oc)/comp.weight)*(comp.totalPoints+p) - comp.score)/p*100;
+
+        function calculateTarget() {
+            const targetGoal = parseFloat(document.getElementById('goalPercent').value);
+            const nextPts = parseFloat(document.getElementById('ptsPossible').value);
+            const compId = document.getElementById('compSelect').value;
+            
+            if(!nextPts || isNaN(targetGoal)) { alert("Enter both goal and points"); return; }
+            
+            const comp = subjectData.components.find(c => c.id == compId);
+            const isWeighted = subjectData.components.some(c => c.weight > 0);
+            let needed = 0;
+
+            if (isWeighted) {
+                let wp = 0; 
+                subjectData.components.forEach(c => { 
+                    if(c.totalPoints > 0) wp += (c.score/c.totalPoints)*c.weight; 
+                });
+                const otherContribution = wp - ((comp.score/(comp.totalPoints||1))*comp.weight);
+                needed = (((targetGoal - otherContribution)/comp.weight)*(comp.totalPoints+nextPts) - comp.score)/nextPts*100;
             } else {
-                let te=0, tp=0; sd.components.forEach(c => { te+=c.score; tp+=c.totalPoints; });
-                n = (((g/100)*(tp+p))-te)/p*100;
+                let te=0, tp=0; 
+                subjectData.components.forEach(c => { te+=c.score; tp+=c.totalPoints; });
+                needed = (((targetGoal/100)*(tp+nextPts))-te)/nextPts*100;
             }
-            document.getElementById('res').style.display = 'block';
-            const f = document.getElementById('finalResult'); f.innerText = n.toFixed(1) + "%";
-            f.style.color = n > 100 ? "#ef4444" : "var(--primary)";
-            document.getElementById('desc').innerText = `Target score: ${((n/100)*p).toFixed(1)} / ${p}`;
+
+            document.getElementById('targetResult').style.display = 'block';
+            const f = document.getElementById('finalResultVal');
+            f.innerText = needed.toFixed(1) + "%";
+            f.style.color = needed > 100 ? "#ef4444" : "var(--primary)";
+            document.getElementById('resultDescription').innerText = `You need ${((needed/100)*nextPts).toFixed(1)} out of ${nextPts} points.`;
         }
     </script>
 </body>
