@@ -8,6 +8,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.math.BigDecimal; // Import for Score
 
+package com.harshit.gradecalculator.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // 👈 ADD THIS LINE
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "subjects")
 public class Subject {
@@ -92,6 +102,7 @@ public class Subject {
     public Boolean getIncludeInGpa() { return includeInGpa == null ? Boolean.TRUE : includeInGpa; }
     public void setIncludeInGpa(Boolean includeInGpa) { this.includeInGpa = includeInGpa; }
 }
+
 
 
 
