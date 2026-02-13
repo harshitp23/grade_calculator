@@ -3,10 +3,11 @@ package com.harshit.gradecalculator.dto;
 import java.util.List;
 
 public class CanvasComponentPayload {
-    private String name;       // e.g. "Assignments", "Exams"
-    private Double weight;     // e.g. 40.0
-    private Double score;      // Calculated score for the group
+    private String name;
+    private Double weight;
+    private Double score;
     private Double totalPoints;
+    private int dropLowest; // New field
     
     private List<CanvasAssignmentPayload> assignments;
 
@@ -21,6 +22,9 @@ public class CanvasComponentPayload {
 
     public Double getTotalPoints() { return totalPoints; }
     public void setTotalPoints(Double totalPoints) { this.totalPoints = totalPoints; }
+
+    public int getDropLowest() { return dropLowest; }
+    public void setDropLowest(int dropLowest) { this.dropLowest = dropLowest; }
 
     public List<CanvasAssignmentPayload> getAssignments() { return assignments; }
     public void setAssignments(List<CanvasAssignmentPayload> assignments) { this.assignments = assignments; }
