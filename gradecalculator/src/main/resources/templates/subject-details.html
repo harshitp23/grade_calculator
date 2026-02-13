@@ -90,16 +90,25 @@
                     </thead>
                     <tbody>
                         <th:block th:each="comp : ${subject.components}">
-                            <tr class="component-row" onclick="toggleAssignments(this)">
+                            <tr class="component-row" 
+                                onclick="toggleAssignments(this)"
+                                th:data-drop="${comp.dropLowest}">
                                 <td>
                                     <i class="fa-solid fa-chevron-right toggle-icon"></i>
                                     <span th:text="${comp.name}">Exams</span>
+                                    <span th:if="${comp.dropLowest > 0}" 
+                                          style="font-size:10px; background:#fee2e2; color:#991b1b; padding:2px 6px; border-radius:4px; margin-left:8px;">
+                                        Drops Lowest <span th:text="${comp.dropLowest}">1</span>
+                                    </span>
                                 </td>
                                 <td th:text="${comp.weight} + '%'">40%</td>
                                 <td>
-                                    <span th:text="${comp.score}">0</span> / <span th:text="${comp.totalPoints}">0</span>
+                                    <span class="comp-score-display">
+                                        <span th:text="${comp.score}">0</span> / <span th:text="${comp.totalPoints}">0</span>
+                                    </span>
                                 </td>
-                                <td th:text="${comp.totalPoints > 0 ? #numbers.formatDecimal((comp.score / comp.totalPoints) * 100, 1, 2) + '%' : '-'}">
+                                <td class="comp-percent-display" 
+                                    th:text="${comp.totalPoints > 0 ? #numbers.formatDecimal((comp.score / comp.totalPoints) * 100, 1, 2) + '%' : '-'}">
                                     85%
                                 </td>
                             </tr>
@@ -117,8 +126,8 @@
                                         <tbody>
                                             <tr th:each="assign : ${comp.assignments}">
                                                 <td style="padding-left:40px;" th:text="${assign.name}">Midterm 1</td>
-                                                <td th:text="${assign.score}">85</td>
-                                                <td th:text="${assign.totalPoints}">100</td>
+                                                <td class="score-val" th:text="${assign.score}">85</td>
+                                                <td class="total-val" th:text="${assign.totalPoints}">100</td>
                                             </tr>
                                             <tr th:if="${#lists.isEmpty(comp.assignments)}">
                                                 <td colspan="3" style="text-align:center; font-style:italic; padding:15px;">No assignments synced in this group yet.</td>
@@ -142,7 +151,86 @@
         </div>
     </main>
 
-    <script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener("DOMContentLoaded", function() {
+            recalculateAllDrops();
+        });
+
+        function recalculateAllDrops() {
+            const rows = document.querySelectorAll('.component-row');
+            rows.forEach(row => {
+                const dropAttr = row.getAttribute('data-drop');
+                const dropCount = dropAttr ? parseInt(dropAttr) : 0;
+                
+                if (dropCount > 0) {
+                    calculateComponentScore(row, dropCount);
+                }
+            });
+        }
+
+        function calculateComponentScore(parentRow, dropCount) {
+            const assignTable = parentRow.nextElementSibling.querySelector('.assignments-table tbody');
+            const assignRows = Array.from(assignTable.querySelectorAll('tr'));
+            
+            // Filter out empty message rows
+            const validRows = assignRows.filter(r => r.querySelector('.score-val'));
+
+            if (validRows.length <= dropCount) {
+                // If we drop everything or have nothing
+                // We keep original display or set to 0/0 if completely empty
+                return; 
+            }
+
+            // Extract data
+            let assignments = validRows.map(r => {
+                const s = parseFloat(r.querySelector('.score-val').innerText);
+                const t = parseFloat(r.querySelector('.total-val').innerText);
+                const percent = t > 0 ? (s / t) : 0;
+                return { s, t, percent, row: r };
+            });
+
+            // Sort by percentage (ascending)
+            assignments.sort((a, b) => a.percent - b.percent);
+
+            // Reset styles
+            assignments.forEach(a => {
+                a.row.style.textDecoration = "none";
+                a.row.style.opacity = "1";
+            });
+
+            // "Drop" the lowest
+            for (let i = 0; i < dropCount; i++) {
+                assignments[i].row.style.textDecoration = "line-through";
+                assignments[i].row.style.opacity = "0.5";
+            }
+
+            // Calculate new totals from remaining
+            const kept = assignments.slice(dropCount);
+            let finalScore = 0;
+            let finalTotal = 0;
+            kept.forEach(a => {
+                finalScore += a.s;
+                finalTotal += a.t;
+            });
+
+            updateRowDisplay(parentRow, finalScore, finalTotal);
+        }
+
+        function updateRowDisplay(row, score, total) {
+            const scoreSpan = row.querySelector('.comp-score-display');
+            const percentCell = row.querySelector('.comp-percent-display');
+            
+            scoreSpan.innerText = `${parseFloat(score.toFixed(2))} / ${parseFloat(total.toFixed(2))}`;
+            
+            if (total > 0) {
+                const p = (score / total) * 100;
+                percentCell.innerText = p.toFixed(2) + '%';
+            } else {
+                percentCell.innerText = '-';
+            }
+        }
+
         function toggleAssignments(row) {
             row.classList.toggle('active');
             var content = row.nextElementSibling.querySelector('.assignments-container');
@@ -152,6 +240,7 @@
                 content.style.display = "block";
             }
         }
+        /*]]>*/
     </script>
 </body>
 </html>
