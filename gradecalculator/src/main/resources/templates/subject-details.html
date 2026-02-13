@@ -1,69 +1,125 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subject Details - Grade Calculator</title>
+    <title>Subject Details - GradeCalc</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; }
-        [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --border-color: #334155; }
+        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --success: #10b981; }
+        [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
+        
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        
+        /* SIDEBAR */
+        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; }
+        .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition:0.2s;}
+        .nav-link:hover { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: auto; }
+
+        /* MAIN CONTENT */
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
         .container { max-width: 1000px; margin: 0 auto; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
+        
+        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; padding: 12px 20px; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.02); }
         td { padding: 12px 20px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
-        .component-row { cursor: pointer; font-weight: 600; }
+        
+        .component-row { cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        .component-row:hover { background: rgba(0,0,0,0.02); }
+        
         .assignments-container { display: none; background: rgba(0,0,0,0.02); }
         .toggle-icon { margin-right: 10px; transition: 0.2s; display: inline-block; }
         .active .toggle-icon { transform: rotate(90deg); }
+
+        .btn-back { display: inline-block; margin-top: 20px; padding: 10px 20px; background: var(--primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; transition: 0.2s; }
+        .btn-back:hover { transform: translateY(-1px); opacity: 0.9; }
+
+        @media (max-width: 768px) { .sidebar { display:none; } .main-content { padding: 20px; } }
     </style>
-    <script>
-        (function() { document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); })();
-        function toggleTheme() {
-            const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', t); localStorage.setItem('theme', t);
-        }
-    </script>
 </head>
 <body>
-    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <aside class="sidebar">
+        <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        <nav>
+            <a th:href="@{/index}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
+            <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
+            <a th:href="@{/target-grade}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div style="display: flex; justify-content: space-around; margin-bottom: 15px; align-items: center;">
+                <button onclick="toggleTheme()" title="Toggle Theme" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size: 1.1rem;">
+                    <i class="fa-solid fa-circle-half-stroke"></i>
+                </button>
+                <a th:href="@{/settings}" title="Account Settings" style="color:var(--text-muted); font-size: 1.1rem;">
+                    <i class="fa-solid fa-gear"></i>
+                </a>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" title="Logout" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size: 1.1rem;">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </form>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); text-align: center;">
+                Signed in as <br><strong th:text="${#authentication.name}">User</strong>
+            </div>
+        </div>
+    </aside>
+
     <main class="main-content">
         <div class="container">
             <div class="header-row">
                 <div>
-                    <h1 th:text="${subject.subjectName}">Subject</h1>
-                    <div style="color:var(--text-muted)" th:text="${subject.subjectCode}">CODE</div>
+                    <h1 th:text="${subject.subjectName}" style="margin:0;">Subject Name</h1>
+                    <div style="color:var(--text-muted); font-size:14px; margin-top:4px;">Code: <span th:text="${subject.subjectCode}">CS101</span></div>
                 </div>
                 <div style="text-align:right">
-                    <label>Current Grade</label>
-                    <div style="font-size:24px; font-weight:800; color:var(--primary)" th:text="${subject.currentScore + '%'}">0%</div>
+                    <label style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Current Grade</label>
+                    <div style="font-size:28px; font-weight:800; color:var(--primary)" th:text="${subject.currentScore + '%'}">0%</div>
                 </div>
             </div>
+
             <div class="card">
                 <table>
                     <thead>
-                        <tr><th>Component</th><th>Weight</th><th>Score</th><th>%</th></tr>
+                        <tr>
+                            <th style="width:40%;">Component / Group</th>
+                            <th>Weight</th>
+                            <th>Score / Total</th>
+                            <th>Percentage</th>
+                        </tr>
                     </thead>
                     <tbody>
                         <th:block th:each="comp : ${subject.components}">
                             <tr class="component-row" onclick="toggleAssignments(this)" th:data-drop="${comp.dropLowest}">
-                                <td><i class="fa-solid fa-chevron-right toggle-icon"></i> <span th:text="${comp.name}"></span></td>
-                                <td th:text="${comp.weight + '%'}"></td>
-                                <td class="comp-score-display" th:text="${comp.score + ' / ' + comp.totalPoints}"></td>
-                                <td class="comp-percent-display" th:text="${comp.totalPoints > 0 ? (comp.score/comp.totalPoints*100) : 0}"></td>
+                                <td>
+                                    <i class="fa-solid fa-chevron-right toggle-icon"></i>
+                                    <span th:text="${comp.name}">Component</span>
+                                    <span th:if="${comp.dropLowest > 0}" style="font-size:10px; background:#fee2e2; color:#991b1b; padding:2px 6px; border-radius:4px; margin-left:8px;">
+                                        Drops Lowest <span th:text="${comp.dropLowest}">1</span>
+                                    </span>
+                                </td>
+                                <td th:text="${comp.weight + '%'}">0%</td>
+                                <td class="comp-score-display" th:text="${comp.score + ' / ' + comp.totalPoints}">0 / 0</td>
+                                <td class="comp-percent-display" th:text="${comp.totalPoints > 0 ? #numbers.formatDecimal((comp.score / comp.totalPoints) * 100, 1, 2) + '%' : '-'}">0%</td>
                             </tr>
                             <tr class="assignments-container">
                                 <td colspan="4">
-                                    <table style="width:100%">
+                                    <table style="width:100%; border-top: 1px solid var(--border-color);">
                                         <tr th:each="assign : ${comp.assignments}">
-                                            <td style="padding-left:40px" th:text="${assign.name}"></td>
-                                            <td class="score-val" th:text="${assign.score}"></td>
-                                            <td class="total-val" th:text="${assign.totalPoints}"></td>
+                                            <td style="padding-left:40px; color: var(--text-muted); font-size: 13px;" th:text="${assign.name}">Assignment</td>
+                                            <td style="font-size: 13px; color: var(--text-muted);" th:text="${assign.score}">0</td>
+                                            <td style="font-size: 13px; color: var(--text-muted);" th:text="${assign.totalPoints}">100</td>
+                                            <td></td> </tr>
+                                        <tr th:if="${#lists.isEmpty(comp.assignments)}">
+                                            <td colspan="4" style="text-align:center; font-style:italic; padding:15px; color: var(--text-muted);">No assignments synced yet.</td>
                                         </tr>
                                     </table>
                                 </td>
@@ -72,9 +128,25 @@
                     </tbody>
                 </table>
             </div>
+
+            <a th:href="@{/index}" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
         </div>
     </main>
+
     <script>
+        // Theme initialization
+        (function() { 
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const target = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', target);
+            localStorage.setItem('theme', target);
+        }
+
         function toggleAssignments(row) {
             row.classList.toggle('active');
             const content = row.nextElementSibling;
