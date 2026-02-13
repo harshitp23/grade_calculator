@@ -23,23 +23,28 @@
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
         .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); padding: 25px; margin-bottom: 20px; }
         
-        /* Specific Page UI */
+        /* Mobile Specifics from Dashboard */
+        .mobile-nav { display: none; }
+        .mobile-overlay { display: none; }
+        .mobile-close-sidebar { display: none; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.1); z-index: 999; }
+            .sidebar.active { transform: translateX(0); }
+            .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+            .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
+            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
+            .mobile-overlay.active { display: block; }
+        }
+
+        /* Page specific UI */
         .container { max-width: 800px; margin: 0 auto; }
         label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; }
         select, input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); color: var(--text-main); margin-bottom: 20px; }
         .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; transition: 0.3s; }
         .result-huge { font-size: 48px; font-weight: 900; color: var(--primary); margin: 10px 0; text-align: center; }
-
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); }
-            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; z-index: 999; }
-            .sidebar.active { transform: translateX(0); }
-            .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; }
-            .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
-            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
-            .mobile-overlay.active { display: block; }
-        }
     </style>
 </head>
 <body>
@@ -78,26 +83,25 @@
 
     <main class="main-content">
         <div class="container">
-            <h1 style="margin-top:0;">Target Calculator 🎯</h1>
-            
+            <h1>Target Calculator 🎯</h1>
             <div class="card">
-                <label>Select Subject</label>
+                <label>In-Progress Subject</label>
                 <select id="subSelect" onchange="loadTargetData()">
-                    <option value="" disabled selected>Choose an in-progress course...</option>
+                    <option value="" disabled selected>Choose a course...</option>
                     <th:block th:each="sub : ${subjects}">
                         <option th:value="${sub.id}" th:text="${sub.subjectName}"></option>
                     </th:block>
                 </select>
-                <div id="quickStats" style="display:none; justify-content:space-around; text-align:center; padding-top:10px; border-top:1px solid var(--border-color);">
-                    <div><label>Current Grade</label><div id="cGrade" style="font-weight:800; font-size:20px; color:var(--primary);">-</div></div>
+                <div id="quickStats" style="display:none; justify-content:space-around; text-align:center; padding-top:10px;">
+                    <div><label>Current</label><div id="cGrade" style="font-weight:800; font-size:20px; color:var(--primary);">-</div></div>
                     <div><label>Mode</label><div id="mDisplay" style="font-weight:600;">-</div></div>
                 </div>
             </div>
 
             <div id="calcCard" class="card" style="display:none;">
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                    <div><label>Goal Percentage (%)</label><input type="number" id="goal" value="90"></div>
-                    <div><label>Assignment Weight/Points</label><input type="number" id="pts" placeholder="e.g. 100"></div>
+                    <div><label>Goal %</label><input type="number" id="goal" value="90"></div>
+                    <div><label>Points Possible</label><input type="number" id="pts" placeholder="e.g. 100"></div>
                 </div>
                 <label>Category</label>
                 <select id="compSelect"></select>
@@ -105,7 +109,7 @@
             </div>
 
             <div id="resCard" class="card" style="display:none; text-align:center;">
-                <div style="text-transform:uppercase; font-size:12px; font-weight:700; color:var(--text-muted);">Score Needed:</div>
+                <div style="font-size:12px; font-weight:700; color:var(--text-muted);">SCORE NEEDED:</div>
                 <div id="finalResult" class="result-huge">0%</div>
                 <div id="desc" style="color:var(--text-muted);"></div>
             </div>
@@ -113,7 +117,7 @@
     </main>
 
     <script>
-        // Universal Sidebar/Theme Logic
+        // Standardized Theme/Sidebar Logic
         function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
         function toggleTheme() {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -127,7 +131,6 @@
         }
         if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
 
-        // Logic
         let sd = null;
         async function loadTargetData() {
             const res = await fetch(`/api/simulator/load?subjectId=${document.getElementById('subSelect').value}`);
@@ -154,10 +157,8 @@
                 n = (((g/100)*(tp+p))-te)/p*100;
             }
             document.getElementById('resCard').style.display = 'block';
-            const resEl = document.getElementById('finalResult');
-            resEl.innerText = n.toFixed(1) + "%";
-            resEl.style.color = n > 100 ? "var(--danger)" : "var(--primary)";
-            document.getElementById('desc').innerText = `Target points: ${((n/100)*p).toFixed(1)} / ${p}`;
+            document.getElementById('finalResult').innerText = n.toFixed(1) + "%";
+            document.getElementById('desc').innerText = `You need ${((n/100)*p).toFixed(1)} out of ${p} points.`;
         }
     </script>
 </body>
