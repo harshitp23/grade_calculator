@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade Simulator - GradeCalc</title>
+    <title>Simulator - GradeCalc</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -23,6 +23,21 @@
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
         .container { width: 100%; max-width: 900px; margin: 0 auto; }
         
+        .mobile-nav { display: none; }
+        .mobile-overlay { display: none; }
+        .mobile-close-sidebar { display: none; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; z-index: 999; }
+            .sidebar.active { transform: translateX(0); }
+            .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+            .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
+            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
+            .mobile-overlay.active { display: block; }
+        }
+
         /* Page Styles */
         .selector-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
         select { padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); flex: 1; font-size: 14px; background: var(--bg-color); color: var(--text-main); }
@@ -32,18 +47,7 @@
         .group-header { padding: 15px 20px; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
         .assign-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .assign-input { flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); font-size: 13px; }
-        .dropped { text-decoration: line-through; opacity: 0.4; }
         .not-graded { opacity: 0.5; font-style: italic; }
-
-        @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); }
-            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; z-index: 999; }
-            .sidebar.active { transform: translateX(0); }
-            .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
-            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
-            .mobile-overlay.active { display: block; }
-        }
     </style>
 </head>
 <body>
@@ -94,7 +98,7 @@
                 <div class="sim-header">
                     <div>
                         <div id="modeLabel" style="font-size:10px; text-transform:uppercase; color:var(--primary); font-weight:700;">Mode</div>
-                        <div id="simStat" style="font-size:14px; color:var(--text-muted);">--</div>
+                        <div id="simStat" style="font-size:14px; color:var(--text-muted);">Testing hypotheticals</div>
                     </div>
                     <div class="grade-pill" id="simPill">0.00%</div>
                 </div>
