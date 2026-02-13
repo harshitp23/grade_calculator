@@ -132,48 +132,49 @@ public class SubjectController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing subject id");
         }
 
-    User user = userRepository.findByUsername(userDetails.getUsername())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+        User user = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
-    Subject subject = subjectRepository.findById(payload.getId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found"));
+        Subject subject = subjectRepository.findById(payload.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found"));
 
-    // Ownership check (critical)
-    if (subject.getUser() == null || subject.getUser().getUserId() == null
-            || !subject.getUser().getUserId().equals(user.getUserId())) {
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
-    }
-
-    // Update allowed fields (keep tight)
-    if (payload.getUseTotalPoints() != null) {
-        subject.setUseTotalPoints(payload.getUseTotalPoints());
-    }
-
-    // Replace components
-    componentRepository.deleteBySubject(subject);
-
-    if (payload.getComponents() != null) {
-        for (ComponentSaveRequest cReq : payload.getComponents()) {
-            if (cReq == null || !StringUtils.hasText(cReq.getName())) continue;
-
-            Component c = new Component();
-            c.setSubject(subject);
-            c.setName(cReq.getName().trim());
-            c.setWeight(cReq.getWeight() != null ? cReq.getWeight() : 0.0);
-            c.setScore(cReq.getScore() != null ? cReq.getScore() : 0.0);
-            c.setTotalPoints(cReq.getTotalPoints() != null ? cReq.getTotalPoints() : 0.0);
-
-            componentRepository.save(c);
+        // Ownership check
+        if (subject.getUser() == null || subject.getUser().getUserId() == null
+                || !subject.getUser().getUserId().equals(user.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
         }
-    }
 
-    // Recompute currentScore server-side
-    BigDecimal computed = computeSubjectPercent(subject);
-    subject.setCurrentScore(computed);
+        // Update Settings
+        if (payload.getUseTotalPoints() != null) {
+            subject.setUseTotalPoints(payload.getUseTotalPoints());
+        }
 
-    subjectRepository.save(subject);
+        // Replace components
+        componentRepository.deleteBySubject(subject);
 
-    return ResponseEntity.ok().build();
+        if (payload.getComponents() != null) {
+            // 👇 Note: The loop now uses ComponentSaveRequest correctly
+            for (ComponentSaveRequest cReq : payload.getComponents()) {
+                if (cReq == null || !StringUtils.hasText(cReq.getName())) continue;
+
+                Component c = new Component();
+                c.setSubject(subject);
+                c.setName(cReq.getName().trim());
+                c.setWeight(cReq.getWeight() != null ? cReq.getWeight() : 0.0);
+                c.setScore(cReq.getScore() != null ? cReq.getScore() : 0.0);
+                c.setTotalPoints(cReq.getTotalPoints() != null ? cReq.getTotalPoints() : 0.0);
+
+                componentRepository.save(c);
+            }
+        }
+
+        // Recompute currentScore server-side
+        BigDecimal computed = computeSubjectPercent(subject);
+        subject.setCurrentScore(computed);
+
+        subjectRepository.save(subject);
+
+        return ResponseEntity.ok().build();
     }
 
 
@@ -296,6 +297,7 @@ public class SubjectController {
 
     
 }
+
 
 
 
