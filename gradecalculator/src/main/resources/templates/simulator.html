@@ -1,195 +1,123 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grade Simulator - GradeCalc</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
         :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; }
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
-        
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
         .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; }
-        .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
-        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition:0.2s;}
+        .logo { font-size: 20px; font-weight: 800; color: var(--primary); margin-bottom: 40px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; }
         .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
         .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: auto; }
-
         .main-content { flex: 1; padding: 40px; overflow-y: auto; display:flex; flex-direction:column; align-items:center; }
         .container { width: 100%; max-width: 900px; }
-
         .selector-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
-        select { padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); flex: 1; font-size: 14px; background: var(--bg-color); color: var(--text-main); }
-        
+        select { padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); flex: 1; background: var(--bg-color); color: var(--text-main); }
         .sim-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-        .grade-pill { background: var(--primary); color: white; padding: 10px 25px; border-radius: 50px; font-weight: 800; font-size: 22px; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
-
+        .grade-pill { background: var(--primary); color: white; padding: 10px 25px; border-radius: 50px; font-weight: 800; font-size: 22px; }
         .group-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; overflow: hidden; }
-        .group-header { padding: 15px 20px; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
-        .group-content { padding: 15px 20px; }
-        
+        .group-header { padding: 15px 20px; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
         .assign-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
         .assign-name { flex: 2; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: transparent; color: var(--text-main); }
         .assign-score { flex: 0.8; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; text-align: center; background: transparent; color: var(--text-main); font-weight: 600; }
-        .assign-total { flex: 0.5; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; text-align: center; background: rgba(0,0,0,0.05); color: var(--text-muted); cursor: not-allowed; }
-        
-        .btn-add { background: none; border: 1px dashed var(--border-color); color: var(--text-muted); width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: 0.2s; }
-        .btn-add:hover { border-color: var(--primary); color: var(--primary); background: rgba(79, 70, 229, 0.05); }
-
-        .dropped { text-decoration: line-through; opacity: 0.4; filter: grayscale(1); }
+        .assign-total { flex: 0.5; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; text-align: center; background: rgba(0,0,0,0.05); color: var(--text-muted); }
+        .dropped { text-decoration: line-through; opacity: 0.4; }
         .not-graded { opacity: 0.5; font-style: italic; }
     </style>
-    
-    <script>
-        (function() { 
-            const theme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', theme);
-        })();
-        
-        function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme');
-            const target = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', target);
-            localStorage.setItem('theme', target);
-        }
-    </script>
 </head>
 <body>
-
-    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    <aside class="sidebar">
+        <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        <nav>
+            <a th:href="@{/index}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Subject</a>
+            <a th:href="@{/simulator}" class="nav-link active"><i class="fa-solid fa-flask"></i> Simulator</a>
+            <a th:href="@{/target-grade}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div style="display: flex; justify-content: space-around; margin-bottom: 15px;">
+                <button onclick="toggleTheme()" style="background:none; border:none; cursor:pointer; color:var(--text-muted);"><i class="fa-solid fa-circle-half-stroke"></i></button>
+                <a th:href="@{/settings}" style="color:var(--text-muted);"><i class="fa-solid fa-gear"></i></a>
+                <form th:action="@{/logout}" method="post" style="display:inline;"><button type="submit" style="background:none; border:none; cursor:pointer; color:var(--text-muted);"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); text-align: center;">Signed in as <br><strong th:text="${#authentication.name}">User</strong></div>
+        </div>
+    </aside>
 
     <main class="main-content">
         <div class="container">
-            <h1 style="margin-top:0;">Grade Simulator 🧪</h1>
-            <p style="color:var(--text-muted); margin-bottom:20px;">Hypothetical scenarios. Only scores you enter/change affect the calculation.</p>
-
+            <h1>Grade Simulator 🧪</h1>
             <div class="selector-card">
-                <i class="fa-solid fa-book" style="color:var(--text-muted);"></i>
                 <select id="subjectSelect" onchange="loadSubject()">
-                    <option value="" disabled selected>Select a subject to simulate...</option>
-                    <th:block th:each="sub : ${subjects}">
-                        <option th:value="${sub.id}" th:text="${sub.subjectName}"></option>
-                    </th:block>
+                    <option value="" disabled selected>Select a subject...</option>
+                    <th:block th:each="sub : ${subjects}"><option th:value="${sub.id}" th:text="${sub.subjectName}"></option></th:block>
                 </select>
             </div>
-
             <div id="simulationArea" style="display:none;">
                 <div class="sim-header">
                     <div>
-                        <div id="modeBadge" style="font-size:10px; text-transform:uppercase; color:var(--primary); font-weight:700; margin-bottom:4px;">Mode</div>
+                        <div id="modeBadge" style="font-size:10px; text-transform:uppercase; color:var(--primary); font-weight:700;">Mode</div>
                         <div id="simulatedGradeText" style="font-size:14px; color:var(--text-muted);">--</div>
                     </div>
                     <div class="grade-pill" id="bigGradePill">0.00%</div>
                 </div>
-
                 <div id="groupsContainer"></div>
             </div>
         </div>
     </main>
 
-    <script th:inline="javascript">
-        let currentSubject = null;
-
-        async function loadSubject() {
-            const id = document.getElementById('subjectSelect').value;
-            const res = await fetch(`/api/simulator/load?subjectId=${id}`);
-            currentSubject = await res.json();
-            renderSimulator();
+    <script>
+        (function() { document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); })();
+        function toggleTheme() {
+            const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', t); localStorage.setItem('theme', t);
         }
-
+        let cs = null;
+        async function loadSubject() {
+            const res = await fetch(`/api/simulator/load?subjectId=${document.getElementById('subjectSelect').value}`);
+            cs = await res.json(); renderSimulator();
+        }
         function renderSimulator() {
-            const container = document.getElementById('groupsContainer');
-            container.innerHTML = "";
+            const container = document.getElementById('groupsContainer'); container.innerHTML = "";
             document.getElementById('simulationArea').style.display = 'block';
-
-            currentSubject.components.forEach((comp, index) => {
-                const groupDiv = document.createElement('div');
-                groupDiv.className = 'group-card';
-                groupDiv.innerHTML = `
-                    <div class="group-header">
-                        <span>${comp.name}</span>
-                        <span style="font-size:12px; color:var(--text-muted)">${comp.weight > 0 ? comp.weight + '%' : 'Points'}</span>
-                    </div>
-                    <div class="group-content" id="group-content-${index}"></div>
-                    <div style="padding:0 20px 20px 20px;">
-                        <button class="btn-add" onclick="addMockAssignment(${index})">+ Add Mock Assignment</button>
-                    </div>
-                `;
+            cs.components.forEach((comp, idx) => {
+                const groupDiv = document.createElement('div'); groupDiv.className = 'group-card';
+                groupDiv.innerHTML = `<div class="group-header"><span>${comp.name}</span><span>${comp.weight > 0 ? comp.weight + '%' : 'Points'}</span></div>
+                                      <div class="group-content" id="group-content-${idx}" style="padding:15px 20px;"></div>`;
                 container.appendChild(groupDiv);
-                const contentDiv = groupDiv.querySelector(`#group-content-${index}`);
-                comp.assignments.forEach(assign => {
-                    contentDiv.appendChild(createAssignmentRow(assign.name, assign.score, assign.totalPoints));
+                comp.assignments.forEach(a => {
+                    const row = document.createElement('div'); row.className = 'assign-row';
+                    if(a.score === 0) row.classList.add('not-graded');
+                    row.innerHTML = `<input type="text" class="assign-name" value="${a.name}">
+                                     <input type="number" class="assign-score" value="${a.score}" oninput="this.closest('.assign-row').setAttribute('data-mod','true'); this.closest('.assign-row').classList.remove('not-graded'); recalc();">
+                                     <input type="number" class="assign-total" value="${a.totalPoints}" readonly>`;
+                    groupDiv.querySelector('.group-content').appendChild(row);
                 });
             });
-            recalculateSimulation();
+            recalc();
         }
-
-        function createAssignmentRow(name, score, total, isNew = false) {
-            const div = document.createElement('div');
-            div.className = 'assign-row';
-            if (score === 0 && !isNew) div.classList.add('not-graded');
-            if (isNew) div.setAttribute('data-modified', 'true');
-            div.innerHTML = `
-                <input type="text" class="assign-name" value="${name}">
-                <input type="number" class="assign-score" value="${score}" oninput="handleEdit(this)">
-                <input type="number" class="assign-total" value="${total}" readonly>
-            `;
-            return div;
-        }
-
-        function handleEdit(input) {
-            const row = input.closest('.assign-row');
-            row.setAttribute('data-modified', 'true');
-            row.classList.remove('not-graded');
-            recalculateSimulation();
-        }
-
-        function addMockAssignment(idx) {
-            const content = document.getElementById(`group-content-${idx}`);
-            content.appendChild(createAssignmentRow("Hypothetical", 100, 100, true));
-            recalculateSimulation();
-        }
-
-        function recalculateSimulation() {
-            if(!currentSubject) return;
-            let isWeighted = currentSubject.components.some(c => c.weight > 0);
-            document.getElementById('modeBadge').innerText = isWeighted ? "Weighted Mode" : "Total Points Mode";
-
-            let tw = 0, ws = 0, te = 0, tp = 0;
-
-            currentSubject.components.forEach((comp, index) => {
-                const container = document.getElementById(`group-content-${index}`);
-                const rows = Array.from(container.querySelectorAll('.assign-row'));
-
-                let assignments = rows.map(r => {
-                    const s = parseFloat(r.querySelector('.assign-score').value);
-                    const t = parseFloat(r.querySelector('.assign-total').value);
-                    const mod = r.getAttribute('data-modified') === 'true';
-                    if(isNaN(s) || isNaN(t) || t === 0 || (s === 0 && !mod)) return null;
-                    return { s, t, percent: s/t, row: r };
+        function recalc() {
+            let iw = cs.components.some(c => c.weight > 0), tw = 0, ws = 0, te = 0, tp = 0;
+            cs.components.forEach((comp, idx) => {
+                const rows = Array.from(document.getElementById(`group-content-${idx}`).querySelectorAll('.assign-row'));
+                let assigns = rows.map(r => {
+                    const s = parseFloat(r.querySelector('.assign-score').value), t = parseFloat(r.querySelector('.assign-total').value);
+                    if(isNaN(s) || isNaN(t) || t === 0 || (s === 0 && r.getAttribute('data-mod') !== 'true')) return null;
+                    return { s, t, p: s/t };
                 }).filter(a => a !== null);
-
-                assignments.forEach(a => { a.row.classList.remove('dropped'); a.row.style.opacity = "1"; });
-                assignments.sort((a, b) => a.percent - b.percent);
-                const drop = comp.dropLowest || 0;
-                for(let i=0; i < Math.min(drop, assignments.length - 1); i++) assignments[i].row.classList.add('dropped');
-
-                const kept = assignments.filter(a => !a.row.classList.contains('dropped'));
-                let gs = 0, gt = 0;
-                kept.forEach(a => { gs += a.s; gt += a.t; });
-
+                let gs = 0, gt = 0; assigns.forEach(a => { gs += a.s; gt += a.t; });
                 if(gt > 0) {
-                    if (isWeighted) { ws += (gs / gt) * comp.weight; tw += comp.weight; }
+                    if(iw) { ws += (gs / gt) * comp.weight; tw += comp.weight; }
                     else { te += gs; tp += gt; }
                 }
             });
-
-            let final = isWeighted ? (tw > 0 ? (ws / tw) * 100 : 0) : (tp > 0 ? (te / tp) * 100 : 0);
+            let final = iw ? (tw > 0 ? (ws / tw) * 100 : 0) : (tp > 0 ? (te / tp) * 100 : 0);
             document.getElementById('bigGradePill').innerText = final.toFixed(2) + '%';
-            document.getElementById('simulatedGradeText').innerText = isWeighted ? `Using ${tw}% of weights` : `Based on ${te}/${tp} points`;
         }
     </script>
 </body>
