@@ -1,7 +1,6 @@
 package com.harshit.gradecalculator.model;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -32,8 +31,6 @@ public class User {
 
     // --- Getters and Setters ---
 
-
-
     public Integer getUserId() { return userId; }
     public void setUserId(Integer userId) { this.userId = userId; }
 
@@ -49,8 +46,7 @@ public class User {
     public String getApiToken() { return apiToken; }
     public void setApiToken(String apiToken) { this.apiToken = apiToken; }
 
+    // Fix: Only ONE getSubjects method
     public List<Subject> getSubjects() { return subjects; }
     public void setSubjects(List<Subject> subjects) { this.subjects = subjects; }
 }
-
-
