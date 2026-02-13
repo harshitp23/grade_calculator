@@ -60,7 +60,9 @@
     <script>
         let sd = null;
         async function loadData() {
-            const res = await fetch(`/api/simulator/load?subjectId=${document.getElementById('subSelect').value}`);
+            const val = document.getElementById('subSelect').value;
+            if(!val) return;
+            const res = await fetch(`/api/simulator/load?subjectId=${val}`);
             sd = await res.json();
             document.getElementById('quickStats').style.display = 'flex';
             document.getElementById('inputs').style.display = 'block';
@@ -72,7 +74,7 @@
         }
         function calc() {
             const g = parseFloat(document.getElementById('goal').value), p = parseFloat(document.getElementById('pts').value);
-            if(!p || isNaN(g)) return;
+            if(!p || isNaN(g)) { alert("Enter goal and assignment points"); return; }
             const comp = sd.components.find(c => c.id == document.getElementById('compSelect').value);
             const iw = sd.components.some(c => c.weight > 0);
             let n = 0;
