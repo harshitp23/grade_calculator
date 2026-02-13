@@ -8,9 +8,10 @@ import java.util.Optional;
 
 public interface SubjectRepository extends JpaRepository<Subject, Integer> {
     
-    // 👇 ADD THIS LINE 👇
-    List<Subject> findByUser(User user);
+    // 👇 ADD THIS LINE 
+    List<Subject> findByUserAndStatus(User user, String status);
 
     Optional<Subject> findByUserAndSubjectCode(User user, String subjectCode);
 
 }
+
