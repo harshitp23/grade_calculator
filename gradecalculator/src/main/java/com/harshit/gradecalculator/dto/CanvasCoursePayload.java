@@ -9,9 +9,9 @@ public class CanvasCoursePayload {
     private String status;
     private Integer credits;
     private Double currentScore;
-    private Boolean includeInGpa;
-    private Boolean useTotalPoints;
-    private List<CanvasAssignmentPayload> assignments;
+    
+    // 👇 CHANGED: Now holds Components (Groups) instead of flat assignments
+    private List<CanvasComponentPayload> components;
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -28,13 +28,6 @@ public class CanvasCoursePayload {
     public Double getCurrentScore() { return currentScore; }
     public void setCurrentScore(Double currentScore) { this.currentScore = currentScore; }
 
-    public Boolean getIncludeInGpa() { return includeInGpa; }
-    public void setIncludeInGpa(Boolean includeInGpa) { this.includeInGpa = includeInGpa; }
-
-    public Boolean getUseTotalPoints() { return useTotalPoints; }
-    public void setUseTotalPoints(Boolean useTotalPoints) { this.useTotalPoints = useTotalPoints; }
-
-
-    public List<CanvasAssignmentPayload> getAssignments() { return assignments; }
-    public void setAssignments(List<CanvasAssignmentPayload> assignments) { this.assignments = assignments; }
+    public List<CanvasComponentPayload> getComponents() { return components; }
+    public void setComponents(List<CanvasComponentPayload> components) { this.components = components; }
 }
