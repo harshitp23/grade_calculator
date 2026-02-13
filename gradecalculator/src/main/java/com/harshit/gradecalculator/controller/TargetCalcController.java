@@ -21,11 +21,8 @@ public class TargetCalcController {
     @GetMapping("/target-grade")
     public String showTargetPage(Model model, @AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
-        
-        // 🔥 Filter: Only show subjects that are currently "In Progress"
         List<Subject> currentSubjects = subjectRepository.findByUserAndStatus(user, "In Progress");
-        
         model.addAttribute("subjects", currentSubjects);
-        return "target-calculator";
+        return "target-grade"; // 🔥 Change from "target-calculator" to "target-grade"
     }
 }
