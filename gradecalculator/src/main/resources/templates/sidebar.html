@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <aside th:fragment="sidebar" class="sidebar">
+        <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        <nav>
+            <a th:href="@{/index}" class="nav-link" th:classappend="${#httpServletRequest.requestURI == '/index' ? 'active' : ''}">
+                <i class="fa-solid fa-chart-pie"></i> Dashboard
+            </a>
+            <a th:href="@{/add-subject}" class="nav-link" th:classappend="${#httpServletRequest.requestURI == '/add-subject' ? 'active' : ''}">
+                <i class="fa-solid fa-plus-circle"></i> Add New Subject
+            </a>
+            <a th:href="@{/simulator}" class="nav-link" th:classappend="${#httpServletRequest.requestURI == '/simulator' ? 'active' : ''}">
+                <i class="fa-solid fa-flask"></i> Grade Simulator
+            </a>
+            <a th:href="@{/target-calculator}" class="nav-link" th:classappend="${#httpServletRequest.requestURI == '/target-calculator' ? 'active' : ''}">
+                <i class="fa-solid fa-bullseye"></i> Target Calculator
+            </a>
+        </nav>
+
+        <div class="sidebar-footer" style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 20px;">
+            <div style="display: flex; justify-content: space-around; margin-bottom: 15px; align-items: center;">
+                <button onclick="toggleTheme()" title="Toggle Theme" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size: 1.2rem;">
+                    <i class="fa-solid fa-circle-half-stroke"></i>
+                </button>
+                <a th:href="@{/settings}" title="Account Settings" style="color:var(--text-muted); font-size: 1.2rem;">
+                    <i class="fa-solid fa-gear"></i>
+                </a>
+                <form th:action="@{/logout}" method="post" style="display:inline;">
+                    <button type="submit" title="Logout" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size: 1.2rem;">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </form>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); text-align: center;">
+                Signed in as <br><strong th:text="${#authentication.name}">User</strong>
+            </div>
+        </div>
+    </aside>
+</body>
+</html>
