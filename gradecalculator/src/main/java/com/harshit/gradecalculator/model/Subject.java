@@ -3,7 +3,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
 
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal; // Import for Score
@@ -49,6 +49,7 @@ public class Subject {
     // --- 👇 GETTERS AND SETTERS 👇 ---
 
     // Note: The frontend expects 'subjectId' sometimes, we map 'id' to it.
+    @JsonProperty("subjectId")
     public Integer getSubjectId() { return id; } 
     public void setSubjectId(Integer id) { this.id = id; }
 
@@ -56,7 +57,7 @@ public class Subject {
     public void setComponents(List<Component> components) { this.components = components; }
 
     // Standard Getters
-    @JsonIgnore
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
@@ -91,6 +92,7 @@ public class Subject {
     public Boolean getIncludeInGpa() { return includeInGpa == null ? Boolean.TRUE : includeInGpa; }
     public void setIncludeInGpa(Boolean includeInGpa) { this.includeInGpa = includeInGpa; }
 }
+
 
 
 
