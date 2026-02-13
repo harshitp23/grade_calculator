@@ -1,6 +1,9 @@
 package com.harshit.gradecalculator.model;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "components")
@@ -17,10 +20,14 @@ public class Component {
 
     @ManyToOne
     @JoinColumn(name = "subject_id", nullable = false)
+    @JsonIgnore
     private Subject subject;
 
-    // --- 👇 THESE ARE CRITICAL FOR THE FRONTEND 👇 ---
+    // 👇 NEW: List of Assignments inside this Component
+    @OneToMany(mappedBy = "component", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Assignment> assignments = new ArrayList<>();
 
+    // --- GETTERS & SETTERS ---
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     
@@ -36,8 +43,10 @@ public class Component {
     public Double getTotalPoints() { return totalPoints; }
     public void setTotalPoints(Double totalPoints) { this.totalPoints = totalPoints; }
 
-    @JsonIgnore
     public Subject getSubject() { return subject; }
     public void setSubject(Subject subject) { this.subject = subject; }
-}
 
+    // 👇 NEW Getter/Setter
+    public List<Assignment> getAssignments() { return assignments; }
+    public void setAssignments(List<Assignment> assignments) { this.assignments = assignments; }
+}
