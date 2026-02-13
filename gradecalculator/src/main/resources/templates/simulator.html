@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grade Simulator - What If?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --success: #10b981; }
+        [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
+        
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition:0.2s;}
+        .nav-link:hover, .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+        
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; display:flex; flex-direction:column; align-items:center; }
+        .container { width: 100%; max-width: 900px; }
+
+        /* SIMULATOR STYLES */
+        .selector-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        select { padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); flex: 1; font-size: 14px; background: var(--bg-color); color: var(--text-main); }
+        
+        .sim-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; opacity:0; transition: opacity 0.5s; }
+        .sim-header.visible { opacity:1; }
+        .grade-pill { background: var(--primary); color: white; padding: 10px 20px; border-radius: 50px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
+
+        .group-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; overflow: hidden; transition: transform 0.2s; }
+        .group-header { padding: 15px 20px; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+        .group-content { padding: 15px 20px; }
+        
+        .assign-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .assign-name { flex: 2; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background: transparent; color: var(--text-main); }
+        .assign-score { flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; text-align: center; background: transparent; color: var(--text-main); }
+        .assign-total { flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; text-align: center; background: #eee; color: #666; cursor: not-allowed; }
+        
+        .btn-add { background: none; border: 1px dashed var(--border-color); color: var(--text-muted); width: 100%; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-top: 5px; transition: 0.2s; }
+        .btn-add:hover { border-color: var(--primary); color: var(--primary); background: rgba(79, 70, 229, 0.05); }
+
+        .dropped { text-decoration: line-through; opacity: 0.5; }
+        
+        /* Mobile */
+        @media (max-width: 768px) { .sidebar { display:none; } .main-content { padding:20px; } }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        <nav>
+            <a href="index.html" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="add-subject.html" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
+            <a href="simulator.html" class="nav-link active"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
+            <a href="target-grade.html" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+        </nav>
+        <div style="flex:1;"></div>
+        <div style="font-size:12px; color:var(--text-muted);">Signed in as <strong sec:authentication="name">User</strong></div>
+    </aside>
+
+    <main class="main-content">
+        <div class="container">
+            <h1 style="margin-top:0;">What-If Playground 🧪</h1>
+            <p style="color:var(--text-muted); margin-bottom:20px;">Edit scores or add mock assignments. Changes here are NOT saved.</p>
+
+            <div class="selector-card">
+                <i class="fa-solid fa-book" style="color:var(--text-muted);"></i>
+                <select id="subjectSelect" onchange="loadSubject()">
+                    <option value="" disabled selected>Select a subject to simulate...</option>
+                    <th:block th:each="sub : ${subjects}">
+                        <option th:value="${sub.id}" th:text="${sub.subjectName}">Math 101</option>
+                    </th:block>
+                </select>
+            </div>
+
+            <div id="simulationArea" style="display:none;">
+                <div class="sim-header visible">
+                    <div>
+                        <div style="font-size:12px; text-transform:uppercase; color:var(--text-muted);">Simulated Grade</div>
+                        <div id="simulatedGradeText" style="font-size:14px; color:var(--text-muted);">Current: 85%</div>
+                    </div>
+                    <div class="grade-pill" id="bigGradePill">85.00%</div>
+                </div>
+
+                <div id="groupsContainer">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentSubject = null;
+
+        async function loadSubject() {
+            const id = document.getElementById('subjectSelect').value;
+            if(!id) return;
+
+            // Fetch full data
+            const res = await fetch(`/api/simulator/load?subjectId=${id}`);
+            if(!res.ok) { alert("Error loading subject"); return; }
+            
+            currentSubject = await res.json();
+            renderSimulator();
+        }
+
+        function renderSimulator() {
+            const container = document.getElementById('groupsContainer');
+            container.innerHTML = "";
+            document.getElementById('simulationArea').style.display = 'block';
+
+            currentSubject.components.forEach((comp, index) => {
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'group-card';
+                
+                let dropBadge = comp.dropLowest > 0 
+                    ? `<span style="font-size:10px; background:#fee2e2; color:#991b1b; padding:2px 6px; border-radius:4px; margin-left:10px;">Drops Lowest ${comp.dropLowest}</span>` 
+                    : '';
+
+                groupDiv.innerHTML = `
+                    <div class="group-header">
+                        <span>${comp.name} ${dropBadge}</span>
+                        <span>${comp.weight}% Weight</span>
+                    </div>
+                    <div class="group-content" id="group-content-${index}">
+                        </div>
+                    <div style="padding:0 20px 20px 20px;">
+                        <button class="btn-add" onclick="addMockAssignment(${index})">+ Add Mock Assignment</button>
+                    </div>
+                `;
+                container.appendChild(groupDiv);
+
+                const contentDiv = groupDiv.querySelector(`#group-content-${index}`);
+                
+                // Render existing assignments
+                comp.assignments.forEach(assign => {
+                    contentDiv.appendChild(createAssignmentRow(index, assign.name, assign.score, assign.totalPoints));
+                });
+            });
+
+            recalculateSimulation();
+        }
+
+        function createAssignmentRow(groupIndex, name, score, total) {
+            const div = document.createElement('div');
+            div.className = 'assign-row';
+            div.innerHTML = `
+                <input type="text" class="assign-name" value="${name}" placeholder="Name">
+                <input type="number" class="assign-score" value="${score}" oninput="recalculateSimulation()" placeholder="Score">
+                <input type="number" class="assign-total" value="${total}" readonly>
+            `;
+            return div;
+        }
+
+        function addMockAssignment(groupIndex) {
+            const contentDiv = document.getElementById(`group-content-${groupIndex}`);
+            // Default mock: "Hypothetical", Score 100, Total 100 (Most common use case)
+            contentDiv.appendChild(createAssignmentRow(groupIndex, "Hypothetical", 100, 100));
+            recalculateSimulation();
+        }
+
+        function recalculateSimulation() {
+            if(!currentSubject) return;
+
+            let totalWeight = 0;
+            let weightedScore = 0;
+
+            // Loop through UI groups
+            currentSubject.components.forEach((comp, index) => {
+                const container = document.getElementById(`group-content-${index}`);
+                const rows = Array.from(container.querySelectorAll('.assign-row'));
+
+                // Extract values
+                let assignments = rows.map(r => {
+                    const s = parseFloat(r.querySelector('.assign-score').value);
+                    const t = parseFloat(r.querySelector('.assign-total').value);
+                    const rowDiv = r;
+                    
+                    if(isNaN(s) || isNaN(t) || t === 0) return null;
+                    return { s, t, percent: (s/t), row: rowDiv };
+                }).filter(a => a !== null);
+
+                // Apply Drop Lowest Logic
+                assignments.forEach(a => {
+                    a.row.classList.remove('dropped');
+                    a.row.style.opacity = "1";
+                });
+
+                assignments.sort((a, b) => a.percent - b.percent);
+
+                const dropCount = comp.dropLowest || 0;
+                for(let i=0; i<dropCount; i++) {
+                    if(i < assignments.length) {
+                        assignments[i].row.classList.add('dropped');
+                        assignments[i].row.style.opacity = "0.5";
+                    }
+                }
+
+                // Sum remaining
+                const kept = assignments.slice(dropCount);
+                let groupScore = 0;
+                let groupTotal = 0;
+                kept.forEach(a => {
+                    groupScore += a.s;
+                    groupTotal += a.t;
+                });
+
+                // Add to Global Grade
+                if(groupTotal > 0) {
+                    const groupPercent = (groupScore / groupTotal);
+                    weightedScore += groupPercent * comp.weight;
+                    totalWeight += comp.weight;
+                }
+            });
+
+            // Final Calculation
+            let finalPercent = 0;
+            if (totalWeight > 0) {
+                // Normalize if weights don't add to 100 yet (e.g. syllabus in progress)
+                // Or standard calculation: (Weighted Sum / Total Weight) * 100
+                finalPercent = (weightedScore / totalWeight) * 100;
+            }
+
+            // Update UI
+            document.getElementById('bigGradePill').innerText = finalPercent.toFixed(2) + '%';
+            document.getElementById('simulatedGradeText').innerText = `Simulating based on ${totalWeight.toFixed(0)}% of coursework`;
+        }
+    </script>
+</body>
+</html>
