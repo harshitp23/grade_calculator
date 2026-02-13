@@ -1,35 +1,27 @@
 package com.harshit.gradecalculator.controller;
 
 import com.harshit.gradecalculator.model.Subject;
-import com.harshit.gradecalculator.repository.SubjectRepository;
+import com.harshit.gradecalculator.model.Component;
 import com.harshit.gradecalculator.model.User;
+import com.harshit.gradecalculator.repository.SubjectRepository;
 import com.harshit.gradecalculator.repository.UserRepository;
+import com.harshit.gradecalculator.repository.ComponentRepository;
+import com.harshit.gradecalculator.dto.SubjectSaveRequest;
+import com.harshit.gradecalculator.dto.ComponentSaveRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal; // Import this!
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
-
-import com.harshit.gradecalculator.dto.SubjectSaveRequest;
-import com.harshit.gradecalculator.dto.ComponentSaveRequest;
-import com.harshit.gradecalculator.model.Component;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.util.StringUtils;
 import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/subjects")
@@ -43,7 +35,6 @@ public class SubjectController {
 
     @Autowired
     private ComponentRepository componentRepository;
-
 
     @GetMapping("/list")
     public List<Subject> getSubjects(@AuthenticationPrincipal UserDetails userDetails) {
@@ -79,17 +70,15 @@ public class SubjectController {
         return "Subject Deleted!";
     }
 
-
     @PostMapping("/update-score")
     public String updateScore(@RequestParam Integer id, @RequestParam Double score,
-                          @AuthenticationPrincipal UserDetails userDetails) {
+                              @AuthenticationPrincipal UserDetails userDetails) {
         Subject s = loadOwnedSubject(id, userDetails);
-        s.setCurrentScore(java.math.BigDecimal.valueOf(score));
+        s.setCurrentScore(BigDecimal.valueOf(score));
         subjectRepository.save(s);
         return "Score Updated!";
     }
 
-    // 5. UPDATE Settings (Name, Code, Scale, AND STATUS)
     @PostMapping("/update-settings")
     public String updateSettings(
             @RequestParam Integer id,
@@ -110,18 +99,15 @@ public class SubjectController {
         return "Settings Updated!";
     }
 
-
-    // 6. UPDATE Curved Grade
     @PostMapping("/update-curve")
     public String updateCurve(@RequestParam Integer id, @RequestParam String letter,
-                          @AuthenticationPrincipal UserDetails userDetails) {
+                              @AuthenticationPrincipal UserDetails userDetails) {
         Subject s = loadOwnedSubject(id, userDetails);
         s.setLetterGrade(letter);
         subjectRepository.save(s);
         return "Curve Updated!";
     }
 
-
     @PostMapping("/save")
     @Transactional
     public ResponseEntity<?> saveSubjectAndComponents(
@@ -138,74 +124,15 @@ public class SubjectController {
         Subject subject = subjectRepository.findById(payload.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found"));
 
-        // Ownership check
         if (subject.getUser() == null || subject.getUser().getUserId() == null
                 || !subject.getUser().getUserId().equals(user.getUserId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
         }
 
-        // Update Settings
         if (payload.getUseTotalPoints() != null) {
             subject.setUseTotalPoints(payload.getUseTotalPoints());
         }
 
-        // Replace components
-        componentRepository.deleteBySubject(subject);
-
-        if (payload.getComponents() != null) {
-            // 👇 Note: The loop now uses ComponentSaveRequest correctly
-            for (ComponentSaveRequest cReq : payload.getComponents()) {
-                if (cReq == null || !StringUtils.hasText(cReq.getName())) continue;
-
-                Component c = new Component();
-                c.setSubject(subject);
-                c.setName(cReq.getName().trim());
-                c.setWeight(cReq.getWeight() != null ? cReq.getWeight() : 0.0);
-                c.setScore(cReq.getScore() != null ? cReq.getScore() : 0.0);
-                c.setTotalPoints(cReq.getTotalPoints() != null ? cReq.getTotalPoints() : 0.0);
-
-                componentRepository.save(c);
-            }
-        }
-
-        // Recompute currentScore server-side
-        BigDecimal computed = computeSubjectPercent(subject);
-        subject.setCurrentScore(computed);
-
-        subjectRepository.save(subject);
-
-        return ResponseEntity.ok().build();
-    }
-
-
-    @PostMapping("/save")
-    @Transactional
-    public ResponseEntity<?> saveSubjectAndComponents(
-            @RequestBody SubjectSaveRequest payload,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        if (payload == null || payload.getId() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing subject id");
-        }
-
-        User user = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-
-        Subject subject = subjectRepository.findById(payload.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found"));
-
-        // Ownership check (critical)
-        if (subject.getUser() == null || subject.getUser().getUserId() == null
-                || !subject.getUser().getUserId().equals(user.getUserId())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
-        }
-
-        // Update allowed fields (keep tight)
-        if (payload.getUseTotalPoints() != null) {
-            subject.setUseTotalPoints(payload.getUseTotalPoints());
-        }
-
-        // Replace components
         componentRepository.deleteBySubject(subject);
 
         if (payload.getComponents() != null) {
@@ -223,7 +150,6 @@ public class SubjectController {
             }
         }
 
-        // Recompute currentScore server-side
         BigDecimal computed = computeSubjectPercent(subject);
         subject.setCurrentScore(computed);
 
@@ -231,7 +157,6 @@ public class SubjectController {
 
         return ResponseEntity.ok().build();
     }
-
 
     private BigDecimal computeSubjectPercent(Subject subject) {
         boolean useTotalPoints = subject.isUseTotalPoints();
@@ -268,18 +193,14 @@ public class SubjectController {
                 if (t > 0.0) {
                     weighted += (s / t) * w;
                 } else if (s > 0.0) {
-                    // Extra credit behavior (matches your JS intent)
                     weighted += s;
                 }
             }
 
-            // If no weights entered, treat as null
             if (totalWeight <= 0.0 && weighted == 0.0) return null;
-
             percent = weighted;
         }
 
-        // store with 2 decimal places
         return BigDecimal.valueOf(percent).setScale(2, RoundingMode.HALF_UP);
     }
 
@@ -287,17 +208,8 @@ public class SubjectController {
         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
         Subject subject = subjectRepository.findById(subjectId).orElseThrow();
         if (subject.getUser() == null || !subject.getUser().getUserId().equals(user.getUserId())) {
-            throw new org.springframework.web.server.ResponseStatusException(
-                    org.springframework.http.HttpStatus.FORBIDDEN, "Not allowed");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
         }
         return subject;
     }
-
-
-
-    
 }
-
-
-
-
