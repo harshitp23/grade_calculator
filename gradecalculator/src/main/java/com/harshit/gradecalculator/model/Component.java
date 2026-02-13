@@ -18,12 +18,15 @@ public class Component {
     private Double score;
     private Double totalPoints;
 
+    // New Field for Drop Rule
+    @Column(name = "drop_lowest", nullable = false, columnDefinition = "int default 0")
+    private int dropLowest = 0;
+
     @ManyToOne
     @JoinColumn(name = "subject_id", nullable = false)
     @JsonIgnore
     private Subject subject;
 
-    // 👇 NEW: List of Assignments inside this Component
     @OneToMany(mappedBy = "component", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Assignment> assignments = new ArrayList<>();
 
@@ -43,10 +46,12 @@ public class Component {
     public Double getTotalPoints() { return totalPoints; }
     public void setTotalPoints(Double totalPoints) { this.totalPoints = totalPoints; }
 
+    public int getDropLowest() { return dropLowest; }
+    public void setDropLowest(int dropLowest) { this.dropLowest = dropLowest; }
+
     public Subject getSubject() { return subject; }
     public void setSubject(Subject subject) { this.subject = subject; }
 
-    // 👇 NEW Getter/Setter
     public List<Assignment> getAssignments() { return assignments; }
     public void setAssignments(List<Assignment> assignments) { this.assignments = assignments; }
 }
