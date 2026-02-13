@@ -18,7 +18,7 @@ public class TargetCalcController {
     @Autowired private UserRepository userRepository;
     @Autowired private SubjectRepository subjectRepository;
 
-    @GetMapping("/target-calculator")
+    @GetMapping("/target-grade")
     public String showTargetPage(Model model, @AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
         
