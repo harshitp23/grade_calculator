@@ -1,7 +1,7 @@
 package com.harshit.gradecalculator.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // Fix: Added this import
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
