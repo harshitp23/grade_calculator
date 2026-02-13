@@ -32,8 +32,6 @@ public class User {
 
     // --- Getters and Setters ---
 
-    @JsonIgnore
-    public List<Subject> getSubjects() { return subjects; }
 
 
     public Integer getUserId() { return userId; }
@@ -54,4 +52,5 @@ public class User {
     public List<Subject> getSubjects() { return subjects; }
     public void setSubjects(List<Subject> subjects) { this.subjects = subjects; }
 }
+
 
