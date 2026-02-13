@@ -8,16 +8,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --success: #10b981; }
+        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; }
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
         
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
         .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; }
         .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition:0.2s;}
-        .nav-link:hover, .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
         .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: auto; }
-        
+
         .main-content { flex: 1; padding: 40px; overflow-y: auto; display:flex; flex-direction:column; align-items:center; }
         .container { width: 100%; max-width: 900px; }
 
@@ -31,24 +31,29 @@
         .group-header { padding: 15px 20px; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
         .group-content { padding: 15px 20px; }
         
-        .assign-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; transition: 0.3s; }
-        .assign-name { flex: 2; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: transparent; color: var(--text-main); font-size: 13px; }
+        .assign-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+        .assign-name { flex: 2; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: transparent; color: var(--text-main); }
         .assign-score { flex: 0.8; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; text-align: center; background: transparent; color: var(--text-main); font-weight: 600; }
-        .assign-total { flex: 0.5; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; text-align: center; background: rgba(0,0,0,0.05); color: var(--text-muted); cursor: not-allowed; font-size: 12px; }
+        .assign-total { flex: 0.5; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; text-align: center; background: rgba(0,0,0,0.05); color: var(--text-muted); cursor: not-allowed; }
         
         .btn-add { background: none; border: 1px dashed var(--border-color); color: var(--text-muted); width: 100%; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: 0.2s; }
         .btn-add:hover { border-color: var(--primary); color: var(--primary); background: rgba(79, 70, 229, 0.05); }
 
         .dropped { text-decoration: line-through; opacity: 0.4; filter: grayscale(1); }
         .not-graded { opacity: 0.5; font-style: italic; }
-
-        @media (max-width: 768px) { .sidebar { display:none; } .main-content { padding:20px; } }
     </style>
+    
     <script>
-        (function() { document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); })();
+        (function() { 
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+        
         function toggleTheme() {
-            const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', t); localStorage.setItem('theme', t);
+            const current = document.documentElement.getAttribute('data-theme');
+            const target = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', target);
+            localStorage.setItem('theme', target);
         }
     </script>
 </head>
@@ -59,14 +64,14 @@
     <main class="main-content">
         <div class="container">
             <h1 style="margin-top:0;">Grade Simulator 🧪</h1>
-            <p style="color:var(--text-muted); margin-bottom:20px;">Test hypothetical scenarios. Only assignments with scores (or edited by you) affect the grade.</p>
+            <p style="color:var(--text-muted); margin-bottom:20px;">Hypothetical scenarios. Only scores you enter/change affect the calculation.</p>
 
             <div class="selector-card">
                 <i class="fa-solid fa-book" style="color:var(--text-muted);"></i>
                 <select id="subjectSelect" onchange="loadSubject()">
                     <option value="" disabled selected>Select a subject to simulate...</option>
                     <th:block th:each="sub : ${subjects}">
-                        <option th:value="${sub.id}" th:text="${sub.subjectName}">Math 101</option>
+                        <option th:value="${sub.id}" th:text="${sub.subjectName}"></option>
                     </th:block>
                 </select>
             </div>
@@ -74,7 +79,7 @@
             <div id="simulationArea" style="display:none;">
                 <div class="sim-header">
                     <div>
-                        <div id="modeBadge" style="font-size:10px; text-transform:uppercase; color:var(--primary); font-weight:700; margin-bottom:4px;">Weighted Mode</div>
+                        <div id="modeBadge" style="font-size:10px; text-transform:uppercase; color:var(--primary); font-weight:700; margin-bottom:4px;">Mode</div>
                         <div id="simulatedGradeText" style="font-size:14px; color:var(--text-muted);">--</div>
                     </div>
                     <div class="grade-pill" id="bigGradePill">0.00%</div>
@@ -85,13 +90,12 @@
         </div>
     </main>
 
-    <script>
+    <script th:inline="javascript">
         let currentSubject = null;
 
         async function loadSubject() {
             const id = document.getElementById('subjectSelect').value;
             const res = await fetch(`/api/simulator/load?subjectId=${id}`);
-            if(!res.ok) return;
             currentSubject = await res.json();
             renderSimulator();
         }
@@ -104,11 +108,9 @@
             currentSubject.components.forEach((comp, index) => {
                 const groupDiv = document.createElement('div');
                 groupDiv.className = 'group-card';
-                let dropBadge = comp.dropLowest > 0 ? `<span style="font-size:10px; background:#fee2e2; color:#991b1b; padding:2px 6px; border-radius:4px; margin-left:10px;">Drops Lowest ${comp.dropLowest}</span>` : '';
-                
                 groupDiv.innerHTML = `
                     <div class="group-header">
-                        <span>${comp.name} ${dropBadge}</span>
+                        <span>${comp.name}</span>
                         <span style="font-size:12px; color:var(--text-muted)">${comp.weight > 0 ? comp.weight + '%' : 'Points'}</span>
                     </div>
                     <div class="group-content" id="group-content-${index}"></div>
@@ -118,7 +120,9 @@
                 `;
                 container.appendChild(groupDiv);
                 const contentDiv = groupDiv.querySelector(`#group-content-${index}`);
-                comp.assignments.forEach(assign => contentDiv.appendChild(createAssignmentRow(assign.name, assign.score, assign.totalPoints)));
+                comp.assignments.forEach(assign => {
+                    contentDiv.appendChild(createAssignmentRow(assign.name, assign.score, assign.totalPoints));
+                });
             });
             recalculateSimulation();
         }
@@ -129,35 +133,32 @@
             if (score === 0 && !isNew) div.classList.add('not-graded');
             if (isNew) div.setAttribute('data-modified', 'true');
             div.innerHTML = `
-                <input type="text" class="assign-name" value="${name}" placeholder="Name">
-                <input type="number" class="assign-score" value="${score}" oninput="handleScoreEdit(this)" placeholder="Score">
+                <input type="text" class="assign-name" value="${name}">
+                <input type="number" class="assign-score" value="${score}" oninput="handleEdit(this)">
                 <input type="number" class="assign-total" value="${total}" readonly>
             `;
             return div;
         }
 
-        function handleScoreEdit(input) {
-            input.closest('.assign-row').setAttribute('data-modified', 'true');
-            input.closest('.assign-row').classList.remove('not-graded');
+        function handleEdit(input) {
+            const row = input.closest('.assign-row');
+            row.setAttribute('data-modified', 'true');
+            row.classList.remove('not-graded');
             recalculateSimulation();
         }
 
-        function addMockAssignment(groupIndex) {
-            const contentDiv = document.getElementById(`group-content-${groupIndex}`);
-            contentDiv.appendChild(createAssignmentRow("Hypothetical", 100, 100, true));
+        function addMockAssignment(idx) {
+            const content = document.getElementById(`group-content-${idx}`);
+            content.appendChild(createAssignmentRow("Hypothetical", 100, 100, true));
             recalculateSimulation();
         }
 
         function recalculateSimulation() {
             if(!currentSubject) return;
-
             let isWeighted = currentSubject.components.some(c => c.weight > 0);
             document.getElementById('modeBadge').innerText = isWeighted ? "Weighted Mode" : "Total Points Mode";
 
-            let totalWeightUsed = 0;
-            let weightedScoreSum = 0;
-            let totalPointsEarned = 0;
-            let totalPointsPossible = 0;
+            let tw = 0, ws = 0, te = 0, tp = 0;
 
             currentSubject.components.forEach((comp, index) => {
                 const container = document.getElementById(`group-content-${index}`);
@@ -166,44 +167,29 @@
                 let assignments = rows.map(r => {
                     const s = parseFloat(r.querySelector('.assign-score').value);
                     const t = parseFloat(r.querySelector('.assign-total').value);
-                    const isModified = r.getAttribute('data-modified') === 'true';
-                    if(isNaN(s) || isNaN(t) || t === 0 || (s === 0 && !isModified)) return null;
-                    return { s, t, percent: (s/t), row: r };
+                    const mod = r.getAttribute('data-modified') === 'true';
+                    if(isNaN(s) || isNaN(t) || t === 0 || (s === 0 && !mod)) return null;
+                    return { s, t, percent: s/t, row: r };
                 }).filter(a => a !== null);
 
                 assignments.forEach(a => { a.row.classList.remove('dropped'); a.row.style.opacity = "1"; });
                 assignments.sort((a, b) => a.percent - b.percent);
-                
-                const dropCount = comp.dropLowest || 0;
-                for(let i=0; i < Math.min(dropCount, assignments.length - 1); i++) {
-                    assignments[i].row.classList.add('dropped');
-                }
+                const drop = comp.dropLowest || 0;
+                for(let i=0; i < Math.min(drop, assignments.length - 1); i++) assignments[i].row.classList.add('dropped');
 
                 const kept = assignments.filter(a => !a.row.classList.contains('dropped'));
-                let gScore = 0; let gTotal = 0;
-                kept.forEach(a => { gScore += a.s; gTotal += a.t; });
+                let gs = 0, gt = 0;
+                kept.forEach(a => { gs += a.s; gt += a.t; });
 
-                if(gTotal > 0) {
-                    if (isWeighted) {
-                        weightedScoreSum += (gScore / gTotal) * comp.weight;
-                        totalWeightUsed += comp.weight;
-                    } else {
-                        totalPointsEarned += gScore;
-                        totalPointsPossible += gTotal;
-                    }
+                if(gt > 0) {
+                    if (isWeighted) { ws += (gs / gt) * comp.weight; tw += comp.weight; }
+                    else { te += gs; tp += gt; }
                 }
             });
 
-            let final = 0;
-            if (isWeighted) {
-                final = totalWeightUsed > 0 ? (weightedScoreSum / totalWeightUsed) * 100 : 0;
-                document.getElementById('simulatedGradeText').innerText = `Using ${totalWeightUsed.toFixed(0)}% of category weights`;
-            } else {
-                final = totalPointsPossible > 0 ? (totalPointsEarned / totalPointsPossible) * 100 : 0;
-                document.getElementById('simulatedGradeText').innerText = `Based on ${totalPointsEarned} / ${totalPointsPossible} points`;
-            }
-
+            let final = isWeighted ? (tw > 0 ? (ws / tw) * 100 : 0) : (tp > 0 ? (te / tp) * 100 : 0);
             document.getElementById('bigGradePill').innerText = final.toFixed(2) + '%';
+            document.getElementById('simulatedGradeText').innerText = isWeighted ? `Using ${tw}% of weights` : `Based on ${te}/${tp} points`;
         }
     </script>
 </body>
