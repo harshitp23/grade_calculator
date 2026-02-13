@@ -1,236 +1,89 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Target Grade Calculator - GradeCalc</title>
+    <meta charset="UTF-8"><title>Target Grade - GradeCalc</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
-        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --success: #10b981; }
+        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; }
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
-        
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; }
-        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition:0.2s;}
-        .nav-link:hover, .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
-        .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
-        
-        .main-content { flex: 1; padding: 40px; overflow-y: auto; display:flex; flex-direction:column; align-items:center; }
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 800px; }
-
-        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 25px; margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        
-        label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
-        select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); font-size: 14px; box-sizing: border-box; }
-        
-        .status-box { display: flex; justify-content: space-around; text-align: center; margin-top: 10px; }
-        .status-val { font-size: 22px; font-weight: 800; color: var(--primary); }
-
-        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 20px; transition: 0.3s; }
-        .btn-calc:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); }
-
-        #resultArea { margin-top: 20px; text-align: center; display:none; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .result-huge { font-size: 48px; font-weight: 900; color: var(--primary); margin: 10px 0; }
+        .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); padding: 25px; margin-bottom: 25px; }
+        label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+        select, input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 15px; }
+        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .result-huge { font-size: 44px; font-weight: 900; color: var(--primary); }
     </style>
+    <script>
+        (function() { document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); })();
+        function toggleTheme() {
+            const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', t); localStorage.setItem('theme', t);
+        }
+    </script>
 </head>
 <body>
-
-    <aside class="sidebar">
-        <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
-        <nav>
-            <a href="/index" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a href="/simulator" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
-            <a href="/target-calculator" class="nav-link active"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
-        </nav>
-    </aside>
-
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
     <main class="main-content">
         <div class="container">
-            <h1 style="margin-top:0;">Target Grade Calculator 🎯</h1>
-            
+            <h1>Target Grade Calculator 🎯</h1>
             <div class="card">
-                <label>Select Subject</label>
-                <select id="subjectSelect" onchange="onSubjectChange()">
-                    <option value="" disabled selected>Choose a subject...</option>
-                    <th:block th:each="sub : ${subjects}">
-                        <option th:value="${sub.id}" th:text="${sub.subjectName}">Math 101</option>
-                    </th:block>
+                <label>Current Semester Subject</label>
+                <select id="subSelect" onchange="loadData()">
+                    <option value="" disabled selected>Select an In-Progress course...</option>
+                    <th:block th:each="sub : ${subjects}"><option th:value="${sub.id}" th:text="${sub.subjectName}"></option></th:block>
                 </select>
-
-                <div id="statusArea" style="display:none; margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px;">
-                    <div class="status-box">
-                        <div>
-                            <label>Current Grade</label>
-                            <div class="status-val" id="currentGradeVal">--</div>
-                        </div>
-                        <div>
-                            <label>Grading Mode</label>
-                            <div id="gradingModeVal" style="font-weight: 600;">--</div>
-                        </div>
-                    </div>
+                <div id="quickStats" style="display:none; justify-content:space-between; text-align:center; padding-top:10px;">
+                    <div><label>Current</label><div id="cGrade" style="font-weight:800; font-size:18px;">-</div></div>
+                    <div><label>System</label><div id="mDisplay" style="font-weight:600;">-</div></div>
                 </div>
             </div>
-
-            <div id="predictArea" style="display:none;">
-                <div class="card">
-                    <div class="grid">
-                        <div>
-                            <label>Target Grade</label>
-                            <select id="targetLetter" onchange="updateTargetPercent()">
-                                </select>
-                        </div>
-                        <div>
-                            <label>OR Target %</label>
-                            <input type="number" id="targetPercent" step="0.1" value="90">
-                        </div>
-                    </div>
-
-                    <div class="grid" style="margin-top: 20px;">
-                        <div>
-                            <label>Which Component?</label>
-                            <select id="componentSelect">
-                                </select>
-                        </div>
-                        <div>
-                            <label>Points in Assignment</label>
-                            <input type="number" id="nextPoints" placeholder="e.g. 100">
-                        </div>
-                    </div>
-
-                    <button class="btn-calc" onclick="calculateRequiredScore()">Calculate Target Score</button>
+            <div id="inputs" class="card" style="display:none;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                    <div><label>Goal %</label><input type="number" id="goal" value="90"></div>
+                    <div><label>Assignment Points</label><input type="number" id="pts" placeholder="e.g. 100"></div>
                 </div>
-
-                <div id="resultArea" class="card">
-                    <div style="text-transform: uppercase; font-size: 12px; font-weight: 700; color: var(--text-muted);">You need a</div>
-                    <div class="result-huge" id="requiredScore">88%</div>
-                    <div id="resultText" style="color: var(--text-muted);">to reach your goal.</div>
-                </div>
+                <label>Add to Group</label><select id="compSelect"></select>
+                <button class="btn-calc" onclick="calc()">Calculate</button>
+            </div>
+            <div id="res" class="card" style="display:none; text-align:center;">
+                <div id="finalResult" class="result-huge">0%</div>
+                <div id="desc" style="color:var(--text-muted); margin-top:5px;"></div>
             </div>
         </div>
     </main>
-
     <script>
-        let currentSubData = null;
-
-        async function onSubjectChange() {
-            const id = document.getElementById('subjectSelect').value;
-            const res = await fetch(`/api/simulator/load?subjectId=${id}`);
-            currentSubData = await res.json();
-
-            // 1. Update Status
-            document.getElementById('statusArea').style.display = 'block';
-            document.getElementById('predictArea').style.display = 'block';
-            document.getElementById('currentGradeVal').innerText = (currentSubData.currentScore || 0) + '%';
-            
-            // Check if weighted
-            const isWeighted = currentSubData.components.some(c => c.weight > 0);
-            document.getElementById('gradingModeVal').innerText = isWeighted ? "Weighted Categories" : "Total Points";
-
-            // 2. Populate Target Letters based on subject scale
-            const letterSelect = document.getElementById('targetLetter');
-            letterSelect.innerHTML = '<option value="">Custom %</option>';
-            if (currentSubData.gradingScale) {
-                // Assuming gradingScale is a JSON string like {"A":93, "B":80}
-                const scale = JSON.parse(currentSubData.gradingScale);
-                Object.keys(scale).sort((a,b) => scale[b] - scale[a]).forEach(letter => {
-                    const opt = document.createElement('option');
-                    opt.value = scale[letter];
-                    opt.innerText = `${letter} (>= ${scale[letter]}%)`;
-                    letterSelect.appendChild(opt);
-                });
-            }
-
-            // 3. Populate Components
-            const compSelect = document.getElementById('componentSelect');
-            compSelect.innerHTML = "";
-            currentSubData.components.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.id;
-                opt.innerText = c.name + (isWeighted ? ` (${c.weight}%)` : "");
-                compSelect.appendChild(opt);
-            });
+        let sd = null;
+        async function loadData() {
+            const res = await fetch(`/api/simulator/load?subjectId=${document.getElementById('subSelect').value}`);
+            sd = await res.json();
+            document.getElementById('quickStats').style.display = 'flex';
+            document.getElementById('inputs').style.display = 'block';
+            document.getElementById('cGrade').innerText = (sd.currentScore || 0) + '%';
+            const iw = sd.components.some(c => c.weight > 0);
+            document.getElementById('mDisplay').innerText = iw ? "Weighted" : "Points";
+            const cs = document.getElementById('compSelect'); cs.innerHTML = "";
+            sd.components.forEach(c => cs.innerHTML += `<option value="${c.id}">${c.name}</option>`);
         }
-
-        function updateTargetPercent() {
-            const val = document.getElementById('targetLetter').value;
-            if(val) document.getElementById('targetPercent').value = val;
-        }
-
-        function calculateRequiredScore() {
-            const targetVal = parseFloat(document.getElementById('targetPercent').value);
-            const nextPoints = parseFloat(document.getElementById('nextPoints').value);
-            const compId = document.getElementById('componentSelect').value;
-            
-            if(!nextPoints || isNaN(targetVal)) { alert("Please enter all values"); return; }
-
-            const selectedComp = currentSubData.components.find(c => c.id == compId);
-            const isWeighted = currentSubData.components.some(c => c.weight > 0);
-
-            let neededPercent = 0;
-
-            if (isWeighted) {
-                // --- WEIGHTED MATH ---
-                let currentWeightedSum = 0;
-                let totalWeightSynced = 0;
-
-                currentSubData.components.forEach(c => {
-                    if (c.totalPoints > 0) {
-                        currentWeightedSum += (c.score / c.totalPoints) * c.weight;
-                        totalWeightSynced += c.weight;
-                    }
-                });
-
-                // We need to figure out what happens if we add the new points to currentWeightedSum
-                const otherWeightsSum = currentWeightedSum - ((selectedComp.score / (selectedComp.totalPoints || 1)) * selectedComp.weight);
-                
-                // Target = OtherWeights + ( (ExistingScore + NewScore) / (ExistingTotal + NewTotal) ) * CompWeight
-                // Solving for NewScore...
-                const targetCompContribution = targetVal - otherWeightsSum;
-                const requiredCompRatio = targetCompContribution / selectedComp.weight;
-                const totalCompPointsAfter = (selectedComp.totalPoints || 0) + nextPoints;
-                
-                const totalScoreNeededInComp = requiredCompRatio * totalCompPointsAfter;
-                const scoreNeededOnAssignment = totalScoreNeededInComp - (selectedComp.score || 0);
-                
-                neededPercent = (scoreNeededOnAssignment / nextPoints) * 100;
+        function calc() {
+            const g = parseFloat(document.getElementById('goal').value), p = parseFloat(document.getElementById('pts').value);
+            const comp = sd.components.find(c => c.id == document.getElementById('compSelect').value);
+            const iw = sd.components.some(c => c.weight > 0);
+            let n = 0;
+            if (iw) {
+                let wp = 0; sd.components.forEach(c => { if(c.totalPoints > 0) wp += (c.score/c.totalPoints)*c.weight; });
+                const oc = wp - ((comp.score/(comp.totalPoints||1))*comp.weight);
+                n = (((g - oc)/comp.weight)*(comp.totalPoints+p) - comp.score)/p*100;
             } else {
-                // --- TOTAL POINTS MATH ---
-                let totalPointsEarned = 0;
-                let totalPointsPossible = 0;
-                currentSubData.components.forEach(c => {
-                    totalPointsEarned += c.score;
-                    totalPointsPossible += c.totalPoints;
-                });
-
-                // Target = (Earned + X) / (Possible + NextPoints)
-                neededPercent = ((targetVal / 100 * (totalPointsPossible + nextPoints)) - totalPointsEarned) / nextPoints * 100;
+                let te=0, tp=0; sd.components.forEach(c => { te+=c.score; tp+=c.totalPoints; });
+                n = (((g/100)*(tp+p))-te)/p*100;
             }
-
-            // UI Update
-            const resArea = document.getElementById('resultArea');
-            const scoreDisplay = document.getElementById('requiredScore');
-            resArea.style.display = 'block';
-            
-            if (neededPercent > 100) {
-                scoreDisplay.style.color = "#ef4444"; // Red for impossible/hard
-                scoreDisplay.innerText = neededPercent.toFixed(1) + "%";
-                document.getElementById('resultText').innerText = "This might be tough! You need extra credit.";
-            } else if (neededPercent < 0) {
-                scoreDisplay.style.color = "var(--success)";
-                scoreDisplay.innerText = "0%";
-                document.getElementById('resultText').innerText = "You've already secured this grade! Even a 0% keeps you safe.";
-            } else {
-                scoreDisplay.style.color = "var(--primary)";
-                scoreDisplay.innerText = neededPercent.toFixed(1) + "%";
-                document.getElementById('resultText').innerText = `You need a score of ${(neededPercent / 100 * nextPoints).toFixed(1)} / ${nextPoints}.`;
-            }
-            
-            resArea.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('res').style.display = 'block';
+            const f = document.getElementById('finalResult'); f.innerText = n.toFixed(1) + "%";
+            f.style.color = n > 100 ? "#ef4444" : "var(--primary)";
+            document.getElementById('desc').innerText = `Target score: ${((n/100)*p).toFixed(1)} / ${p}`;
         }
     </script>
 </body>
