@@ -1,46 +1,26 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subject Details - Grade Calculator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
-        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --success: #10b981; }
-        [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
+        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; }
+        [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --border-color: #334155; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
-        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; }
-        .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
-        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; }
-        .nav-link:hover { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
-        .sidebar-footer { border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: auto; }
-        
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
         .container { max-width: 1000px; margin: 0 auto; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .page-title { font-size: 24px; font-weight: 700; }
-        
         .card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; padding: 12px 20px; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.02); }
-        td { padding: 12px 20px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
-        
-        .component-row { cursor: pointer; transition: background 0.2s; font-weight: 600; }
-        .component-row:hover { background: rgba(0,0,0,0.02); }
-        .component-row.active { background: rgba(79, 70, 229, 0.05); border-left: 4px solid var(--primary); }
-        
-        .assignments-container { display: none; padding: 0; background: rgba(0,0,0,0.02); }
-        .assignments-table { width: 100%; margin: 0; }
-        .assignments-table td { padding: 8px 20px; font-size: 13px; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
-        .assignments-table tr:last-child td { border-bottom: none; }
-        
-        .toggle-icon { margin-right: 10px; transition: transform 0.2s; display: inline-block; }
+        td { padding: 12px 20px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
+        .component-row { cursor: pointer; font-weight: 600; }
+        .assignments-container { display: none; background: rgba(0,0,0,0.02); }
+        .toggle-icon { margin-right: 10px; transition: 0.2s; display: inline-block; }
         .active .toggle-icon { transform: rotate(90deg); }
-        .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; float: right; margin-top: 20px; }
-        
-        @media (max-width: 768px) { body { flex-direction: column; } .sidebar { display: none; } .main-content { padding: 20px; } }
     </style>
     <script>
         (function() { document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'light'); })();
@@ -51,130 +31,55 @@
     </script>
 </head>
 <body>
-
     <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-
     <main class="main-content">
         <div class="container">
             <div class="header-row">
                 <div>
-                    <div class="page-title" th:text="${subject.subjectName}">Subject Name</div>
-                    <div style="color:var(--text-muted); font-size:14px;">Code: <span th:text="${subject.subjectCode}">CS101</span></div>
+                    <h1 th:text="${subject.subjectName}">Subject</h1>
+                    <div style="color:var(--text-muted)" th:text="${subject.subjectCode}">CODE</div>
                 </div>
-                <div style="text-align:right;">
-                    <div style="font-size:12px; text-transform:uppercase; color:var(--text-muted);">Current Grade</div>
-                    <div style="font-size:24px; font-weight:800; color:var(--primary);" 
-                         th:text="${subject.currentScore != null ? subject.currentScore + '%' : '-'}">-</div>
+                <div style="text-align:right">
+                    <label>Current Grade</label>
+                    <div style="font-size:24px; font-weight:800; color:var(--primary)" th:text="${subject.currentScore + '%'}">0%</div>
                 </div>
             </div>
-
             <div class="card">
                 <table>
                     <thead>
-                        <tr>
-                            <th style="width:40%;">Component / Group</th>
-                            <th>Weight (%)</th>
-                            <th>Score / Total</th>
-                            <th>Percentage</th>
-                        </tr>
+                        <tr><th>Component</th><th>Weight</th><th>Score</th><th>%</th></tr>
                     </thead>
                     <tbody>
                         <th:block th:each="comp : ${subject.components}">
                             <tr class="component-row" onclick="toggleAssignments(this)" th:data-drop="${comp.dropLowest}">
-                                <td>
-                                    <i class="fa-solid fa-chevron-right toggle-icon"></i>
-                                    <span th:text="${comp.name}">Exams</span>
-                                    <span th:if="${comp.dropLowest > 0}" style="font-size:10px; background:#fee2e2; color:#991b1b; padding:2px 6px; border-radius:4px; margin-left:8px;">
-                                        Drops Lowest <span th:text="${comp.dropLowest}">1</span>
-                                    </span>
-                                </td>
-                                <td th:text="${comp.weight} + '%'">40%</td>
-                                <td>
-                                    <span class="comp-score-display">
-                                        <span th:text="${comp.score}">0</span> / <span th:text="${comp.totalPoints}">0</span>
-                                    </span>
-                                </td>
-                                <td class="comp-percent-display" 
-                                    th:text="${comp.totalPoints > 0 ? #numbers.formatDecimal((comp.score / comp.totalPoints) * 100, 1, 2) + '%' : '-'}">
-                                    85%
-                                </td>
+                                <td><i class="fa-solid fa-chevron-right toggle-icon"></i> <span th:text="${comp.name}"></span></td>
+                                <td th:text="${comp.weight + '%'}"></td>
+                                <td class="comp-score-display" th:text="${comp.score + ' / ' + comp.totalPoints}"></td>
+                                <td class="comp-percent-display" th:text="${comp.totalPoints > 0 ? (comp.score/comp.totalPoints*100) : 0}"></td>
                             </tr>
-                            <tr>
-                                <td colspan="4" class="assignments-container">
-                                    <table class="assignments-table">
-                                        <thead>
-                                            <tr>
-                                                <th style="padding-left:40px;">Assignment Name</th>
-                                                <th>Score</th>
-                                                <th>Total</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr th:each="assign : ${comp.assignments}">
-                                                <td style="padding-left:40px;" th:text="${assign.name}">Midterm 1</td>
-                                                <td class="score-val" th:text="${assign.score}">85</td>
-                                                <td class="total-val" th:text="${assign.totalPoints}">100</td>
-                                            </tr>
-                                            <tr th:if="${#lists.isEmpty(comp.assignments)}">
-                                                <td colspan="3" style="text-align:center; font-style:italic; padding:15px;">No assignments synced in this group yet.</td>
-                                            </tr>
-                                        </tbody>
+                            <tr class="assignments-container">
+                                <td colspan="4">
+                                    <table style="width:100%">
+                                        <tr th:each="assign : ${comp.assignments}">
+                                            <td style="padding-left:40px" th:text="${assign.name}"></td>
+                                            <td class="score-val" th:text="${assign.score}"></td>
+                                            <td class="total-val" th:text="${assign.totalPoints}"></td>
+                                        </tr>
                                     </table>
                                 </td>
                             </tr>
                         </th:block>
-                        <tr th:if="${#lists.isEmpty(subject.components)}">
-                            <td colspan="4" style="text-align:center; padding:30px; color:var(--text-muted);">
-                                No components found. Sync with Canvas to populate!
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
-            <button class="btn-save" th:onclick="'location.href=\'' + @{/index} + '\''">Back to Dashboard</button>
         </div>
     </main>
-
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        document.addEventListener("DOMContentLoaded", function() { recalculateAllDrops(); });
-        function recalculateAllDrops() {
-            const rows = document.querySelectorAll('.component-row');
-            rows.forEach(row => {
-                const dropCount = parseInt(row.getAttribute('data-drop')) || 0;
-                if (dropCount > 0) calculateComponentScore(row, dropCount);
-            });
-        }
-        function calculateComponentScore(parentRow, dropCount) {
-            const assignTable = parentRow.nextElementSibling.querySelector('.assignments-table tbody');
-            const assignRows = Array.from(assignTable.querySelectorAll('tr')).filter(r => r.querySelector('.score-val'));
-            if (assignRows.length <= dropCount) return;
-            let assignments = assignRows.map(r => {
-                const s = parseFloat(r.querySelector('.score-val').innerText);
-                const t = parseFloat(r.querySelector('.total-val').innerText);
-                return { s, t, percent: t > 0 ? s / t : 0, row: r };
-            });
-            assignments.sort((a, b) => a.percent - b.percent);
-            assignments.forEach(a => { a.row.style.textDecoration = "none"; a.row.style.opacity = "1"; });
-            for (let i = 0; i < dropCount; i++) {
-                assignments[i].row.style.textDecoration = "line-through";
-                assignments[i].row.style.opacity = "0.5";
-            }
-            const kept = assignments.slice(dropCount);
-            let fs = 0, ft = 0;
-            kept.forEach(a => { fs += a.s; ft += a.t; });
-            updateRowDisplay(parentRow, fs, ft);
-        }
-        function updateRowDisplay(row, score, total) {
-            row.querySelector('.comp-score-display').innerText = `${parseFloat(score.toFixed(2))} / ${parseFloat(total.toFixed(2))}`;
-            row.querySelector('.comp-percent-display').innerText = total > 0 ? ((score/total)*100).toFixed(2) + '%' : '-';
-        }
+    <script>
         function toggleAssignments(row) {
             row.classList.toggle('active');
-            var content = row.nextElementSibling.querySelector('.assignments-container');
-            content.style.display = (content.style.display === "block") ? "none" : "block";
+            const content = row.nextElementSibling;
+            content.style.display = content.style.display === 'table-row' ? 'none' : 'table-row';
         }
-        /*]]>*/
     </script>
 </body>
 </html>
