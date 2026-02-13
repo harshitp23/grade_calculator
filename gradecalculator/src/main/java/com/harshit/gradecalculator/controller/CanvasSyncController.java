@@ -1,135 +1,93 @@
 package com.harshit.gradecalculator.controller;
 
-import com.harshit.gradecalculator.dto.CanvasAssignmentPayload;
-import com.harshit.gradecalculator.dto.CanvasCoursePayload;
-import com.harshit.gradecalculator.dto.CanvasSyncRequest;
-import com.harshit.gradecalculator.dto.CanvasSyncResponse;
-import com.harshit.gradecalculator.model.Component;
-import com.harshit.gradecalculator.model.Subject;
-import com.harshit.gradecalculator.model.User;
-import com.harshit.gradecalculator.repository.ComponentRepository;
-import com.harshit.gradecalculator.repository.SubjectRepository;
-import com.harshit.gradecalculator.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import com.harshit.gradecalculator.dto.*;
+import com.harshit.gradecalculator.model.*;
+import com.harshit.gradecalculator.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.server.ResponseStatusException;
+import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/canvas")
 public class CanvasSyncController {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private SubjectRepository subjectRepository;
-
-    @Autowired
-    private ComponentRepository componentRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private SubjectRepository subjectRepository;
+    @Autowired private ComponentRepository componentRepository;
 
     @PostMapping("/sync")
     @Transactional
-    public ResponseEntity<CanvasSyncResponse> syncCanvasGrades(
-            @RequestHeader(value = "X-Api-Token", required = false) String apiToken,
+    public CanvasSyncResponse syncCanvasData(
+            @RequestHeader("X-Api-Token") String apiToken,
             @RequestBody CanvasSyncRequest request) {
 
-        if (!StringUtils.hasText(apiToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        User user = userRepository.findByApiToken(apiToken).orElse(null);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        List<CanvasCoursePayload> courses = request.getCourses();
-        if (courses == null || courses.isEmpty()) {
-            return ResponseEntity.ok(new CanvasSyncResponse(0, 0));
-        }
+        User user = userRepository.findByApiToken(apiToken)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Token"));
 
         int subjectsUpdated = 0;
         int componentsUpdated = 0;
 
-        for (CanvasCoursePayload course : courses) {
-            String courseCode = StringUtils.hasText(course.getCode()) ? course.getCode() : course.getName();
-            if (!StringUtils.hasText(courseCode)) {
-                continue;
-            }
+        for (CanvasCoursePayload coursePayload : request.getCourses()) {
+            
+            // 1. Find or Create Subject
+            Optional<Subject> existing = subjectRepository.findByUserAndSubjectCode(user, coursePayload.getCode());
+            Subject subject;
 
-            Subject subject = subjectRepository.findByUserAndSubjectCode(user, courseCode)
-                    .orElseGet(Subject::new);
-
-            subject.setUser(user);
-            subject.setSubjectName(StringUtils.hasText(course.getName()) ? course.getName() : courseCode);
-            subject.setSubjectCode(courseCode);
-            if (StringUtils.hasText(course.getStatus())) {
-                subject.setStatus(course.getStatus());
-            } else if (subject.getStatus() == null) {
+            if (existing.isPresent()) {
+                subject = existing.get();
+                subject.setCurrentScore(BigDecimal.valueOf(coursePayload.getCurrentScore()));
+            } else {
+                subject = new Subject();
+                subject.setUser(user);
+                subject.setSubjectName(coursePayload.getName());
+                subject.setSubjectCode(coursePayload.getCode());
+                subject.setCredits(3);
                 subject.setStatus("In Progress");
-            }
-
-            if (course.getCredits() != null) {
-                subject.setCredits(course.getCredits());
-            } else if (subject.getId() == null) {
-                subject.setCredits(0);
-            }
-
-            if (course.getCurrentScore() != null) {
-                subject.setCurrentScore(BigDecimal.valueOf(course.getCurrentScore()));
-            }
-
-            if (course.getIncludeInGpa() != null) {
-                subject.setIncludeInGpa(course.getIncludeInGpa());
-            } else if (subject.getId() == null) {
+                subject.setCurrentScore(BigDecimal.valueOf(coursePayload.getCurrentScore()));
                 subject.setIncludeInGpa(true);
+                subjectRepository.save(subject);
             }
+            subjectsUpdated++;
 
-            Boolean useTotalPoints = course.getUseTotalPoints();
+            // 2. Clear old components to perform a fresh sync
+            componentRepository.deleteBySubject(subject);
 
-            if (useTotalPoints == null) {
-                List<CanvasAssignmentPayload> assignments = course.getAssignments();
-                if (assignments != null && !assignments.isEmpty()) {
-                    // Infer mode: if no assignment has a positive weight, treat as total-points mode
-                    useTotalPoints = assignments.stream()
-                    .noneMatch(a -> a.getWeight() != null && a.getWeight() > 0);
+            // 3. Add New Components (Groups) & Assignments
+            if (coursePayload.getComponents() != null) {
+                for (CanvasComponentPayload compPayload : coursePayload.getComponents()) {
+                    
+                    Component comp = new Component();
+                    comp.setSubject(subject);
+                    comp.setName(compPayload.getName());
+                    comp.setWeight(compPayload.getWeight());
+                    comp.setScore(compPayload.getScore());
+                    comp.setTotalPoints(compPayload.getTotalPoints());
+                    
+                    // Save component first to get ID
+                    comp = componentRepository.save(comp);
+                    componentsUpdated++;
+
+                    // Add assignments if present
+                    if (compPayload.getAssignments() != null) {
+                        for (CanvasAssignmentPayload assignPayload : compPayload.getAssignments()) {
+                            Assignment assign = new Assignment();
+                            assign.setComponent(comp); // Link to parent
+                            assign.setName(assignPayload.getName());
+                            assign.setScore(assignPayload.getScore());
+                            assign.setTotalPoints(assignPayload.getTotalPoints());
+                            
+                            comp.getAssignments().add(assign);
+                        }
+                        // Save again to cascade assignments
+                        componentRepository.save(comp);
+                    }
                 }
             }
-
-            if (useTotalPoints != null) {
-                subject.setUseTotalPoints(useTotalPoints);
-            }
-
-            Subject savedSubject = subjectRepository.save(subject);
-            subjectsUpdated += 1;
-
-            // Only replace components when assignments are present AND non-empty
-            List<CanvasAssignmentPayload> assignments = course.getAssignments();
-            if (assignments != null && !assignments.isEmpty()) {
-                componentRepository.deleteBySubject(savedSubject);
-
-                for (CanvasAssignmentPayload assignment : assignments) {
-                    if (!StringUtils.hasText(assignment.getName())) continue;
-
-                    Component component = new Component();
-                    component.setSubject(savedSubject);
-                    component.setName(assignment.getName());
-                    component.setScore(assignment.getScore());
-                    component.setTotalPoints(assignment.getTotalPoints());
-                    component.setWeight(assignment.getWeight() != null ? assignment.getWeight() : 0.0);
-
-                    componentRepository.save(component);
-                    componentsUpdated += 1;
-                }
-            }
-
         }
-
-        return ResponseEntity.ok(new CanvasSyncResponse(subjectsUpdated, componentsUpdated));
+        return new CanvasSyncResponse(subjectsUpdated, componentsUpdated);
     }
 }
