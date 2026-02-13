@@ -300,8 +300,22 @@
             let totalPoints = 0, totalCredits = 0;
             data.forEach(sub => {
                 let gradeInfo, displayScore;
-                if (sub.letterGrade) { gradeInfo = { grade: sub.letterGrade, point: getPointsForLetter(sub.letterGrade), css: 'grade-A' }; displayScore = "Curved"; } 
-                else { let score = sub.currentScore || 0; gradeInfo = calculateGrade(score, sub.gradingScale); displayScore = score > 0 ? score + "%" : "-"; }
+                if (sub.letterGrade) { 
+                    gradeInfo = { grade: sub.letterGrade, point: getPointsForLetter(sub.letterGrade), css: 'grade-A' }; 
+                    displayScore = "Curved"; 
+                } else {
+                    // Check if score exists properly
+                    if (sub.currentScore === null || sub.currentScore === undefined) {
+                        // CASE: No Grade Yet
+                        gradeInfo = { grade: '-', point: 0.0, css: 'text-muted' }; // 'text-muted' makes it grey
+                        displayScore = "-";
+                    } else {
+                        // CASE: We have a score (even if it's 0)
+                        let score = parseFloat(sub.currentScore);
+                        gradeInfo = calculateGrade(score, sub.gradingScale);
+                        displayScore = score + "%";
+                    }
+                }
                 sub.calcGrade = gradeInfo.grade; sub.calcPoint = gradeInfo.point; sub.cssClass = gradeInfo.css; sub.displayScore = displayScore;
                 if (sub.includeInGpa !== false) {
                     totalCredits += sub.credits; totalPoints += (gradeInfo.point * sub.credits);
@@ -365,3 +379,4 @@
 
 </body>
 </html>
+
