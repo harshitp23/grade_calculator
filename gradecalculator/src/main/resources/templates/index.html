@@ -8,12 +8,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* --- THEME VARIABLES --- */
         :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --danger: #ef4444; }
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
         
-        /* SIDEBAR (Desktop Default) */
         .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; transition: transform 0.3s ease; }
         .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
@@ -23,84 +21,48 @@
         .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
         .icon-btn:hover { color: var(--primary); }
 
-        /* CONTENT */
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .gpa-card { background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%); color: white; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); display: inline-block; min-width: 200px; }
         .gpa-label { font-size: 13px; opacity: 0.9; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
         .gpa-value { font-size: 32px; font-weight: 800; margin-top: 5px; }
 
-        /* TABLES */
         .section-title { font-size: 18px; font-weight: 700; margin: 40px 0 15px 0; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); overflow: hidden; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; }
-        thead { background-color: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-color); }
-        th { text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); }
+        th { text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); background-color: rgba(0,0,0,0.02); }
         td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
         
         .grade-header-row { background-color: rgba(79, 70, 229, 0.05); }
         .grade-header-cell { font-weight: 700; color: var(--primary); padding: 8px 24px; font-size: 13px; }
-        
         .grade-A { color: #10b981; font-weight: 700; } 
-        .grade-AB { color: #f59e0b; font-weight: 700; } 
-        .grade-B { color: #f97316; font-weight: 700; } 
         .grade-Low { color: #ef4444; font-weight: 700; } 
 
-        /* ACTIONS */
         .action-btn { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 10px; cursor: pointer; color: var(--text-muted); margin-left: 5px; transition: 0.2s; }
         .action-btn:hover { background: var(--bg-color); color: var(--primary); }
         .action-btn.manage-btn { color: var(--primary); border-color: #c7d2fe; background: #eef2ff; }
-        .action-btn.curved-btn { color: #8b5cf6; border-color: #ddd6fe; background: #f5f3ff; }
 
         /* MODALS */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
         .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-title { font-size: 20px; font-weight: 700; margin: 0; }
-        .close-btn { font-size: 24px; cursor: pointer; color: var(--text-muted); }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted); }
-        .modal-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); box-sizing: border-box; }
-        .btn-primary { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 10px; }
-        .btn-danger { width: 100%; padding: 10px; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px; }
+        .modal-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); box-sizing: border-box; margin-bottom: 15px; }
+        .btn-primary { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
         .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
 
-        /* --- MOBILE STYLES --- */
         .mobile-nav { display: none; }
         .mobile-overlay { display: none; }
-        .mobile-close-sidebar { display: none; }
 
         @media (max-width: 768px) {
             body { flex-direction: column; }
-            
-            /* Top Navigation Bar */
             .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-            
-            /* Sidebar Drawer Logic */
             .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.1); z-index: 999; }
             .sidebar.active { transform: translateX(0); }
-            .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
-
-            /* Content Adjustments */
             .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
-            .header-row { flex-direction: column; align-items: flex-start; gap: 15px; }
-            .gpa-card { width: 100%; box-sizing: border-box; }
-            
-            /* Table Scrolling & Button Fixes */
-            .card { overflow-x: auto; }
-            table { min-width: 650px; } /* Ensures buttons don't squash */
-            td { white-space: nowrap; } /* Prevents wrapping in cells */
-            
-            /* Larger Action Buttons for Touch */
-            .action-btn { padding: 8px 12px; margin-left: 8px; font-size: 16px; }
-
-            /* Modal Fixes */
-            .modal-content { width: 85%; max-height: 90vh; overflow-y: auto; }
-
-            /* Overlay */
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
             .mobile-overlay.active { display: block; }
+            .card { overflow-x: auto; }
+            table { min-width: 600px; }
         }
     </style>
 </head>
@@ -114,20 +76,22 @@
         <div style="display:flex; gap:15px;">
             <button class="icon-btn" id="themeBtnMobile" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
             <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
-            <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+            <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
         </div>
     </div>
 
     <div class="mobile-overlay" onclick="toggleSidebar()"></div>
 
     <aside class="sidebar">
-        <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
-        <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
+            <div class="logo" style="margin:0;"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+            <button class="icon-btn mobile-only" onclick="toggleSidebar()" style="display:none;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
         <nav>
-            <a href="index.html" class="nav-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a href="add-subject.html" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
-            <a href="/simulator" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
-            <a href="target-grade.html" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+            <a th:href="@{/}" class="nav-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
+            <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
+            <a th:href="@{/target-grade}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
         </nav>
         <div class="spacer"></div>
         <div class="user-profile">
@@ -135,7 +99,7 @@
             <div style="display:flex; gap:10px;">
                 <button class="icon-btn" id="themeBtn" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
                 <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
-                <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+                <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
             </div>
         </div>
     </aside>
@@ -163,223 +127,66 @@
         </div>
     </main>
 
-    <div id="subjectModal" class="modal" onclick="if(event.target.id==='subjectModal') this.style.display='none'">
-        <div class="modal-content">
-            <div class="modal-header"><h2 class="modal-title">Subject Settings</h2><span class="close-btn" onclick="document.getElementById('subjectModal').style.display='none'">&times;</span></div>
-            <input type="hidden" id="editSubId">
-            <div class="form-group"><label class="form-label">Subject Name</label><input type="text" class="modal-input" id="editSubName"></div>
-            <div class="form-group"><label class="form-label">Subject Code</label><input type="text" class="modal-input" id="editSubCode"></div>
-            <div class="form-group"><label class="form-label">Semester Status</label><select class="modal-input" id="editSubStatus"><option value="In Progress">Current (In Progress)</option><option value="Completed">Completed (Past Semester)</option></select></div>
-            <div class="form-group">
-                <label class="form-label">GPA Inclusion</label>
-                <label style="font-size:13px; display:flex; gap:8px; align-items:center;">
-                    <input type="checkbox" id="editIncludeInGpa" checked> Include this subject in GPA
-                </label>
-            </div>
-            <div class="form-group" style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:15px;">
-                <label class="form-label">Grading Scale</label>
-                <label style="font-size:13px; display:flex; gap:8px; align-items:center;">
-                    <input type="checkbox" id="useDefaultScale" checked onchange="toggleScaleInputs()"> Use Default UW Madison Scale
-                </label>
-                <div id="customScaleInputs" style="display:none; margin-top:10px;">
-                    <label class="form-label" style="font-size:11px;">Min Score for: A, AB, B, BC, C, D (comma separated)</label>
-                    <input type="text" class="modal-input" id="customScaleStr" placeholder="e.g. 93,88,83,78,70,60">
-                </div>
-            </div>
-            <button class="btn-primary" onclick="saveSubjectSettings()">Save Changes</button>
-            <button class="btn-danger" onclick="deleteSubject()">Delete Subject</button>
-        </div>
-    </div>
-
-    <div id="curveModal" class="modal" onclick="if(event.target.id==='curveModal') this.style.display='none'">
-        <div class="modal-content">
-            <div class="modal-header"><h2 class="modal-title">Curve Adjustment</h2><span class="close-btn" onclick="document.getElementById('curveModal').style.display='none'">&times;</span></div>
-            <input type="hidden" id="curveSubId">
-            <p style="color:var(--text-muted); font-size:14px; margin-bottom:20px;">Select the final letter grade you received.</p>
-            <div class="form-group"><select class="modal-input" id="curveLetter"><option value="A">A (4.0)</option><option value="AB">AB (3.5)</option><option value="B">B (3.0)</option><option value="BC">BC (2.5)</option><option value="C">C (2.0)</option><option value="D">D (1.0)</option><option value="F">F (0.0)</option></select></div>
-            <button class="btn-primary" onclick="saveCurve()">Save Grade</button>
-        </div>
-    </div>
-
     <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
         <div class="modal-content">
-            <div class="modal-header"><h2 class="modal-title">Account Settings</h2><span class="close-btn" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
-            <div class="form-group"><label class="form-label">Profile</label><input type="text" class="modal-input" placeholder="New Username" style="margin-bottom:10px;"><input type="email" class="modal-input" placeholder="New Email"><button class="btn-save" onclick="alert('Profile Update coming soon!')">Update Profile</button></div>
-            <div class="form-group"><label class="form-label">Security</label><input type="password" class="modal-input" placeholder="New Password"><button class="btn-save" onclick="alert('Password Change coming soon!')">Change Password</button></div>
-            <div class="form-group">
-                <label class="form-label">Canvas Integration</label>
-                <input type="text" class="modal-input" id="canvasApiToken" readonly placeholder="Loading API token...">
-                <button class="btn-save" onclick="resetCanvasToken()">Regenerate Token</button>
-                <p style="font-size:12px; color:var(--text-muted); margin-top:8px;">Use this token in your Canvas extension as the <strong>X-Api-Token</strong> header.</p>
-            </div>
-            <div class="form-group"><label class="form-label" style="color:var(--danger)">Danger Zone</label><button class="btn-danger" style="margin-top:0;" onclick="confirm('Are you sure?')">Delete Account</button></div>
+            <div class="modal-header"><h2 class="modal-title">Account Settings</h2><span style="cursor:pointer" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
+            <div style="margin-bottom:15px;"><label>Canvas API Token</label><input type="text" id="canvasApiToken" readonly class="modal-input" style="margin-top:5px;"><button class="btn-save" onclick="resetCanvasToken()">Regenerate Token</button></div>
+            <button class="btn-save" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca" onclick="confirm('Are you sure?')">Delete Account</button>
         </div>
     </div>
 
-<script>
-    // Theme Logic
-    const themeBtn = document.getElementById('themeBtn');
-    const themeBtnMobile = document.getElementById('themeBtnMobile');
-    
-    function updateIcons(isDark) {
-        const iconClass = isDark ? 'fa-sun' : 'fa-moon';
-        themeBtn.querySelector('i').className = `fa-solid ${iconClass}`;
-        if(themeBtnMobile) themeBtnMobile.querySelector('i').className = `fa-solid ${iconClass}`;
-    }
-
-    if (localStorage.getItem('theme') === 'dark') { 
-        document.documentElement.setAttribute('data-theme', 'dark'); 
-        updateIcons(true);
-    }
-
-    function toggleTheme() {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        if (isDark) { 
-            document.documentElement.removeAttribute('data-theme'); 
-            localStorage.setItem('theme', 'light'); 
-            updateIcons(false);
-        } else { 
-            document.documentElement.setAttribute('data-theme', 'dark'); 
-            localStorage.setItem('theme', 'dark'); 
-            updateIcons(true);
+    <script>
+        function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
+        function toggleTheme() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); updateIcons(false); }
+            else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); updateIcons(true); }
         }
-    }
-
-    function openGlobalSettings() {
-        document.getElementById('globalSettingsModal').style.display = 'flex';
-        loadCanvasToken();
-    }
-    function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
-
-    window.onload = function() { fetchSubjects(); };
-
-    async function loadCanvasToken() {
-        const tokenField = document.getElementById('canvasApiToken');
-        if (!tokenField) return;
-        try {
-            const response = await fetch('/api/account/token');
-            if (!response.ok) throw new Error('Failed to load token');
-            const data = await response.json();
-            tokenField.value = data.token || '';
-        } catch (error) {
-            tokenField.value = 'Unable to load token';
+        function updateIcons(isDark) {
+            const iconClass = isDark ? 'fa-sun' : 'fa-moon';
+            document.getElementById('themeBtn').querySelector('i').className = `fa-solid ${iconClass}`;
+            document.getElementById('themeBtnMobile').querySelector('i').className = `fa-solid ${iconClass}`;
         }
-    }
+        if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
+        function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); }
+        async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
+        async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
 
-    async function resetCanvasToken() {
-        const tokenField = document.getElementById('canvasApiToken');
-        if (!tokenField) return;
-        try {
-            const response = await fetch('/api/account/token/reset', { method: 'POST' });
-            if (!response.ok) throw new Error('Failed to reset token');
-            const data = await response.json();
-            tokenField.value = data.token || '';
-        } catch (error) {
-            tokenField.value = 'Unable to reset token';
+        window.onload = function() { fetchSubjects(); };
+
+        function calculateGrade(score, customScaleStr) {
+            let thresholds = [93, 88, 83, 78, 70, 60];
+            if (customScaleStr) thresholds = customScaleStr.split(',').map(Number);
+            if (score >= thresholds[0]) return { grade: 'A', point: 4.0, css: 'grade-A' };
+            if (score >= thresholds[1]) return { grade: 'AB', point: 3.5, css: 'grade-A' };
+            if (score >= thresholds[2]) return { grade: 'B', point: 3.0, css: 'grade-A' };
+            return { grade: 'F', point: 0.0, css: 'grade-Low' };
         }
-    }
 
-    function calculateGrade(score, customScaleStr) {
-        let thresholds = [93, 88, 83, 78, 70, 60];
-        if (customScaleStr && customScaleStr.trim() !== "") { try { thresholds = customScaleStr.split(',').map(Number); } catch(e) { console.error("Bad scale"); } }
-        if (score >= thresholds[0]) return { grade: 'A', point: 4.0, css: 'grade-A' };
-        if (score >= thresholds[1]) return { grade: 'AB', point: 3.5, css: 'grade-AB' };
-        if (score >= thresholds[2]) return { grade: 'B', point: 3.0, css: 'grade-B' };
-        if (score >= thresholds[3]) return { grade: 'BC', point: 2.5, css: 'grade-Low' }; 
-        if (score >= thresholds[4]) return { grade: 'C', point: 2.0, css: 'grade-Low' };  
-        if (score >= thresholds[5]) return { grade: 'D', point: 1.0, css: 'grade-Low' };  
-        return { grade: 'F', point: 0.0, css: 'grade-Low' };                               
-    }
-    function getPointsForLetter(letter) { const map = { 'A':4.0, 'AB':3.5, 'B':3.0, 'BC':2.5, 'C':2.0, 'D':1.0, 'F':0.0 }; return map[letter] || 0.0; }
+        function fetchSubjects() {
+            fetch('/api/subjects/list').then(r => r.json()).then(data => {
+                const currentBody = document.getElementById('current-table-body');
+                const completedBody = document.getElementById('completed-table-body');
+                currentBody.innerHTML = ""; completedBody.innerHTML = "";
+                let totalPoints = 0, totalCredits = 0;
 
-    function fetchSubjects() {
-        fetch('/api/subjects/list').then(r => r.json()).then(data => {
-            const currentBody = document.getElementById('current-table-body');
-            const completedBody = document.getElementById('completed-table-body');
-            currentBody.innerHTML = ""; completedBody.innerHTML = "";
-            let currentSubjects = [], completedSubjects = [];
-            let totalPoints = 0, totalCredits = 0;
-            data.forEach(sub => {
-                let gradeInfo, displayScore;
-                if (sub.letterGrade) { 
-                    gradeInfo = { grade: sub.letterGrade, point: getPointsForLetter(sub.letterGrade), css: 'grade-A' }; 
-                    displayScore = "Curved"; 
-                } else {
-                    // Check if score exists properly
-                    if (sub.currentScore === null || sub.currentScore === undefined) {
-                        // CASE: No Grade Yet
-                        gradeInfo = { grade: '-', point: 0.0, css: 'text-muted' }; // 'text-muted' makes it grey
-                        displayScore = "-";
-                    } else {
-                        // CASE: We have a score (even if it's 0)
-                        let score = parseFloat(sub.currentScore);
-                        gradeInfo = calculateGrade(score, sub.gradingScale);
-                        displayScore = score + "%";
-                    }
-                }
-                sub.calcGrade = gradeInfo.grade; sub.calcPoint = gradeInfo.point; sub.cssClass = gradeInfo.css; sub.displayScore = displayScore;
-                if (sub.includeInGpa !== false) {
-                    totalCredits += sub.credits; totalPoints += (gradeInfo.point * sub.credits);
-                }
-                if (sub.status === 'Completed') completedSubjects.push(sub); else currentSubjects.push(sub);
-            });
-            document.getElementById('overall-gpa').innerText = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
-            renderGroupedTable(currentSubjects, currentBody);
-            renderGroupedTable(completedSubjects, completedBody);
-        });
-    }
-
-    function renderGroupedTable(subjects, tableBody) {
-        if (subjects.length === 0) return;
-        const grouped = subjects.reduce((acc, sub) => { (acc[sub.calcGrade] = acc[sub.calcGrade] || []).push(sub); return acc; }, {});
-        const gradeOrder = ['A', 'AB', 'B', 'BC', 'C', 'D', 'F'];
-        gradeOrder.forEach(gradeKey => {
-            if (grouped[gradeKey]) {
-                tableBody.innerHTML += `<tr class="grade-header-row"><td colspan="7" class="grade-header-cell">Grade: ${gradeKey}</td></tr>`;
-                grouped[gradeKey].forEach(sub => {
-                    let actions = `
-                        <button class="action-btn manage-btn" onclick="window.location.href='subject-details.html?id=${sub.subjectId}'" title="Manage Scores">
-                            <i class="fa-solid fa-list-check"></i>
-                        </button>`;
-                    if (sub.status === 'Completed') actions += `<button class="action-btn curved-btn" onclick="openCurveModal(${sub.subjectId})" title="Curved?"><i class="fa-solid fa-chart-line"></i></button>`;
-                    actions += `
-                        <button class="action-btn" onclick="openSubjectModal(${sub.subjectId}, '${sub.subjectName}', '${sub.subjectCode}', '${sub.gradingScale || ''}', '${sub.status}', ${sub.includeInGpa !== false})" title="Settings">
-                            <i class="fa-solid fa-gear"></i>
-                        </button>`;
-                    
-                    const statusLabel = sub.includeInGpa === false ? `${sub.status} (Excluded)` : sub.status;
-                    let row = `<tr>
-                        <td><a href="subject-details.html?id=${sub.subjectId}" style="text-decoration:none; color:inherit; font-weight:600;">${sub.subjectName}</a></td>
-                        <td>${sub.subjectCode || ''}</td>
+                data.forEach(sub => {
+                    let gradeInfo = sub.letterGrade ? {grade: sub.letterGrade} : calculateGrade(parseFloat(sub.currentScore || 0), sub.gradingScale);
+                    const row = `<tr>
+                        <td><a href="/subject-details?id=${sub.subjectId}" style="text-decoration:none; color:inherit; font-weight:600;">${sub.subjectName}</a></td>
+                        <td>${sub.subjectCode}</td>
                         <td>${sub.credits}</td>
-                        <td><span style="font-size:12px; padding:2px 8px; background:#e0e7ff; color:#4f46e5; border-radius:4px;">${statusLabel}</span></td>
-                        <td>${sub.displayScore}</td>
-                        <td class="${sub.cssClass}">${gradeKey}</td>
-                        <td style="text-align: right;">${actions}</td>
+                        <td>${sub.status}</td>
+                        <td>${sub.currentScore || '-'}%</td>
+                        <td class="${gradeInfo.css}">${gradeInfo.grade}</td>
+                        <td style="text-align: right;">
+                            <button class="action-btn manage-btn" onclick="window.location.href='/subject-details?id=${sub.subjectId}'"><i class="fa-solid fa-list-check"></i></button>
+                        </td>
                     </tr>`;
-                    tableBody.innerHTML += row;
+                    if (sub.status === 'Completed') completedBody.innerHTML += row; else currentBody.innerHTML += row;
                 });
-            }
-        });
-    }
-
-    // Modal Operations
-    function openSubjectModal(id, name, code, scale, status, includeInGpa) {
-        document.getElementById('editSubId').value = id; document.getElementById('editSubName').value = name; document.getElementById('editSubCode').value = code; document.getElementById('editSubStatus').value = status; document.getElementById('customScaleStr').value = scale;
-        document.getElementById('editIncludeInGpa').checked = includeInGpa !== false;
-        const useDefault = (!scale || scale === 'null' || scale === '');
-        document.getElementById('useDefaultScale').checked = useDefault; toggleScaleInputs();
-        document.getElementById('subjectModal').style.display = 'flex';
-    }
-    function toggleScaleInputs() { const isDefault = document.getElementById('useDefaultScale').checked; document.getElementById('customScaleInputs').style.display = isDefault ? 'none' : 'block'; }
-    function saveSubjectSettings() { const id = document.getElementById('editSubId').value; const name = document.getElementById('editSubName').value; const code = document.getElementById('editSubCode').value; const status = document.getElementById('editSubStatus').value; const scale = document.getElementById('useDefaultScale').checked ? "" : document.getElementById('customScaleStr').value; const includeInGpa = document.getElementById('editIncludeInGpa').checked; fetch(`/api/subjects/update-settings?id=${id}&name=${name}&code=${code}&gradingScale=${scale}&status=${status}&includeInGpa=${includeInGpa}`, { method: 'POST' }).then(() => location.reload()); }
-    function deleteSubject() { const id = document.getElementById('editSubId').value; if(!confirm("Are you sure?")) return; fetch('/api/subjects/delete?id=' + id, { method: 'DELETE' }).then(() => location.reload()); }
-    function openCurveModal(id) { document.getElementById('curveSubId').value = id; document.getElementById('curveModal').style.display = 'flex'; }
-    function saveCurve() { const id = document.getElementById('curveSubId').value; const letter = document.getElementById('curveLetter').value; fetch(`/api/subjects/update-curve?id=${id}&letter=${letter}`, { method: 'POST' }).then(() => location.reload()); }
-</script>
-
+            });
+        }
+    </script>
 </body>
 </html>
-
-
-
