@@ -6,9 +6,7 @@
     <title>Target Calculator - GradeCalc</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
-        /* CSS Copied Exactly from Dashboard */
         :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --danger: #ef4444; }
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
@@ -22,33 +20,30 @@
         .icon-btn:hover { color: var(--primary); }
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
         .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); padding: 25px; margin-bottom: 20px; }
-        
-        /* Mobile Specifics from Dashboard */
-        .mobile-nav { display: none; }
-        .mobile-overlay { display: none; }
-        .mobile-close-sidebar { display: none; }
+        .container { max-width: 800px; margin: 0 auto; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; }
+        select, input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); color: var(--text-main); margin-bottom: 20px; }
+        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .result-huge { font-size: 48px; font-weight: 900; color: var(--primary); margin: 10px 0; text-align: center; }
+        /* Modal from Dashboard */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
+        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
 
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.1); z-index: 999; }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; z-index: 999; }
             .sidebar.active { transform: translateX(0); }
             .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
             .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
             .mobile-overlay.active { display: block; }
         }
-
-        /* Page specific UI */
-        .container { max-width: 800px; margin: 0 auto; }
-        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; }
-        select, input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); color: var(--text-main); margin-bottom: 20px; }
-        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; transition: 0.3s; }
-        .result-huge { font-size: 48px; font-weight: 900; color: var(--primary); margin: 10px 0; text-align: center; }
     </style>
 </head>
 <body>
-
     <div class="mobile-nav">
         <div style="display:flex; align-items:center; gap:15px;">
             <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
@@ -56,17 +51,16 @@
         </div>
         <div style="display:flex; gap:15px;">
             <button class="icon-btn" id="themeBtnMobile" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
-            <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+            <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
+            <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
         </div>
     </div>
-
     <div class="mobile-overlay" onclick="toggleSidebar()"></div>
-
     <aside class="sidebar">
         <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
-            <a th:href="@{/index}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a th:href="@{/}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
             <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
             <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
             <a th:href="@{/target-grade}" class="nav-link active"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
@@ -76,7 +70,8 @@
             <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">Signed in as <strong sec:authentication="name" style="color:var(--text-main)">Student</strong></span>
             <div style="display:flex; gap:10px;">
                 <button class="icon-btn" id="themeBtn" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
-                <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+                <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
+                <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
             </div>
         </div>
     </aside>
@@ -88,26 +83,21 @@
                 <label>In-Progress Subject</label>
                 <select id="subSelect" onchange="loadTargetData()">
                     <option value="" disabled selected>Choose a course...</option>
-                    <th:block th:each="sub : ${subjects}">
-                        <option th:value="${sub.id}" th:text="${sub.subjectName}"></option>
-                    </th:block>
+                    <th:block th:each="sub : ${subjects}"><option th:value="${sub.id}" th:text="${sub.subjectName}"></option></th:block>
                 </select>
-                <div id="quickStats" style="display:none; justify-content:space-around; text-align:center; padding-top:10px;">
+                <div id="quickStats" style="display:none; justify-content:space-around; text-align:center; padding-top:10px; border-top:1px solid var(--border-color);">
                     <div><label>Current</label><div id="cGrade" style="font-weight:800; font-size:20px; color:var(--primary);">-</div></div>
                     <div><label>Mode</label><div id="mDisplay" style="font-weight:600;">-</div></div>
                 </div>
             </div>
-
             <div id="calcCard" class="card" style="display:none;">
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                     <div><label>Goal %</label><input type="number" id="goal" value="90"></div>
                     <div><label>Points Possible</label><input type="number" id="pts" placeholder="e.g. 100"></div>
                 </div>
-                <label>Category</label>
-                <select id="compSelect"></select>
+                <label>Category</label><select id="compSelect"></select>
                 <button class="btn-calc" onclick="calculate()">Calculate Score Needed</button>
             </div>
-
             <div id="resCard" class="card" style="display:none; text-align:center;">
                 <div style="font-size:12px; font-weight:700; color:var(--text-muted);">SCORE NEEDED:</div>
                 <div id="finalResult" class="result-huge">0%</div>
@@ -116,8 +106,15 @@
         </div>
     </main>
 
+    <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Account Settings</h2><span style="cursor:pointer" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
+            <div style="margin-bottom:15px;"><label>Canvas API Token</label><input type="text" id="canvasApiToken" readonly style="width:100%; padding:10px; border-radius:8px; background:var(--bg-color); color:var(--text-main);"><button class="btn-save" onclick="resetCanvasToken()">Regenerate Token</button></div>
+            <button class="btn-save" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca" onclick="confirm('Are you sure?')">Delete Account</button>
+        </div>
+    </div>
+
     <script>
-        // Standardized Theme/Sidebar Logic
         function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
         function toggleTheme() {
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -130,6 +127,9 @@
             document.getElementById('themeBtnMobile').querySelector('i').className = `fa-solid ${icon}`;
         }
         if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
+        function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); }
+        async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
+        async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
 
         let sd = null;
         async function loadTargetData() {
@@ -158,7 +158,7 @@
             }
             document.getElementById('resCard').style.display = 'block';
             document.getElementById('finalResult').innerText = n.toFixed(1) + "%";
-            document.getElementById('desc').innerText = `You need ${((n/100)*p).toFixed(1)} out of ${p} points.`;
+            document.getElementById('desc').innerText = `Target points: ${((n/100)*p).toFixed(1)} / ${p}`;
         }
     </script>
 </body>
