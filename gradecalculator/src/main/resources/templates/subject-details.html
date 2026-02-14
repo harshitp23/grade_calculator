@@ -6,15 +6,15 @@
     <title>Subject Details - GradeCalc</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
+        /* Exact Dashboard CSS Copy */
         :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --danger: #ef4444; }
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
         .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; transition: transform 0.3s ease; }
         .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
-        .nav-link:hover, .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .nav-link:hover { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
         .spacer { flex: 1; }
         .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
         .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
@@ -29,13 +29,16 @@
         .expand-icon { transition: 0.2s; margin-right: 10px; }
         .active-row .expand-icon { transform: rotate(90deg); }
         .nested-row { display: none; background: rgba(0,0,0,0.02); }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
+        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; }
+        .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
 
         @media (max-width: 768px) {
             body { flex-direction: column; }
-            .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); }
+            .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
             .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; z-index: 999; }
             .sidebar.active { transform: translateX(0); }
-            .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; }
+            .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
             .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
             .mobile-overlay.active { display: block; }
@@ -43,7 +46,6 @@
     </style>
 </head>
 <body>
-
     <div class="mobile-nav">
         <div style="display:flex; align-items:center; gap:15px;">
             <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
@@ -51,12 +53,11 @@
         </div>
         <div style="display:flex; gap:15px;">
             <button class="icon-btn" id="themeBtnMobile" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+            <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
             <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
         </div>
     </div>
-
     <div class="mobile-overlay" onclick="toggleSidebar()"></div>
-
     <aside class="sidebar">
         <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
@@ -71,6 +72,7 @@
             <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">Signed in as <strong sec:authentication="name" style="color:var(--text-main)">Student</strong></span>
             <div style="display:flex; gap:10px;">
                 <button class="icon-btn" id="themeBtn" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+                <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
                 <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
             </div>
         </div>
@@ -88,7 +90,6 @@
                     <div style="font-size:32px; font-weight:800; color:var(--primary);" th:text="${subject.currentScore + '%'}">0%</div>
                 </div>
             </div>
-
             <div class="card">
                 <table>
                     <thead><tr><th>Component</th><th>Weight</th><th>Score</th><th>%</th></tr></thead>
@@ -100,22 +101,22 @@
                                 <td th:text="${comp.score + ' / ' + comp.totalPoints}"></td>
                                 <td th:text="${comp.totalPoints > 0 ? (comp.score/comp.totalPoints*100).toFixed(1) + '%' : '-'}"></td>
                             </tr>
-                            <tr class="nested-row"><td colspan="4" style="padding:0;">
-                                <table style="width:100%; border-top:1px solid var(--border-color);">
-                                    <tr th:each="a : ${comp.assignments}">
-                                        <td style="padding-left:50px; color:var(--text-muted); font-size:13px;" th:text="${a.name}"></td>
-                                        <td colspan="2" th:text="${a.score + ' / ' + a.totalPoints}" style="font-size:13px; color:var(--text-muted);"></td>
-                                        <td></td>
-                                    </tr>
-                                </table>
-                            </td></tr>
+                            <tr class="nested-row"><td colspan="4" style="padding:0;"><table style="width:100%; border-top:1px solid var(--border-color);"><tr th:each="a : ${comp.assignments}"><td style="padding-left:50px; color:var(--text-muted); font-size:13px;" th:text="${a.name}"></td><td colspan="2" th:text="${a.score + ' / ' + a.totalPoints}" style="font-size:13px; color:var(--text-muted);"></td><td></td></tr></table></td></tr>
                         </th:block>
                     </tbody>
                 </table>
             </div>
-            <button class="action-btn" style="margin-top:20px; padding:10px 20px; background:var(--card-bg); border:1px solid var(--border-color); border-radius:8px; cursor:pointer; color:var(--text-muted);" onclick="window.location.href='/'">Back to Dashboard</button>
+            <button class="icon-btn" style="margin-top:20px; padding:10px 20px; border:1px solid var(--border-color); border-radius:8px;" onclick="window.location.href='/'">Back to Dashboard</button>
         </div>
     </main>
+
+    <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
+        <div class="modal-content">
+            <div class="modal-header"><h2>Account Settings</h2><span style="cursor:pointer" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
+            <div style="margin-bottom:15px;"><label>Canvas API Token</label><input type="text" id="canvasApiToken" readonly style="width:100%; padding:10px; border-radius:8px; background:var(--bg-color); color:var(--text-main);"><button class="btn-save" onclick="resetCanvasToken()">Regenerate Token</button></div>
+            <button class="btn-save" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca" onclick="confirm('Are you sure?')">Delete Account</button>
+        </div>
+    </div>
 
     <script>
         function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
@@ -130,12 +131,10 @@
             document.getElementById('themeBtnMobile').querySelector('i').className = `fa-solid ${icon}`;
         }
         if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
-
-        function toggle(row) {
-            row.classList.toggle('active-row');
-            const next = row.nextElementSibling;
-            next.style.display = next.style.display === 'table-row' ? 'none' : 'table-row';
-        }
+        function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); }
+        async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
+        async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
+        function toggle(row) { row.classList.toggle('active-row'); const next = row.nextElementSibling; next.style.display = next.style.display === 'table-row' ? 'none' : 'table-row'; }
     </script>
 </body>
 </html>
