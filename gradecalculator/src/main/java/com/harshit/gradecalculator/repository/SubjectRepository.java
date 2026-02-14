@@ -9,11 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface SubjectRepository extends JpaRepository<Subject, Integer> {
-    // Required by SimulatorController and SubjectController
     List<Subject> findByUser(User user); 
-
-    // Required by TargetCalcController
     List<Subject> findByUserAndStatus(User user, String status); 
-
     Optional<Subject> findByUserAndSubjectCode(User user, String subjectCode);
 }
