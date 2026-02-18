@@ -30,8 +30,10 @@ public class SimulatorController {
     @GetMapping({"/simulator", "/simulator.html"})
     public String showSimulatorPage(Model model, @AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
-        // Send list of subjects so the dropdown can be populated
-        List<Subject> subjects = subjectRepository.findByUser(user);
+        
+        // 👇 FIX: Fetch ONLY subjects with "In Progress" status 👇
+        List<Subject> subjects = subjectRepository.findByUserAndStatus(user, "In Progress");
+        
         model.addAttribute("subjects", subjects);
         return "simulator";
     }
