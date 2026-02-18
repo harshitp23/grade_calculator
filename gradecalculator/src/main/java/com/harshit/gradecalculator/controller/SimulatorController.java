@@ -27,7 +27,7 @@ public class SimulatorController {
     private SubjectRepository subjectRepository;
 
     // Serve the HTML Page
-    @GetMapping("/simulator")
+    @GetMapping({"/simulator", "/simulator.html"})
     public String showSimulatorPage(Model model, @AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
         // Send list of subjects so the dropdown can be populated
