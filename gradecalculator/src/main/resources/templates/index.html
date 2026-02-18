@@ -269,14 +269,13 @@
                     termsMap[termKey].subjects.push(sub);
                 });
 
-                // Sort Terms Chronologically (Spring -> Summer -> Fall)
+                // 1. Sort Chronologically (Oldest to Newest) for correct Cumulative Math
                 const seasonOrder = { 'Spring': 1, 'Summer': 2, 'Fall': 3 };
                 const sortedTerms = Object.values(termsMap).sort((a, b) => {
                     if (a.year !== b.year) return a.year - b.year;
                     return seasonOrder[a.season] - seasonOrder[b.season];
                 });
 
-                // Render Tables & Calculate Cumulatives
                 const container = document.getElementById('dynamic-terms-container');
                 container.innerHTML = "";
                 
@@ -286,9 +285,10 @@
                 const chartLabels = [];
                 const termGpas = [];
                 const cumGpas = [];
+                const uiBlocks = []; // To hold the HTML so we can reverse it
 
                 sortedTerms.forEach(term => {
-                    // Calculate GPAs
+                    // Calculate GPAs (Going forwards in time)
                     const termGpa = term.totalCred > 0 ? (term.totalPts / term.totalCred) : 0.0;
                     cumulativePts += term.totalPts;
                     cumulativeCred += term.totalCred;
@@ -336,14 +336,17 @@
                     });
                     
                     termHtml += `</tbody></table></div>`;
-                    container.innerHTML += termHtml;
+                    uiBlocks.push(termHtml);
                 });
+
+                // 2. Render Tables in Reverse (Newest Semesters at the Top)
+                container.innerHTML = uiBlocks.reverse().join('');
 
                 // Update Overall GPA Badge
                 const finalGpa = cumulativeCred > 0 ? (cumulativePts / cumulativeCred).toFixed(2) : "0.00";
                 document.getElementById('overall-gpa').innerText = finalGpa;
 
-                // Build Chart
+                // Build Chart (using the chronological arrays)
                 if (chartLabels.length > 0) {
                     document.getElementById('chartWrapper').style.display = 'block';
                     window.chartData = { labels: chartLabels, termData: termGpas, cumData: cumGpas };
