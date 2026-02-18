@@ -22,13 +22,16 @@
         .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); padding: 25px; margin-bottom: 20px; }
         .container { max-width: 800px; margin: 0 auto; }
         label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; }
-        select, input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); color: var(--text-main); margin-bottom: 20px; }
-        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        select, input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); color: var(--text-main); margin-bottom: 20px; box-sizing: border-box; }
+        .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         .result-huge { font-size: 48px; font-weight: 900; color: var(--primary); margin: 10px 0; text-align: center; }
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
         .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
+
+        /* Grid Helper for Layouts */
+        .grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
         .mobile-nav { display: none; }
         .mobile-overlay { display: none; }
@@ -43,6 +46,9 @@
             .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
             .mobile-overlay.active { display: block; }
+            
+            /* Overriding Grid for Mobile Stacking */
+            .grid-2-col { grid-template-columns: 1fr !important; gap: 0; }
         }
     </style>
 </head>
@@ -82,37 +88,54 @@
     <main class="main-content">
         <div class="container">
             <h1>Target Calculator 🎯</h1>
+            
             <div class="card">
                 <label>In-Progress Subject</label>
-                <select id="subSelect" onchange="loadTargetData()">
+                <select id="subSelect" onchange="loadTargetData()" style="margin-bottom:0;">
                     <option value="" disabled selected>Choose a course...</option>
                     <th:block th:each="sub : ${subjects}"><option th:value="${sub.id}" th:text="${sub.subjectName}"></option></th:block>
                 </select>
-                <div id="quickStats" style="display:none; justify-content:space-around; text-align:center; padding-top:10px; border-top:1px solid var(--border-color);">
+                <div id="quickStats" style="display:none; justify-content:space-around; text-align:center; padding-top:20px; margin-top:20px; border-top:1px solid var(--border-color);">
                     <div><label>Current</label><div id="cGrade" style="font-weight:800; font-size:20px; color:var(--primary);">-</div></div>
-                    <div><label>Mode</label><div id="mDisplay" style="font-weight:600;">-</div></div>
+                    <div><label>Mode</label><div id="mDisplay" style="font-weight:600; font-size:18px;">-</div></div>
                 </div>
             </div>
+            
             <div id="calcCard" class="card" style="display:none;">
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                    <div><label>Goal %</label><input type="number" id="goal" value="90"></div>
-                    <div><label>Points Possible</label><input type="number" id="pts" placeholder="e.g. 100"></div>
+                <div class="grid-2-col">
+                    <div>
+                        <label>Target Grade / Goal %</label>
+                        <div style="display:flex; gap:10px;">
+                            <select id="goalGrade" onchange="updateGoalInput()" style="flex: 0.4;">
+                                <option value="">Custom %</option>
+                            </select>
+                            <input type="number" id="goal" placeholder="e.g. 90" style="flex: 0.6;">
+                        </div>
+                    </div>
+                    <div>
+                        <label>Points Possible</label>
+                        <input type="number" id="pts" placeholder="e.g. 100">
+                    </div>
                 </div>
-                <label>Category</label><select id="compSelect"></select>
+                
+                <label>Category (Component)</label>
+                <select id="compSelect"></select>
+                
                 <button class="btn-calc" onclick="calculate()">Calculate Score Needed</button>
             </div>
+            
             <div id="resCard" class="card" style="display:none; text-align:center;">
-                <div style="font-size:12px; font-weight:700; color:var(--text-muted);">SCORE NEEDED:</div>
+                <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Score Needed:</div>
                 <div id="finalResult" class="result-huge">0%</div>
-                <div id="desc" style="color:var(--text-muted);"></div>
+                <div id="desc" style="font-weight:600; color:var(--text-muted);"></div>
             </div>
         </div>
     </main>
 
     <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
         <div class="modal-content">
-            <div class="modal-header"><h2 class="modal-title">Account Settings</h2><span style="cursor:pointer" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
-            <div style="margin-bottom:15px;"><label>Canvas API Token</label><input type="text" id="canvasApiToken" readonly style="width:100%; padding:10px; border-radius:8px; background:var(--bg-color); color:var(--text-main);"><button class="btn-save" onclick="resetCanvasToken()">Regenerate Token</button></div>
+            <div class="modal-header"><h2>Account Settings</h2><span style="cursor:pointer" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
+            <div style="margin-bottom:15px;"><label>Canvas API Token</label><input type="text" id="canvasApiToken" readonly style="width:100%; padding:10px; border-radius:8px; background:var(--bg-color); color:var(--text-main); margin-top:5px;"><button class="btn-save" onclick="resetCanvasToken()">Regenerate Token</button></div>
             <button class="btn-save" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca" onclick="confirm('Are you sure?')">Delete Account</button>
         </div>
     </div>
@@ -134,34 +157,117 @@
         async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
         async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
 
-        let sd = null;
+        let sd = null; // Store fetched subject data globally
+
         async function loadTargetData() {
+            // Hide result when changing subjects
+            document.getElementById('resCard').style.display = 'none';
+
             const res = await fetch(`/api/simulator/load?subjectId=${document.getElementById('subSelect').value}`);
             sd = await res.json();
+            
+            // Unhide UI
             document.getElementById('quickStats').style.display = 'flex';
             document.getElementById('calcCard').style.display = 'block';
             document.getElementById('cGrade').innerText = (sd.currentScore || 0) + '%';
+            
+            // Check weighting mode
             const iw = sd.components.some(c => c.weight > 0);
-            document.getElementById('mDisplay').innerText = iw ? "Weighted" : "Points";
-            const cs = document.getElementById('compSelect'); cs.innerHTML = "";
-            sd.components.forEach(c => cs.innerHTML += `<option value="${c.id}">${c.name}</option>`);
-        }
-        function calculate() {
-            const g = parseFloat(document.getElementById('goal').value), p = parseFloat(document.getElementById('pts').value);
-            const comp = sd.components.find(c => c.id == document.getElementById('compSelect').value);
-            const iw = sd.components.some(c => c.weight > 0);
-            let n = 0;
+            document.getElementById('mDisplay').innerText = iw ? "Weighted" : "Total Points";
+            
+            // Populate Category Select
+            const cs = document.getElementById('compSelect');
+            cs.innerHTML = "";
             if (iw) {
-                let wp = 0; sd.components.forEach(c => { if(c.totalPoints > 0) wp += (c.score/c.totalPoints)*c.weight; });
-                const oc = wp - ((comp.score/(comp.totalPoints||1))*comp.weight);
-                n = (((g - oc)/comp.weight)*(comp.totalPoints+p) - comp.score)/p*100;
+                cs.disabled = false;
+                sd.components.forEach(c => cs.innerHTML += `<option value="${c.id}">${c.name}</option>`);
             } else {
-                let te=0, tp=0; sd.components.forEach(c => { te+=c.score; tp+=c.totalPoints; });
-                n = (((g/100)*(tp+p))-te)/p*100;
+                // If not weighted, lock the selection to general "Total Points"
+                cs.innerHTML = `<option value="all">Total Points (Not Weighted)</option>`;
+                cs.disabled = true;
             }
+
+            // Populate Target Grade Dropdown
+            const goalSelect = document.getElementById('goalGrade');
+            goalSelect.innerHTML = `<option value="">Custom %</option>`;
+            
+            // Map the custom grading scale to letter options
+            const scale = sd.gradingScale ? sd.gradingScale.split(',') : [93, 88, 83, 78, 70, 60];
+            const letters = ['A', 'AB', 'B', 'BC', 'C', 'D'];
+            
+            letters.forEach((letter, index) => {
+                if(scale[index]) {
+                    goalSelect.innerHTML += `<option value="${scale[index]}">${letter} (${scale[index]}%)</option>`;
+                }
+            });
+            
+            // Trigger an initial goal load
+            updateGoalInput();
+        }
+
+        // Syncs the dropdown selection to the manual number input
+        function updateGoalInput() {
+            const val = document.getElementById('goalGrade').value;
+            if(val) document.getElementById('goal').value = val;
+        }
+
+        function calculate() {
+            const g = parseFloat(document.getElementById('goal').value);
+            const p = parseFloat(document.getElementById('pts').value);
+            
+            if(isNaN(g)) return alert("Please enter a valid Goal %");
+            if(isNaN(p) || p <= 0) return alert("Please enter valid Points Possible");
+
+            const iw = sd.components.some(c => c.weight > 0);
+            let targetPointsNeeded = 0;
+
+            if (iw) {
+                // --- WEIGHTED FORMULA ---
+                const compId = document.getElementById('compSelect').value;
+                const comp = sd.components.find(c => c.id == compId);
+                
+                if(!comp) return;
+                if(comp.weight <= 0) return alert("You cannot use a target calculation on a category worth 0% of your grade.");
+
+                // Calculate the weighted percentage of ALL OTHER categories combined
+                let currentTotalWeightedPercent = 0;
+                sd.components.forEach(c => {
+                    if(c.totalPoints > 0) {
+                        currentTotalWeightedPercent += (c.score / c.totalPoints) * c.weight;
+                    }
+                });
+
+                // Find the specific contribution of the targeted category right now
+                let compCurrentContribution = (comp.totalPoints > 0) ? (comp.score / comp.totalPoints) * comp.weight : 0;
+                
+                // Total percentage without the target component
+                let otherComponentsPercent = currentTotalWeightedPercent - compCurrentContribution;
+
+                // Algebraic Solution: 
+                // Goal = otherComponentsPercent + ((comp.score + x) / (comp.totalPoints + p)) * comp.weight
+                targetPointsNeeded = (((g - otherComponentsPercent) / comp.weight) * (comp.totalPoints + p)) - comp.score;
+
+            } else {
+                // --- TOTAL POINTS (NOT WEIGHTED) FORMULA ---
+                let totalEarned = 0;
+                let totalPossible = 0;
+                
+                sd.components.forEach(c => { 
+                    totalEarned += (c.score || 0); 
+                    totalPossible += (c.totalPoints || 0); 
+                });
+
+                // Algebraic Solution:
+                // Goal / 100 = (totalEarned + x) / (totalPossible + p)
+                targetPointsNeeded = ((g / 100) * (totalPossible + p)) - totalEarned;
+            }
+
+            // Show Results
+            const percentageNeeded = (targetPointsNeeded / p) * 100;
+            
             document.getElementById('resCard').style.display = 'block';
-            document.getElementById('finalResult').innerText = n.toFixed(1) + "%";
-            document.getElementById('desc').innerText = `Target points: ${((n/100)*p).toFixed(1)} / ${p}`;
+            document.getElementById('finalResult').innerText = percentageNeeded.toFixed(1) + "%";
+            document.getElementById('desc').innerText = `Target points: ${targetPointsNeeded.toFixed(1)} / ${p}`;
         }
     </script>
 </body>
