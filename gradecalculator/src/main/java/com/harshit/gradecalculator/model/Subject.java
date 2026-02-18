@@ -26,6 +26,11 @@ public class Subject {
     private String status;
 
     private BigDecimal currentScore;
+    private BigDecimal previousScore; // For the ↑/↓ indicators
+
+    // Timeline Grouping
+    private String termSeason; // Fall, Spring, Summer
+    private Integer termYear;  // 2024, 2025, etc.
 
     // Custom Settings
     private String gradingScale;
@@ -44,12 +49,10 @@ public class Subject {
 
     // --- GETTERS AND SETTERS ---
 
-    // Map 'id' to 'subjectId' for Frontend compatibility
     @JsonProperty("subjectId")
     public Integer getSubjectId() { return id; }
     public void setSubjectId(Integer id) { this.id = id; }
 
-    // Standard Getters
     @JsonIgnore
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
@@ -68,6 +71,15 @@ public class Subject {
 
     public BigDecimal getCurrentScore() { return currentScore; }
     public void setCurrentScore(BigDecimal currentScore) { this.currentScore = currentScore; }
+
+    public BigDecimal getPreviousScore() { return previousScore; }
+    public void setPreviousScore(BigDecimal previousScore) { this.previousScore = previousScore; }
+
+    public String getTermSeason() { return termSeason; }
+    public void setTermSeason(String termSeason) { this.termSeason = termSeason; }
+
+    public Integer getTermYear() { return termYear; }
+    public void setTermYear(Integer termYear) { this.termYear = termYear; }
 
     public String getGradingScale() { return gradingScale; }
     public void setGradingScale(String gradingScale) { this.gradingScale = gradingScale; }
