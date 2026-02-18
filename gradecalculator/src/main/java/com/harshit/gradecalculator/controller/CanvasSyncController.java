@@ -28,17 +28,16 @@ public class CanvasSyncController {
         User user = userRepository.findByApiToken(apiToken)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Token"));
 
-        int subjectsUpdated = 0;
-        int componentsUpdated = 0;
+        int subjectsUpdated = 0, componentsUpdated = 0;
 
         for (CanvasCoursePayload coursePayload : request.getCourses()) {
-            
-            // 1. Find or Create Subject
             Optional<Subject> existing = subjectRepository.findByUserAndSubjectCode(user, coursePayload.getCode());
             Subject subject;
 
             if (existing.isPresent()) {
                 subject = existing.get();
+                // Store previous score to show ↑/↓ on dashboard
+                if (subject.getCurrentScore() != null) subject.setPreviousScore(subject.getCurrentScore());
                 subject.setCurrentScore(BigDecimal.valueOf(coursePayload.getCurrentScore()));
             } else {
                 subject = new Subject();
@@ -47,27 +46,25 @@ public class CanvasSyncController {
                 subject.setSubjectCode(coursePayload.getCode());
                 subject.setCredits(3);
                 subject.setStatus("In Progress");
+                subject.setTermSeason("Spring"); // Default for new syncs, user can edit later
+                subject.setTermYear(2026);
                 subject.setCurrentScore(BigDecimal.valueOf(coursePayload.getCurrentScore()));
                 subject.setIncludeInGpa(true);
                 subjectRepository.save(subject);
             }
             subjectsUpdated++;
 
-            // 2. Clear old components
             componentRepository.deleteBySubject(subject);
 
-            // 3. Add New Components & Assignments
             if (coursePayload.getComponents() != null) {
                 for (CanvasComponentPayload compPayload : coursePayload.getComponents()) {
-                    
                     Component comp = new Component();
                     comp.setSubject(subject);
                     comp.setName(compPayload.getName());
                     comp.setWeight(compPayload.getWeight());
                     comp.setScore(compPayload.getScore());
                     comp.setTotalPoints(compPayload.getTotalPoints());
-                    comp.setDropLowest(compPayload.getDropLowest()); // Save drop rule
-                    
+                    comp.setDropLowest(compPayload.getDropLowest());
                     comp = componentRepository.save(comp);
                     componentsUpdated++;
 
@@ -78,7 +75,6 @@ public class CanvasSyncController {
                             assign.setName(assignPayload.getName());
                             assign.setScore(assignPayload.getScore());
                             assign.setTotalPoints(assignPayload.getTotalPoints());
-                            
                             comp.getAssignments().add(assign);
                         }
                         componentRepository.save(comp);
