@@ -21,13 +21,17 @@
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
         .container { max-width: 1000px; margin: 0 auto; }
         .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); overflow: hidden; margin-top: 20px; }
-        table { width: 100%; border-collapse: collapse; }
+        
+        /* Table Styles */
+        .table-wrapper { width: 100%; overflow-x: auto; } /* Mobile scroll wrapper */
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
         th { text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.02); }
         td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
         .comp-row { cursor: pointer; font-weight: 600; }
         .expand-icon { transition: 0.2s; margin-right: 10px; }
         .active-row .expand-icon { transform: rotate(90deg); }
         .nested-row { display: none; background: rgba(0,0,0,0.02); }
+        
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
         .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; }
         .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
@@ -94,20 +98,32 @@
                 </div>
             </div>
             <div class="card">
-                <table>
-                    <thead><tr><th>Component</th><th>Weight</th><th>Score</th><th>%</th></tr></thead>
-                    <tbody>
-                        <th:block th:each="comp : ${subject.components}">
-                            <tr class="comp-row" onclick="toggle(this)">
-                                <td><i class="fa-solid fa-chevron-right expand-icon"></i> <span th:text="${comp.name}"></span></td>
-                                <td th:text="${comp.weight + '%'}"></td>
-                                <td th:text="${comp.score + ' / ' + comp.totalPoints}"></td>
-                                <td th:text="${comp.totalPoints > 0 ? (comp.score/comp.totalPoints*100).toFixed(1) + '%' : '-'}"></td>
-                            </tr>
-                            <tr class="nested-row"><td colspan="4" style="padding:0;"><table style="width:100%; border-top:1px solid var(--border-color);"><tr th:each="a : ${comp.assignments}"><td style="padding-left:50px; color:var(--text-muted); font-size:13px;" th:text="${a.name}"></td><td colspan="2" th:text="${a.score + ' / ' + a.totalPoints}" style="font-size:13px; color:var(--text-muted);"></td><td></td></tr></table></td></tr>
-                        </th:block>
-                    </tbody>
-                </table>
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Component</th><th>Weight</th><th>Score</th><th>%</th></tr></thead>
+                        <tbody>
+                            <th:block th:each="comp : ${subject.components}">
+                                <tr class="comp-row" onclick="toggle(this)">
+                                    <td><i class="fa-solid fa-chevron-right expand-icon"></i> <span th:text="${comp.name}"></span></td>
+                                    <td th:text="${comp.weight + '%'}"></td>
+                                    <td th:text="${comp.score + ' / ' + comp.totalPoints}"></td>
+                                    <td th:text="${comp.totalPoints != null and comp.totalPoints > 0 and comp.score != null ? #numbers.formatDecimal((comp.score * 100.0 / comp.totalPoints), 1, 1) + '%' : '-'}"></td>
+                                </tr>
+                                <tr class="nested-row">
+                                    <td colspan="4" style="padding:0;">
+                                        <table style="width:100%; border-top:1px solid var(--border-color); min-width:unset;">
+                                            <tr th:each="a : ${comp.assignments}">
+                                                <td style="padding-left:50px; color:var(--text-muted); font-size:13px;" th:text="${a.name}"></td>
+                                                <td colspan="2" th:text="${a.score + ' / ' + a.totalPoints}" style="font-size:13px; color:var(--text-muted);"></td>
+                                                <td></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </th:block>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <button class="icon-btn" style="margin-top:20px; padding:10px 20px; border:1px solid var(--border-color); border-radius:8px;" onclick="window.location.href='/'">Back to Dashboard</button>
         </div>
