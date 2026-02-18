@@ -37,18 +37,34 @@
         .mobile-overlay { display: none; }
         .mobile-close-sidebar { display: none; }
 
+        /* 👇 SMART MOBILE CSS 👇 */
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
             .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.1); z-index: 999; }
             .sidebar.active { transform: translateX(0); }
             .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
-            .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
+            
+            /* Tighter Spacing */
+            .main-content { padding: 15px; width: 100%; box-sizing: border-box; }
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
             .mobile-overlay.active { display: block; }
             
-            /* Overriding Grid for Mobile Stacking */
-            .grid-2-col { grid-template-columns: 1fr !important; gap: 0; }
+            .container h1 { font-size: 22px !important; margin-bottom: 15px; }
+            .card { padding: 15px; margin-bottom: 15px; }
+            
+            /* Override Grid for Vertical Stacking */
+            .grid-2-col { grid-template-columns: 1fr !important; gap: 10px; }
+            select, input { padding: 10px; margin-bottom: 15px; font-size: 14px; }
+            
+            /* Scale down result text */
+            .result-huge { font-size: 32px; margin: 5px 0; }
+            #quickStats { padding-top: 15px !important; margin-top: 10px !important; }
+            #cGrade { font-size: 18px !important; }
+            #mDisplay { font-size: 16px !important; }
+            
+            /* Modal Adjustments */
+            .modal-content { width: 90%; padding: 20px; }
         }
     </style>
 </head>
@@ -106,20 +122,20 @@
                     <div>
                         <label>Target Grade / Goal %</label>
                         <div style="display:flex; gap:10px;">
-                            <select id="goalGrade" onchange="updateGoalInput()" style="flex: 0.4;">
+                            <select id="goalGrade" onchange="updateGoalInput()" style="flex: 0.4; margin-bottom:0;">
                                 <option value="">Custom %</option>
                             </select>
-                            <input type="number" id="goal" placeholder="e.g. 90" style="flex: 0.6;">
+                            <input type="number" id="goal" placeholder="e.g. 90" style="flex: 0.6; margin-bottom:0;">
                         </div>
                     </div>
                     <div>
                         <label>Points Possible</label>
-                        <input type="number" id="pts" placeholder="e.g. 100">
+                        <input type="number" id="pts" placeholder="e.g. 100" style="margin-bottom:0;">
                     </div>
                 </div>
                 
-                <label>Category (Component)</label>
-                <select id="compSelect"></select>
+                <label style="margin-top:15px;">Category (Component)</label>
+                <select id="compSelect" style="margin-bottom:10px;"></select>
                 
                 <button class="btn-calc" onclick="calculate()">Calculate Score Needed</button>
             </div>
@@ -157,41 +173,33 @@
         async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
         async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
 
-        let sd = null; // Store fetched subject data globally
+        let sd = null;
 
         async function loadTargetData() {
-            // Hide result when changing subjects
             document.getElementById('resCard').style.display = 'none';
-
             const res = await fetch(`/api/simulator/load?subjectId=${document.getElementById('subSelect').value}`);
             sd = await res.json();
             
-            // Unhide UI
             document.getElementById('quickStats').style.display = 'flex';
             document.getElementById('calcCard').style.display = 'block';
             document.getElementById('cGrade').innerText = (sd.currentScore || 0) + '%';
             
-            // Check weighting mode
             const iw = sd.components.some(c => c.weight > 0);
             document.getElementById('mDisplay').innerText = iw ? "Weighted" : "Total Points";
             
-            // Populate Category Select
             const cs = document.getElementById('compSelect');
             cs.innerHTML = "";
             if (iw) {
                 cs.disabled = false;
                 sd.components.forEach(c => cs.innerHTML += `<option value="${c.id}">${c.name}</option>`);
             } else {
-                // If not weighted, lock the selection to general "Total Points"
                 cs.innerHTML = `<option value="all">Total Points (Not Weighted)</option>`;
                 cs.disabled = true;
             }
 
-            // Populate Target Grade Dropdown
             const goalSelect = document.getElementById('goalGrade');
             goalSelect.innerHTML = `<option value="">Custom %</option>`;
             
-            // Map the custom grading scale to letter options
             const scale = sd.gradingScale ? sd.gradingScale.split(',') : [93, 88, 83, 78, 70, 60];
             const letters = ['A', 'AB', 'B', 'BC', 'C', 'D'];
             
@@ -200,12 +208,9 @@
                     goalSelect.innerHTML += `<option value="${scale[index]}">${letter} (${scale[index]}%)</option>`;
                 }
             });
-            
-            // Trigger an initial goal load
             updateGoalInput();
         }
 
-        // Syncs the dropdown selection to the manual number input
         function updateGoalInput() {
             const val = document.getElementById('goalGrade').value;
             if(val) document.getElementById('goal').value = val;
@@ -222,14 +227,12 @@
             let targetPointsNeeded = 0;
 
             if (iw) {
-                // --- WEIGHTED FORMULA ---
                 const compId = document.getElementById('compSelect').value;
                 const comp = sd.components.find(c => c.id == compId);
                 
                 if(!comp) return;
                 if(comp.weight <= 0) return alert("You cannot use a target calculation on a category worth 0% of your grade.");
 
-                // Calculate the weighted percentage of ALL OTHER categories combined
                 let currentTotalWeightedPercent = 0;
                 sd.components.forEach(c => {
                     if(c.totalPoints > 0) {
@@ -237,18 +240,12 @@
                     }
                 });
 
-                // Find the specific contribution of the targeted category right now
                 let compCurrentContribution = (comp.totalPoints > 0) ? (comp.score / comp.totalPoints) * comp.weight : 0;
-                
-                // Total percentage without the target component
                 let otherComponentsPercent = currentTotalWeightedPercent - compCurrentContribution;
 
-                // Algebraic Solution: 
-                // Goal = otherComponentsPercent + ((comp.score + x) / (comp.totalPoints + p)) * comp.weight
                 targetPointsNeeded = (((g - otherComponentsPercent) / comp.weight) * (comp.totalPoints + p)) - comp.score;
 
             } else {
-                // --- TOTAL POINTS (NOT WEIGHTED) FORMULA ---
                 let totalEarned = 0;
                 let totalPossible = 0;
                 
@@ -257,12 +254,9 @@
                     totalPossible += (c.totalPoints || 0); 
                 });
 
-                // Algebraic Solution:
-                // Goal / 100 = (totalEarned + x) / (totalPossible + p)
                 targetPointsNeeded = ((g / 100) * (totalPossible + p)) - totalEarned;
             }
 
-            // Show Results
             const percentageNeeded = (targetPointsNeeded / p) * 100;
             
             document.getElementById('resCard').style.display = 'block';
