@@ -46,18 +46,24 @@
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
         .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 20px; font-weight: 700; margin: 0; }
+        .close-btn { font-size: 24px; cursor: pointer; color: var(--text-muted); }
         .modal-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); box-sizing: border-box; margin-bottom: 15px; }
         .btn-primary { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
         .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted); }
 
         .mobile-nav { display: none; }
         .mobile-overlay { display: none; }
+        .mobile-close-sidebar { display: none; }
 
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
             .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.1); z-index: 999; }
             .sidebar.active { transform: translateX(0); }
+            .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
             .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
             .mobile-overlay.active { display: block; }
@@ -83,10 +89,8 @@
     <div class="mobile-overlay" onclick="toggleSidebar()"></div>
 
     <aside class="sidebar">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
-            <div class="logo" style="margin:0;"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
-            <button class="icon-btn mobile-only" onclick="toggleSidebar()" style="display:none;"><i class="fa-solid fa-xmark"></i></button>
-        </div>
+        <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
+        <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
             <a th:href="@{/}" class="nav-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
             <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
@@ -129,9 +133,47 @@
 
     <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
         <div class="modal-content">
-            <div class="modal-header"><h2 class="modal-title">Account Settings</h2><span style="cursor:pointer" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
-            <div style="margin-bottom:15px;"><label>Canvas API Token</label><input type="text" id="canvasApiToken" readonly class="modal-input" style="margin-top:5px;"><button class="btn-save" onclick="resetCanvasToken()">Regenerate Token</button></div>
+            <div class="modal-header"><h2 class="modal-title">Account Settings</h2><span class="close-btn" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
+            <div style="margin-bottom:15px;"><label class="form-group label">Canvas API Token</label><input type="text" id="canvasApiToken" readonly class="modal-input" style="margin-top:5px;"><button class="btn-save" onclick="resetCanvasToken()">Regenerate Token</button></div>
             <button class="btn-save" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca" onclick="confirm('Are you sure?')">Delete Account</button>
+        </div>
+    </div>
+
+    <div id="subjectSettingsModal" class="modal" onclick="if(event.target.id==='subjectSettingsModal') this.style.display='none'">
+        <div class="modal-content">
+            <div class="modal-header"><h2 class="modal-title">Subject Settings</h2><span class="close-btn" onclick="document.getElementById('subjectSettingsModal').style.display='none'">&times;</span></div>
+            <form id="settingsForm">
+                <input type="hidden" name="id" id="set_id">
+                <div class="form-group"><label>Name</label><input type="text" name="name" id="set_name" class="modal-input" required></div>
+                <div class="form-group"><label>Code</label><input type="text" name="code" id="set_code" class="modal-input" required></div>
+                <div class="form-group"><label>Grading Scale (e.g. 93,88,83,78,70,60)</label><input type="text" name="gradingScale" id="set_scale" class="modal-input"></div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" id="set_status" class="modal-input">
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+                    <input type="checkbox" name="includeInGpa" id="set_gpa" value="true" style="width:auto; margin:0;">
+                    <label style="margin:0;">Include in GPA</label>
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top:10px;">Save Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="curveModal" class="modal" onclick="if(event.target.id==='curveModal') this.style.display='none'">
+        <div class="modal-content">
+            <div class="modal-header"><h2 class="modal-title">Curve Adjustment</h2><span class="close-btn" onclick="document.getElementById('curveModal').style.display='none'">&times;</span></div>
+            <form id="curveForm">
+                <input type="hidden" name="id" id="curve_id">
+                <div class="form-group">
+                    <label>Final Letter Grade (e.g., A, AB, B, F)</label>
+                    <input type="text" name="letter" id="curve_letter" class="modal-input" required style="text-transform:uppercase;">
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top:10px;">Apply Curve</button>
+            </form>
         </div>
     </div>
 
@@ -148,9 +190,12 @@
             document.getElementById('themeBtnMobile').querySelector('i').className = `fa-solid ${iconClass}`;
         }
         if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
+        
         function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); }
         async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
         async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
+
+        let allSubjectsData = [];
 
         window.onload = function() { fetchSubjects(); };
 
@@ -160,18 +205,41 @@
             if (score >= thresholds[0]) return { grade: 'A', point: 4.0, css: 'grade-A' };
             if (score >= thresholds[1]) return { grade: 'AB', point: 3.5, css: 'grade-A' };
             if (score >= thresholds[2]) return { grade: 'B', point: 3.0, css: 'grade-A' };
+            if (score >= thresholds[3]) return { grade: 'BC', point: 2.5, css: 'grade-A' };
+            if (score >= thresholds[4]) return { grade: 'C', point: 2.0, css: 'grade-A' };
+            if (score >= thresholds[5]) return { grade: 'D', point: 1.0, css: 'grade-Low' };
             return { grade: 'F', point: 0.0, css: 'grade-Low' };
+        }
+
+        function getPointFromLetter(letter) {
+            const scale = {'A':4.0, 'AB':3.5, 'B':3.0, 'BC':2.5, 'C':2.0, 'D':1.0, 'F':0.0};
+            const point = scale[letter.toUpperCase()];
+            return point !== undefined ? point : 0.0;
         }
 
         function fetchSubjects() {
             fetch('/api/subjects/list').then(r => r.json()).then(data => {
+                allSubjectsData = data;
                 const currentBody = document.getElementById('current-table-body');
                 const completedBody = document.getElementById('completed-table-body');
                 currentBody.innerHTML = ""; completedBody.innerHTML = "";
+                
                 let totalPoints = 0, totalCredits = 0;
 
                 data.forEach(sub => {
-                    let gradeInfo = sub.letterGrade ? {grade: sub.letterGrade} : calculateGrade(parseFloat(sub.currentScore || 0), sub.gradingScale);
+                    let gradeInfo;
+                    if (sub.letterGrade && sub.letterGrade.trim() !== '') {
+                        gradeInfo = { grade: sub.letterGrade, point: getPointFromLetter(sub.letterGrade), css: 'grade-A' };
+                    } else {
+                        gradeInfo = calculateGrade(parseFloat(sub.currentScore || 0), sub.gradingScale);
+                    }
+
+                    // Calculate GPA for subjects included in GPA
+                    if (sub.includeInGpa !== false) {
+                        totalCredits += sub.credits;
+                        totalPoints += (sub.credits * gradeInfo.point);
+                    }
+
                     const row = `<tr>
                         <td><a href="/subject-details?id=${sub.subjectId}" style="text-decoration:none; color:inherit; font-weight:600;">${sub.subjectName}</a></td>
                         <td>${sub.subjectCode}</td>
@@ -180,13 +248,60 @@
                         <td>${sub.currentScore || '-'}%</td>
                         <td class="${gradeInfo.css}">${gradeInfo.grade}</td>
                         <td style="text-align: right;">
-                            <button class="action-btn manage-btn" onclick="window.location.href='/subject-details?id=${sub.subjectId}'"><i class="fa-solid fa-list-check"></i></button>
+                            <button class="action-btn manage-btn" onclick="window.location.href='/subject-details?id=${sub.subjectId}'" title="Manage Components"><i class="fa-solid fa-list-check"></i></button>
+                            <button class="action-btn" onclick="openSettingsModal(${sub.subjectId})" title="Subject Settings"><i class="fa-solid fa-gear"></i></button>
+                            ${sub.status === 'Completed' ? `<button class="action-btn" onclick="openCurveModal(${sub.subjectId})" title="Curve Adjustment"><i class="fa-solid fa-arrow-trend-up"></i></button>` : ''}
                         </td>
                     </tr>`;
                     if (sub.status === 'Completed') completedBody.innerHTML += row; else currentBody.innerHTML += row;
                 });
+
+                // Update Overall GPA
+                const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
+                document.getElementById('overall-gpa').innerText = gpa;
             });
         }
+
+        // --- Modals Logic ---
+        function openSettingsModal(id) {
+            const sub = allSubjectsData.find(s => s.subjectId === id);
+            if (!sub) return;
+            document.getElementById('set_id').value = sub.subjectId;
+            document.getElementById('set_name').value = sub.subjectName;
+            document.getElementById('set_code').value = sub.subjectCode;
+            document.getElementById('set_scale').value = sub.gradingScale || '';
+            document.getElementById('set_status').value = sub.status;
+            document.getElementById('set_gpa').checked = sub.includeInGpa !== false;
+            document.getElementById('subjectSettingsModal').style.display = 'flex';
+        }
+
+        document.getElementById('settingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            if (!document.getElementById('set_gpa').checked) formData.set('includeInGpa', 'false');
+            
+            fetch('/api/subjects/update-settings', { method: 'POST', body: new URLSearchParams(formData) })
+            .then(() => {
+                document.getElementById('subjectSettingsModal').style.display = 'none';
+                fetchSubjects();
+            });
+        });
+
+        function openCurveModal(id) {
+            document.getElementById('curve_id').value = id;
+            document.getElementById('curve_letter').value = '';
+            document.getElementById('curveModal').style.display = 'flex';
+        }
+
+        document.getElementById('curveForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('/api/subjects/update-curve', { method: 'POST', body: new URLSearchParams(formData) })
+            .then(() => {
+                document.getElementById('curveModal').style.display = 'none';
+                fetchSubjects();
+            });
+        });
     </script>
 </body>
 </html>
