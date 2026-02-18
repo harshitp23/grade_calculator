@@ -27,14 +27,9 @@ import java.util.List;
 @RequestMapping("/api/subjects")
 public class SubjectController {
 
-    @Autowired
-    private SubjectRepository subjectRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ComponentRepository componentRepository;
+    @Autowired private SubjectRepository subjectRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private ComponentRepository componentRepository;
 
     @GetMapping("/list")
     public List<Subject> getSubjects(@AuthenticationPrincipal UserDetails userDetails) {
@@ -48,6 +43,9 @@ public class SubjectController {
             @RequestParam String code,
             @RequestParam int credits,
             @RequestParam String status,
+            @RequestParam String termSeason,
+            @RequestParam Integer termYear,
+            @RequestParam(required = false) String letterGrade,
             @AuthenticationPrincipal UserDetails userDetails) {
             
         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
@@ -57,8 +55,15 @@ public class SubjectController {
         s.setSubjectCode(code);
         s.setCredits(credits);
         s.setStatus(status);
+        s.setTermSeason(termSeason);
+        s.setTermYear(termYear);
         s.setIncludeInGpa(true);
         s.setUser(user);
+
+        // If it's an old class, apply the letter grade directly
+        if ("Completed".equals(status) && letterGrade != null && !letterGrade.isBlank()) {
+            s.setLetterGrade(letterGrade);
+        }
 
         return subjectRepository.save(s);
     }
@@ -74,6 +79,8 @@ public class SubjectController {
     public String updateScore(@RequestParam Integer id, @RequestParam Double score,
                               @AuthenticationPrincipal UserDetails userDetails) {
         Subject s = loadOwnedSubject(id, userDetails);
+        // Track previous score for the arrow indicator
+        if (s.getCurrentScore() != null) s.setPreviousScore(s.getCurrentScore());
         s.setCurrentScore(BigDecimal.valueOf(score));
         subjectRepository.save(s);
         return "Score Updated!";
@@ -84,6 +91,8 @@ public class SubjectController {
             @RequestParam Integer id,
             @RequestParam String name,
             @RequestParam String code,
+            @RequestParam String termSeason,
+            @RequestParam Integer termYear,
             @RequestParam(required = false) String gradingScale,
             @RequestParam String status,
             @RequestParam(required = false) Boolean includeInGpa,
@@ -92,6 +101,8 @@ public class SubjectController {
         Subject s = loadOwnedSubject(id, userDetails);
         s.setSubjectName(name);
         s.setSubjectCode(code);
+        s.setTermSeason(termSeason);
+        s.setTermYear(termYear);
         s.setGradingScale(gradingScale);
         s.setStatus(status);
         if (includeInGpa != null) s.setIncludeInGpa(includeInGpa);
@@ -118,89 +129,66 @@ public class SubjectController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing subject id");
         }
 
-        User user = userRepository.findByUsername(userDetails.getUsername())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-
+        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
         Subject subject = subjectRepository.findById(payload.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Subject not found"));
 
-        if (subject.getUser() == null || subject.getUser().getUserId() == null
-                || !subject.getUser().getUserId().equals(user.getUserId())) {
+        if (!subject.getUser().getUserId().equals(user.getUserId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not allowed");
         }
 
-        if (payload.getUseTotalPoints() != null) {
-            subject.setUseTotalPoints(payload.getUseTotalPoints());
-        }
+        if (payload.getUseTotalPoints() != null) subject.setUseTotalPoints(payload.getUseTotalPoints());
 
         componentRepository.deleteBySubject(subject);
 
         if (payload.getComponents() != null) {
             for (ComponentSaveRequest cReq : payload.getComponents()) {
                 if (cReq == null || !StringUtils.hasText(cReq.getName())) continue;
-
                 Component c = new Component();
                 c.setSubject(subject);
                 c.setName(cReq.getName().trim());
                 c.setWeight(cReq.getWeight() != null ? cReq.getWeight() : 0.0);
                 c.setScore(cReq.getScore() != null ? cReq.getScore() : 0.0);
                 c.setTotalPoints(cReq.getTotalPoints() != null ? cReq.getTotalPoints() : 0.0);
-
                 componentRepository.save(c);
             }
         }
 
-        BigDecimal computed = computeSubjectPercent(subject);
-        subject.setCurrentScore(computed);
+        // Track score change
+        if (subject.getCurrentScore() != null) subject.setPreviousScore(subject.getCurrentScore());
+        subject.setCurrentScore(computeSubjectPercent(subject));
 
         subjectRepository.save(subject);
-
         return ResponseEntity.ok().build();
     }
 
     private BigDecimal computeSubjectPercent(Subject subject) {
         boolean useTotalPoints = subject.isUseTotalPoints();
         List<Component> comps = componentRepository.findBySubject(subject);
-
-        if (comps == null || comps.isEmpty()) {
-            return null;
-        }
+        if (comps == null || comps.isEmpty()) return null;
 
         double percent;
-
         if (useTotalPoints) {
-            double sumScore = 0.0;
-            double sumTotal = 0.0;
+            double sumScore = 0.0, sumTotal = 0.0;
             for (Component c : comps) {
-                double s = c.getScore() != null ? c.getScore() : 0.0;
-                double t = c.getTotalPoints() != null ? c.getTotalPoints() : 0.0;
-                sumScore += s;
-                sumTotal += t;
+                sumScore += (c.getScore() != null ? c.getScore() : 0.0);
+                sumTotal += (c.getTotalPoints() != null ? c.getTotalPoints() : 0.0);
             }
             if (sumTotal <= 0.0) return null;
             percent = (sumScore / sumTotal) * 100.0;
         } else {
-            double totalWeight = 0.0;
-            double weighted = 0.0;
-
+            double totalWeight = 0.0, weighted = 0.0;
             for (Component c : comps) {
                 double w = c.getWeight() != null ? c.getWeight() : 0.0;
                 double s = c.getScore() != null ? c.getScore() : 0.0;
                 double t = c.getTotalPoints() != null ? c.getTotalPoints() : 0.0;
-
                 totalWeight += w;
-
-                if (t > 0.0) {
-                    weighted += (s / t) * w;
-                } else if (s > 0.0) {
-                    weighted += s;
-                }
+                if (t > 0.0) weighted += (s / t) * w;
+                else if (s > 0.0) weighted += s;
             }
-
             if (totalWeight <= 0.0 && weighted == 0.0) return null;
             percent = weighted;
         }
-
         return BigDecimal.valueOf(percent).setScale(2, RoundingMode.HALF_UP);
     }
 
