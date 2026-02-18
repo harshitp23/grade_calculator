@@ -7,6 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --danger: #ef4444; }
         [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
@@ -27,14 +29,14 @@
         .gpa-label { font-size: 13px; opacity: 0.9; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
         .gpa-value { font-size: 32px; font-weight: 800; margin-top: 5px; }
 
+        .chart-container { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 30px; height: 300px; display: none; }
+
         .section-title { font-size: 18px; font-weight: 700; margin: 40px 0 15px 0; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
         .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); overflow: hidden; margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; }
         th { text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); background-color: rgba(0,0,0,0.02); }
         td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 14px; vertical-align: middle; }
         
-        .grade-header-row { background-color: rgba(79, 70, 229, 0.05); }
-        .grade-header-cell { font-weight: 700; color: var(--primary); padding: 8px 24px; font-size: 13px; }
         .grade-A { color: #10b981; font-weight: 700; } 
         .grade-Low { color: #ef4444; font-weight: 700; } 
 
@@ -42,12 +44,9 @@
         .action-btn:hover { background: var(--bg-color); color: var(--primary); }
         .action-btn.manage-btn { color: var(--primary); border-color: #c7d2fe; background: #eef2ff; }
 
-        /* MODALS */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
         .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-title { font-size: 20px; font-weight: 700; margin: 0; }
-        .close-btn { font-size: 24px; cursor: pointer; color: var(--text-muted); }
         .modal-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); box-sizing: border-box; margin-bottom: 15px; }
         .btn-primary { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
         .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
@@ -58,31 +57,22 @@
         .mobile-overlay { display: none; }
         .mobile-close-sidebar { display: none; }
 
-        /* 👇 SMART MOBILE CSS 👇 */
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.1); z-index: 999; }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; z-index: 999; }
             .sidebar.active { transform: translateX(0); }
             .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
-            
-            /* Tighter Spacing */
             .main-content { padding: 15px; width: 100%; box-sizing: border-box; }
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
             .mobile-overlay.active { display: block; }
             .card { overflow-x: auto; padding: 0; margin-bottom: 15px; }
             table { min-width: 600px; }
             th, td { padding: 10px 12px; font-size: 13px; }
-            
-            /* Compact GPA Header */
             .header-row { flex-direction: column; align-items: flex-start; gap: 15px; margin-bottom: 20px; }
-            .header-row h1 { font-size: 22px !important; margin: 0; }
-            .gpa-card { padding: 12px 20px; width: 100%; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; min-width: auto; border-radius: 8px; }
+            .gpa-card { padding: 12px 20px; width: 100%; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; }
             .gpa-value { font-size: 22px; margin-top: 0; }
-            .section-title { font-size: 16px; margin: 25px 0 10px 0; }
-            
-            /* Modal Adjustments */
-            .modal-content { width: 90%; padding: 20px; }
+            .chart-container { height: 200px; padding: 10px; }
         }
     </style>
 </head>
@@ -90,7 +80,7 @@
 
     <div class="mobile-nav">
         <div style="display:flex; align-items:center; gap:15px;">
-            <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
+            <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
             <div class="logo" style="margin:0; font-size:18px;"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         </div>
         <div style="display:flex; gap:15px;">
@@ -107,7 +97,7 @@
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
             <a th:href="@{/}" class="nav-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add New Subject</a>
+            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects</a>
             <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
             <a th:href="@{/target-grade}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
         </nav>
@@ -125,24 +115,14 @@
     <main class="main-content">
         <div class="header-row">
             <div><h1 style="margin:0; font-size:28px;">Academic Overview</h1></div>
-            <div class="gpa-card"><div class="gpa-label">Overall GPA</div><div class="gpa-value" id="overall-gpa">0.00</div></div>
+            <div class="gpa-card"><div class="gpa-label">Cumulative GPA</div><div class="gpa-value" id="overall-gpa">0.00</div></div>
         </div>
 
-        <div class="section-title"><i class="fa-solid fa-clock" style="color:var(--primary);"></i> Current Semester</div>
-        <div class="card">
-            <table>
-                <thead><tr><th>Subject</th><th>Code</th><th>Credits</th><th>Status</th><th>Score</th><th>Grade</th><th style="text-align: right;">Actions</th></tr></thead>
-                <tbody id="current-table-body"></tbody>
-            </table>
+        <div class="chart-container" id="chartWrapper">
+            <canvas id="gpaChart"></canvas>
         </div>
 
-        <div class="section-title"><i class="fa-solid fa-check-circle" style="color:#10b981;"></i> Completed Semesters</div>
-        <div class="card">
-            <table>
-                <thead><tr><th>Subject</th><th>Code</th><th>Credits</th><th>Status</th><th>Score</th><th>Grade</th><th style="text-align: right;">Actions</th></tr></thead>
-                <tbody id="completed-table-body"></tbody>
-            </table>
-        </div>
+        <div id="dynamic-terms-container"></div>
     </main>
 
     <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
@@ -160,6 +140,22 @@
                 <input type="hidden" name="id" id="set_id">
                 <div class="form-group"><label>Name</label><input type="text" name="name" id="set_name" class="modal-input" required></div>
                 <div class="form-group"><label>Code</label><input type="text" name="code" id="set_code" class="modal-input" required></div>
+                
+                <div style="display:flex; gap:10px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Term Season</label>
+                        <select name="termSeason" id="set_termSeason" class="modal-input" required>
+                            <option value="Fall">Fall</option>
+                            <option value="Spring">Spring</option>
+                            <option value="Summer">Summer</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Term Year</label>
+                        <input type="number" name="termYear" id="set_termYear" class="modal-input" required>
+                    </div>
+                </div>
+
                 <div class="form-group"><label>Grading Scale (e.g. 93,88,83,78,70,60)</label><input type="text" name="gradingScale" id="set_scale" class="modal-input"></div>
                 <div class="form-group">
                     <label>Status</label>
@@ -183,8 +179,16 @@
             <form id="curveForm">
                 <input type="hidden" name="id" id="curve_id">
                 <div class="form-group">
-                    <label>Final Letter Grade (e.g., A, AB, B, F)</label>
-                    <input type="text" name="letter" id="curve_letter" class="modal-input" required style="text-transform:uppercase;">
+                    <label>Final Letter Grade</label>
+                    <select name="letter" id="curve_letter" class="modal-input" required>
+                        <option value="A">A</option>
+                        <option value="AB">AB</option>
+                        <option value="B">B</option>
+                        <option value="BC">BC</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="F">F</option>
+                    </select>
                 </div>
                 <button type="submit" class="btn-primary" style="margin-top:10px;">Apply Curve</button>
             </form>
@@ -197,6 +201,7 @@
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); updateIcons(false); }
             else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); updateIcons(true); }
+            if (gpaChartInstance) buildChart(window.chartData); // Rebuild chart to match theme colors
         }
         function updateIcons(isDark) {
             const iconClass = isDark ? 'fa-sun' : 'fa-moon';
@@ -210,6 +215,7 @@
         async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
 
         let allSubjectsData = [];
+        let gpaChartInstance = null;
 
         window.onload = function() { fetchSubjects(); };
 
@@ -234,43 +240,150 @@
         function fetchSubjects() {
             fetch('/api/subjects/list').then(r => r.json()).then(data => {
                 allSubjectsData = data;
-                const currentBody = document.getElementById('current-table-body');
-                const completedBody = document.getElementById('completed-table-body');
-                currentBody.innerHTML = ""; completedBody.innerHTML = "";
                 
-                let totalPoints = 0, totalCredits = 0;
-
+                // Group by Term
+                const termsMap = {};
+                
                 data.forEach(sub => {
+                    // Defaults if null
+                    const season = sub.termSeason || 'Spring';
+                    const year = sub.termYear || new Date().getFullYear();
+                    const termKey = `${season} ${year}`;
+                    
+                    if (!termsMap[termKey]) {
+                        termsMap[termKey] = { season: season, year: year, subjects: [], totalPts: 0, totalCred: 0 };
+                    }
+                    
                     let gradeInfo;
                     if (sub.letterGrade && sub.letterGrade.trim() !== '') {
                         gradeInfo = { grade: sub.letterGrade, point: getPointFromLetter(sub.letterGrade), css: 'grade-A' };
                     } else {
                         gradeInfo = calculateGrade(parseFloat(sub.currentScore || 0), sub.gradingScale);
                     }
+                    sub._gradeInfo = gradeInfo; // Cache it
 
                     if (sub.includeInGpa !== false) {
-                        totalCredits += sub.credits;
-                        totalPoints += (sub.credits * gradeInfo.point);
+                        termsMap[termKey].totalCred += sub.credits;
+                        termsMap[termKey].totalPts += (sub.credits * gradeInfo.point);
                     }
-
-                    const row = `<tr>
-                        <td><a href="/subject-details?id=${sub.subjectId}" style="text-decoration:none; color:inherit; font-weight:600;">${sub.subjectName}</a></td>
-                        <td>${sub.subjectCode}</td>
-                        <td>${sub.credits}</td>
-                        <td>${sub.status}</td>
-                        <td>${sub.currentScore || '-'}%</td>
-                        <td class="${gradeInfo.css}">${gradeInfo.grade}</td>
-                        <td style="text-align: right; white-space: nowrap;">
-                            <button class="action-btn manage-btn" onclick="window.location.href='/subject-details?id=${sub.subjectId}'" title="Manage Components"><i class="fa-solid fa-list-check"></i></button>
-                            <button class="action-btn" onclick="openSettingsModal(${sub.subjectId})" title="Subject Settings"><i class="fa-solid fa-gear"></i></button>
-                            ${sub.status === 'Completed' ? `<button class="action-btn" onclick="openCurveModal(${sub.subjectId})" title="Curve Adjustment"><i class="fa-solid fa-arrow-trend-up"></i></button>` : ''}
-                        </td>
-                    </tr>`;
-                    if (sub.status === 'Completed') completedBody.innerHTML += row; else currentBody.innerHTML += row;
+                    termsMap[termKey].subjects.push(sub);
                 });
 
-                const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
-                document.getElementById('overall-gpa').innerText = gpa;
+                // Sort Terms Chronologically (Spring -> Summer -> Fall)
+                const seasonOrder = { 'Spring': 1, 'Summer': 2, 'Fall': 3 };
+                const sortedTerms = Object.values(termsMap).sort((a, b) => {
+                    if (a.year !== b.year) return a.year - b.year;
+                    return seasonOrder[a.season] - seasonOrder[b.season];
+                });
+
+                // Render Tables & Calculate Cumulatives
+                const container = document.getElementById('dynamic-terms-container');
+                container.innerHTML = "";
+                
+                let cumulativePts = 0;
+                let cumulativeCred = 0;
+                
+                const chartLabels = [];
+                const termGpas = [];
+                const cumGpas = [];
+
+                sortedTerms.forEach(term => {
+                    // Calculate GPAs
+                    const termGpa = term.totalCred > 0 ? (term.totalPts / term.totalCred) : 0.0;
+                    cumulativePts += term.totalPts;
+                    cumulativeCred += term.totalCred;
+                    const cumGpa = cumulativeCred > 0 ? (cumulativePts / cumulativeCred) : 0.0;
+                    
+                    // Chart Data
+                    chartLabels.push(`${term.season} ${term.year}`);
+                    termGpas.push(termGpa.toFixed(2));
+                    cumGpas.push(cumGpa.toFixed(2));
+
+                    // UI Setup
+                    let termHtml = `<div class="section-title"><i class="fa-solid fa-calendar" style="color:var(--primary);"></i> ${term.season} ${term.year} &nbsp;<span style="font-size:12px; font-weight:500; color:var(--text-muted); padding:2px 8px; background:rgba(0,0,0,0.05); border-radius:10px;">Term GPA: ${termGpa.toFixed(2)}</span></div>
+                                    <div class="card"><table><thead><tr><th>Subject</th><th>Code</th><th>Credits</th><th>Status</th><th>Score</th><th>Grade</th><th style="text-align: right;">Actions</th></tr></thead><tbody>`;
+                    
+                    term.subjects.forEach(sub => {
+                        // Arrow Logic (Up/Down)
+                        let arrowHtml = '';
+                        if (sub.previousScore && sub.currentScore && sub.status === 'In Progress') {
+                            if (sub.currentScore > sub.previousScore) {
+                                arrowHtml = ` <i class="fa-solid fa-arrow-up" style="color:#10b981; font-size:12px; margin-left:5px;" title="Went up from ${sub.previousScore}%"></i>`;
+                            } else if (sub.currentScore < sub.previousScore) {
+                                arrowHtml = ` <i class="fa-solid fa-arrow-down" style="color:#ef4444; font-size:12px; margin-left:5px;" title="Went down from ${sub.previousScore}%"></i>`;
+                            }
+                        }
+
+                        // Display Score Formatting
+                        let scoreDisplay = '-';
+                        if (sub.status === 'In Progress') {
+                            scoreDisplay = (sub.currentScore || 0) + '%' + arrowHtml;
+                        }
+
+                        termHtml += `<tr>
+                            <td><a href="/subject-details?id=${sub.subjectId}" style="text-decoration:none; color:inherit; font-weight:600;">${sub.subjectName}</a></td>
+                            <td>${sub.subjectCode}</td>
+                            <td>${sub.credits}</td>
+                            <td>${sub.status}</td>
+                            <td>${scoreDisplay}</td>
+                            <td class="${sub._gradeInfo.css}">${sub._gradeInfo.grade}</td>
+                            <td style="text-align: right; white-space: nowrap;">
+                                ${sub.status === 'In Progress' ? `<button class="action-btn manage-btn" onclick="window.location.href='/subject-details?id=${sub.subjectId}'" title="Manage Components"><i class="fa-solid fa-list-check"></i></button>` : ''}
+                                <button class="action-btn" onclick="openSettingsModal(${sub.subjectId})" title="Subject Settings"><i class="fa-solid fa-gear"></i></button>
+                                ${sub.status === 'Completed' ? `<button class="action-btn" onclick="openCurveModal(${sub.subjectId})" title="Curve Adjustment"><i class="fa-solid fa-arrow-trend-up"></i></button>` : ''}
+                            </td>
+                        </tr>`;
+                    });
+                    
+                    termHtml += `</tbody></table></div>`;
+                    container.innerHTML += termHtml;
+                });
+
+                // Update Overall GPA Badge
+                const finalGpa = cumulativeCred > 0 ? (cumulativePts / cumulativeCred).toFixed(2) : "0.00";
+                document.getElementById('overall-gpa').innerText = finalGpa;
+
+                // Build Chart
+                if (chartLabels.length > 0) {
+                    document.getElementById('chartWrapper').style.display = 'block';
+                    window.chartData = { labels: chartLabels, termData: termGpas, cumData: cumGpas };
+                    buildChart(window.chartData);
+                } else {
+                    document.getElementById('chartWrapper').style.display = 'none';
+                }
+            });
+        }
+
+        // --- Chart Generation ---
+        function buildChart(data) {
+            const ctx = document.getElementById('gpaChart').getContext('2d');
+            if (gpaChartInstance) gpaChartInstance.destroy(); // Clear old chart
+            
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const gridColor = isDark ? '#334155' : '#e5e7eb';
+            const textColor = isDark ? '#94a3b8' : '#6b7280';
+
+            gpaChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [
+                        { label: 'Semester GPA', data: data.termData, backgroundColor: '#818cf8', borderRadius: 4 },
+                        { label: 'Cumulative GPA', data: data.cumData, backgroundColor: '#4f46e5', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 4.0, grid: { color: gridColor }, ticks: { color: textColor } },
+                        x: { grid: { display: false }, ticks: { color: textColor } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: textColor } },
+                        tooltip: { mode: 'index', intersect: false }
+                    }
+                }
             });
         }
 
@@ -281,6 +394,8 @@
             document.getElementById('set_id').value = sub.subjectId;
             document.getElementById('set_name').value = sub.subjectName;
             document.getElementById('set_code').value = sub.subjectCode;
+            document.getElementById('set_termSeason').value = sub.termSeason || 'Spring';
+            document.getElementById('set_termYear').value = sub.termYear || new Date().getFullYear();
             document.getElementById('set_scale').value = sub.gradingScale || '';
             document.getElementById('set_status').value = sub.status;
             document.getElementById('set_gpa').checked = sub.includeInGpa !== false;
@@ -293,15 +408,12 @@
             if (!document.getElementById('set_gpa').checked) formData.set('includeInGpa', 'false');
             
             fetch('/api/subjects/update-settings', { method: 'POST', body: new URLSearchParams(formData) })
-            .then(() => {
-                document.getElementById('subjectSettingsModal').style.display = 'none';
-                fetchSubjects();
-            });
+            .then(() => { document.getElementById('subjectSettingsModal').style.display = 'none'; fetchSubjects(); });
         });
 
         function openCurveModal(id) {
             document.getElementById('curve_id').value = id;
-            document.getElementById('curve_letter').value = '';
+            document.getElementById('curve_letter').value = 'A';
             document.getElementById('curveModal').style.display = 'flex';
         }
 
@@ -309,10 +421,7 @@
             e.preventDefault();
             const formData = new FormData(this);
             fetch('/api/subjects/update-curve', { method: 'POST', body: new URLSearchParams(formData) })
-            .then(() => {
-                document.getElementById('curveModal').style.display = 'none';
-                fetchSubjects();
-            });
+            .then(() => { document.getElementById('curveModal').style.display = 'none'; fetchSubjects(); });
         });
     </script>
 </body>
