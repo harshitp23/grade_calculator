@@ -30,8 +30,13 @@
         .grade-pill { background: var(--primary); color: white; padding: 10px 25px; border-radius: 50px; font-weight: 800; font-size: 22px; }
         .group-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px; overflow: hidden; }
         .group-header { padding: 15px 20px; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+        .sim-group-body { padding: 20px; }
+        
         .assign-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-        .assign-input { flex: 1; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); font-size: 13px; }
+        .assign-input { padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); font-size: 13px; box-sizing: border-box; }
+        .name-col { flex: 1; min-width: 100px; }
+        .score-col { width: 70px; text-align: center; }
+        .total-col { width: 70px; text-align: center; opacity: 0.6; }
         .not-graded { opacity: 0.5; font-style: italic; }
 
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
@@ -42,15 +47,34 @@
         .mobile-overlay { display: none; }
         .mobile-close-sidebar { display: none; }
 
+        /* 👇 SMART MOBILE CSS 👇 */
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
             .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.1); z-index: 999; }
             .sidebar.active { transform: translateX(0); }
             .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
-            .main-content { padding: 20px; width: 100%; box-sizing: border-box; }
+            
+            /* Tighter Spacing */
+            .main-content { padding: 15px; width: 100%; box-sizing: border-box; }
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
             .mobile-overlay.active { display: block; }
+            
+            .container h1 { font-size: 22px !important; margin-bottom: 15px; }
+            .selector-card { padding: 15px; margin-bottom: 15px; flex-direction: column; align-items: stretch; gap: 10px; }
+            .sim-header { padding: 15px; margin-bottom: 15px; }
+            .grade-pill { font-size: 18px; padding: 6px 15px; }
+            
+            /* Fix inputs getting cut off */
+            .group-card { margin-bottom: 15px; }
+            .group-header { padding: 10px 15px; font-size: 13px; }
+            .sim-group-body { padding: 10px; }
+            .assign-row { gap: 5px; }
+            .assign-input { padding: 6px; font-size: 12px; }
+            .score-col, .total-col { width: 55px; } /* Fixed width on mobile prevents flex-squishing */
+            
+            /* Modal Adjustments */
+            .modal-content { width: 90%; padding: 20px; }
         }
     </style>
 </head>
@@ -150,14 +174,15 @@
             cs.components.forEach((comp, idx) => {
                 const card = document.createElement('div'); card.className = 'group-card';
                 card.innerHTML = `<div class="group-header"><span>${comp.name}</span><span>${comp.weight > 0 ? comp.weight+'%' : 'Points'}</span></div>
-                                  <div id="g-${idx}" style="padding:20px;"></div>`;
+                                  <div id="g-${idx}" class="sim-group-body"></div>`;
                 area.appendChild(card);
                 comp.assignments.forEach(a => {
                     const row = document.createElement('div'); row.className = 'assign-row';
                     if(a.score === 0) row.classList.add('not-graded');
-                    row.innerHTML = `<input type="text" class="assign-input" value="${a.name}">
-                                     <input type="number" class="assign-input" style="flex:0.4; text-align:center;" value="${a.score}" oninput="this.closest('.assign-row').setAttribute('data-mod','true'); this.closest('.assign-row').classList.remove('not-graded'); calc();">
-                                     <input type="number" class="assign-input" style="flex:0.3; text-align:center; opacity:0.6;" value="${a.totalPoints}" readonly>`;
+                    // 👇 Fixed flex-shrinking issue by assigning direct CSS classes instead of flex-ratios
+                    row.innerHTML = `<input type="text" class="assign-input name-col" value="${a.name}">
+                                     <input type="number" class="assign-input score-col" value="${a.score}" oninput="this.closest('.assign-row').setAttribute('data-mod','true'); this.closest('.assign-row').classList.remove('not-graded'); calc();">
+                                     <input type="number" class="assign-input total-col" value="${a.totalPoints}" readonly>`;
                     card.querySelector('div[id^="g-"]').appendChild(row);
                 });
             });
