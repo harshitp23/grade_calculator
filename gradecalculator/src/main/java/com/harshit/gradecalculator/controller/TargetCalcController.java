@@ -18,11 +18,11 @@ public class TargetCalcController {
     @Autowired private UserRepository userRepository;
     @Autowired private SubjectRepository subjectRepository;
 
-    @GetMapping("/target-grade")
+    @GetMapping({"/target-grade", "/target-grade.html"})
     public String showTargetPage(Model model, @AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
         List<Subject> currentSubjects = subjectRepository.findByUserAndStatus(user, "In Progress");
         model.addAttribute("subjects", currentSubjects);
-        return "target-grade"; // 🔥 Change from "target-calculator" to "target-grade"
+        return "target-grade"; 
     }
 }
