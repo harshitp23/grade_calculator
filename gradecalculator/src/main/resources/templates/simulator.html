@@ -98,6 +98,7 @@
             <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subject</a>
             <a th:href="@{/simulator}" class="nav-link active"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
             <a th:href="@{/target-grade}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+            <a href="#" onclick="document.getElementById('helpModal').style.display='flex'" class="nav-link"><i class="fa-solid fa-book-open"></i> Getting Started</a>
         </nav>
         <div class="spacer"></div>
         <div class="user-profile">
@@ -135,7 +136,7 @@
 
     <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
         <div class="modal-content" style="width: 500px; max-height: 90vh; overflow-y: auto;">
-            <div class="modal-header"><h2 class="modal-title">Account Settings</h2><span class="close-btn" style="cursor:pointer;" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
+            <div class="modal-header"><h2 class="modal-title" style="margin:0;">Account Settings</h2><span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
             
             <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Profile Details</h4>
@@ -150,11 +151,18 @@
 
             <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Change Password</h4>
+                
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Current Password</label>
-                <input type="password" id="settings-old-password" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                <div style="position: relative; margin-bottom: 10px;">
+                    <input type="password" id="settings-old-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
+                    <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-old-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                </div>
                 
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">New Password</label>
-                <input type="password" id="settings-new-password" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                <div style="position: relative; margin-bottom: 10px;">
+                    <input type="password" id="settings-new-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
+                    <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-new-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                </div>
                 
                 <button class="btn-save" onclick="updatePassword()">Reset Password</button>
             </div>
@@ -167,6 +175,44 @@
             </div>
             
             <button class="btn-save" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca; margin-top: 10px;" onclick="confirm('Are you sure you want to delete your account? This cannot be undone.')">Delete Account</button>
+        </div>
+    </div>
+
+    <div id="helpModal" class="modal" onclick="if(event.target.id==='helpModal') this.style.display='none'">
+        <div class="modal-content" style="width: 550px; max-height: 85vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2 class="modal-title" style="margin: 0;">Getting Started 🚀</h2>
+                <span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('helpModal').style.display='none'">&times;</span>
+            </div>
+            
+            <div style="line-height: 1.6; color: var(--text-main);">
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">1. Syncing with Canvas</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    The easiest way to get your grades into GradeCalc is using our Chrome Extension. 
+                    <br><br>
+                    • Install <b>GradeCalc Sync Pro</b> from the Chrome Web Store.<br>
+                    • Pin the extension to your browser toolbar.<br>
+                    • Log into your university's Canvas page.<br>
+                    • Click the extension icon and hit <b>Update Synced Grades</b> to instantly import your active classes and assignments!
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">2. Building Your Transcript</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    Your dashboard tracks your Cumulative GPA. To make it accurate, click <b>Add Old Subjects</b> in the sidebar to manually enter classes you completed in previous semesters. Your GPA trend graph will automatically update!
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">3. Grade Simulator</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    Wondering how a bad test score will affect your final grade? Go to the <b>Grade Simulator</b>, select an active class, and type in hypothetical scores to see exactly how your final percentage changes.
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">4. Target Calculator</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    If you want to keep an 'A', the <b>Target Calculator</b> tells you exactly what score you need on your next exam to hit your goal. It handles all the complex weighted math for you.
+                </p>
+            </div>
+
+            <button class="btn-save" onclick="document.getElementById('helpModal').style.display='none'">Got it!</button>
         </div>
     </div>
 
@@ -184,10 +230,22 @@
         }
         if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
         
-        // UPDATE: Added loading User Profile functions
         function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); loadUserProfile(); }
         async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
         async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
+
+        function toggleSettingsPwd(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
 
         async function loadUserProfile() {
             try {
