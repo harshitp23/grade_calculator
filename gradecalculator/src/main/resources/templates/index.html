@@ -29,6 +29,10 @@
         .gpa-label { font-size: 13px; opacity: 0.9; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
         .gpa-value { font-size: 32px; font-weight: 800; margin-top: 5px; }
 
+        /* Extension Sync Button */
+        .sync-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 10px 16px; background-color: var(--primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; transition: 0.2s; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
+        .sync-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4); color: white; }
+
         .chart-container { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 30px; height: 300px; display: none; }
 
         .section-title { font-size: 18px; font-weight: 700; margin: 40px 0 15px 0; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
@@ -116,7 +120,12 @@
 
     <main class="main-content">
         <div class="header-row">
-            <div><h1 style="margin:0; font-size:28px;">Academic Overview</h1></div>
+            <div>
+                <h1 style="margin:0; font-size:28px;">Academic Overview</h1>
+                <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank" class="sync-btn">
+                    <i class="fa-brands fa-chrome"></i> Sync your grades!
+                </a>
+            </div>
             <div class="gpa-card"><div class="gpa-label">Cumulative GPA</div><div class="gpa-value" id="overall-gpa">0.00</div></div>
         </div>
 
