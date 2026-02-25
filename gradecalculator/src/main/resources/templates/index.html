@@ -29,7 +29,6 @@
         .gpa-label { font-size: 13px; opacity: 0.9; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
         .gpa-value { font-size: 32px; font-weight: 800; margin-top: 5px; }
 
-        /* Extension Sync Button */
         .sync-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 10px 16px; background-color: var(--primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; transition: 0.2s; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
         .sync-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4); color: white; }
 
@@ -104,7 +103,6 @@
             <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects</a>
             <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
             <a th:href="@{/target-grade}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
-            
             <a href="#" onclick="document.getElementById('helpModal').style.display='flex'" class="nav-link"><i class="fa-solid fa-book-open"></i> Getting Started</a>
         </nav>
         <div class="spacer"></div>
@@ -153,11 +151,18 @@
 
             <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Change Password</h4>
+                
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Current Password</label>
-                <input type="password" id="settings-old-password" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                <div style="position: relative; margin-bottom: 10px;">
+                    <input type="password" id="settings-old-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
+                    <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-old-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                </div>
                 
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">New Password</label>
-                <input type="password" id="settings-new-password" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                <div style="position: relative; margin-bottom: 10px;">
+                    <input type="password" id="settings-new-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
+                    <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-new-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                </div>
                 
                 <button class="btn-save" onclick="updatePassword()">Reset Password</button>
             </div>
@@ -288,10 +293,23 @@
         }
         if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
         
-        // Loading User Profile & Token
+        // Settings Script Logic
         function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); loadUserProfile(); }
         async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
         async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
+
+        function toggleSettingsPwd(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
 
         async function loadUserProfile() {
             try {
@@ -365,11 +383,9 @@
             fetch('/api/subjects/list').then(r => r.json()).then(data => {
                 allSubjectsData = data;
                 
-                // Group by Term
                 const termsMap = {};
                 
                 data.forEach(sub => {
-                    // Defaults if null
                     const season = sub.termSeason || 'Spring';
                     const year = sub.termYear || new Date().getFullYear();
                     const termKey = `${season} ${year}`;
@@ -384,7 +400,7 @@
                     } else {
                         gradeInfo = calculateGrade(parseFloat(sub.currentScore || 0), sub.gradingScale);
                     }
-                    sub._gradeInfo = gradeInfo; // Cache it
+                    sub._gradeInfo = gradeInfo; 
 
                     if (sub.includeInGpa !== false) {
                         termsMap[termKey].totalCred += sub.credits;
@@ -393,7 +409,6 @@
                     termsMap[termKey].subjects.push(sub);
                 });
 
-                // Sort Chronologically
                 const seasonOrder = { 'Spring': 1, 'Summer': 2, 'Fall': 3 };
                 const sortedTerms = Object.values(termsMap).sort((a, b) => {
                     if (a.year !== b.year) return a.year - b.year;
@@ -429,7 +444,7 @@
                         if (sub.previousScore && sub.currentScore && sub.status === 'In Progress') {
                             if (sub.currentScore > sub.previousScore) {
                                 arrowHtml = ` <i class="fa-solid fa-arrow-up" style="color:#10b981; font-size:12px; margin-left:5px;" title="Went up from ${sub.previousScore}%"></i>`;
-                            } else if (sub.currentScore < sub.previousScore) {
+                            } else if (sub.currentScore < sub.currentScore) {
                                 arrowHtml = ` <i class="fa-solid fa-arrow-down" style="color:#ef4444; font-size:12px; margin-left:5px;" title="Went down from ${sub.previousScore}%"></i>`;
                             }
                         }
