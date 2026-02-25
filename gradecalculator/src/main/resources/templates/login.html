@@ -36,13 +36,15 @@
             transition: background-color 0.3s ease; /* Smooth fade effect */
         }
 
-        /* ... (Keep Card, Input, Button styles exactly the same) ... */
+        /* Modal classes added for Forgot Password */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
+        
         .card { background: var(--card-bg); padding: 40px; border-radius: 16px; width: 360px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); text-align: center; }
         h1 { color: var(--text-main); margin-bottom: 8px; font-weight: 700; font-size: 24px; }
         .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
         input { width: 100%; padding: 12px 16px; margin: 8px 0; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif; }
         input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-        .password-container { position: relative; width: 100%; margin-bottom: 10px; }
+        .password-container { position: relative; width: 100%; margin-bottom: 5px; }
         .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); font-size: 14px; }
         .remember-me-container { text-align: left; margin: 10px 0 20px 0; font-size: 14px; color: var(--text-main); display: flex; align-items: center; }
         .remember-me-container input { width: 16px; height: 16px; margin-right: 8px; accent-color: var(--primary); cursor: pointer; }
@@ -95,6 +97,8 @@
             <i class="fa fa-eye toggle-password" id="togglePassword"></i>
         </div>
 
+        <a href="#" onclick="document.getElementById('forgotPasswordModal').style.display='flex'" style="display: block; text-align: right; font-size: 0.85em; margin-top: 5px; color: var(--primary); text-decoration: none; margin-bottom: 10px;">Forgot Password?</a>
+
         <div class="remember-me-container">
             <input type="checkbox" id="remember-me" name="remember-me">
             <label for="remember-me">Remember me</label>
@@ -104,6 +108,16 @@
     </form>
     
     <a href="register.html">Don't have an account? <span style="color:var(--primary); font-weight:600;">Sign Up</span></a>
+</div>
+
+<div id="forgotPasswordModal" class="modal" onclick="if(event.target.id==='forgotPasswordModal') this.style.display='none'">
+    <div class="card" style="padding: 30px; width: 350px;" onclick="event.stopPropagation()">
+        <h2 style="margin-top:0; font-size: 20px;">Reset Password</h2>
+        <p class="subtitle" style="margin-bottom: 20px;">Enter the email you signed up with to receive a reset code.</p>
+        <input type="email" id="forgot-email" placeholder="Email Address" required style="margin-bottom:15px; background:var(--bg-color); color:var(--text-main);">
+        <button onclick="sendResetEmail()" style="margin-bottom:10px;">Send Reset Code</button>
+        <button onclick="document.getElementById('forgotPasswordModal').style.display='none'" style="background:var(--bg-color); color:var(--text-main); border:1px solid var(--border-color);">Cancel</button>
+    </div>
 </div>
 
 <script>
@@ -143,6 +157,14 @@
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('error')) {
         document.getElementById('error-msg').style.display = 'block';
+    }
+
+    // UPDATE: Forgot Password Trigger Stub
+    function sendResetEmail() {
+        const email = document.getElementById('forgot-email').value;
+        if (!email) return alert('Please enter your email.');
+        // This will trigger your backend Nodemailer OTP logic
+        alert(`OTP logic ready to be hooked up to email: ${email}`);
     }
 </script>
 
