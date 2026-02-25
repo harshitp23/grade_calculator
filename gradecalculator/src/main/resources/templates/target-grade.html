@@ -84,6 +84,7 @@
             <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subject</a>
             <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
             <a th:href="@{/target-grade}" class="nav-link active"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+            <a href="#" onclick="document.getElementById('helpModal').style.display='flex'" class="nav-link"><i class="fa-solid fa-book-open"></i> Getting Started</a>
         </nav>
         <div class="spacer"></div>
         <div class="user-profile">
@@ -145,7 +146,7 @@
 
     <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
         <div class="modal-content" style="width: 500px; max-height: 90vh; overflow-y: auto;">
-            <div class="modal-header"><h2 class="modal-title">Account Settings</h2><span class="close-btn" style="cursor:pointer;" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
+            <div class="modal-header"><h2 class="modal-title" style="margin:0;">Account Settings</h2><span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
             
             <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Profile Details</h4>
@@ -160,11 +161,18 @@
 
             <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Change Password</h4>
+                
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Current Password</label>
-                <input type="password" id="settings-old-password" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                <div style="position: relative; margin-bottom: 10px;">
+                    <input type="password" id="settings-old-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
+                    <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-old-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                </div>
                 
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">New Password</label>
-                <input type="password" id="settings-new-password" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                <div style="position: relative; margin-bottom: 10px;">
+                    <input type="password" id="settings-new-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
+                    <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-new-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                </div>
                 
                 <button class="btn-save" onclick="updatePassword()">Reset Password</button>
             </div>
@@ -177,6 +185,44 @@
             </div>
             
             <button class="btn-save" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca; margin-top: 10px;" onclick="confirm('Are you sure you want to delete your account? This cannot be undone.')">Delete Account</button>
+        </div>
+    </div>
+
+    <div id="helpModal" class="modal" onclick="if(event.target.id==='helpModal') this.style.display='none'">
+        <div class="modal-content" style="width: 550px; max-height: 85vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2 class="modal-title" style="margin: 0;">Getting Started 🚀</h2>
+                <span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('helpModal').style.display='none'">&times;</span>
+            </div>
+            
+            <div style="line-height: 1.6; color: var(--text-main);">
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">1. Syncing with Canvas</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    The easiest way to get your grades into GradeCalc is using our Chrome Extension. 
+                    <br><br>
+                    • Install <b>GradeCalc Sync Pro</b> from the Chrome Web Store.<br>
+                    • Pin the extension to your browser toolbar.<br>
+                    • Log into your university's Canvas page.<br>
+                    • Click the extension icon and hit <b>Update Synced Grades</b> to instantly import your active classes and assignments!
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">2. Building Your Transcript</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    Your dashboard tracks your Cumulative GPA. To make it accurate, click <b>Add Old Subjects</b> in the sidebar to manually enter classes you completed in previous semesters. Your GPA trend graph will automatically update!
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">3. Grade Simulator</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    Wondering how a bad test score will affect your final grade? Go to the <b>Grade Simulator</b>, select an active class, and type in hypothetical scores to see exactly how your final percentage changes.
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">4. Target Calculator</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    If you want to keep an 'A', the <b>Target Calculator</b> tells you exactly what score you need on your next exam to hit your goal. It handles all the complex weighted math for you.
+                </p>
+            </div>
+
+            <button class="btn-save" onclick="document.getElementById('helpModal').style.display='none'">Got it!</button>
         </div>
     </div>
 
@@ -194,146 +240,12 @@
         }
         if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
         
-        // UPDATE: Added loading User Profile functions
         function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); loadUserProfile(); }
         async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
         async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
 
-        async function loadUserProfile() {
-            try {
-                const res = await fetch('/api/user/profile');
-                if(res.ok) {
-                    const data = await res.json();
-                    document.getElementById('settings-username').value = data.username || '';
-                    document.getElementById('settings-email').value = data.email || '';
-                }
-            } catch(e) { console.error(e); }
-        }
-
-        async function saveProfileChanges() {
-            const username = document.getElementById('settings-username').value;
-            const email = document.getElementById('settings-email').value;
-            try {
-                const res = await fetch('/api/user/profile', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email })
-                });
-                const data = await res.json();
-                if (res.ok) alert(data.message || 'Profile updated successfully!');
-                else alert(data.error || 'Failed to update profile.');
-            } catch (err) { console.error(err); alert('Error updating profile'); }
-        }
-
-        async function updatePassword() {
-            const oldPassword = document.getElementById('settings-old-password').value;
-            const newPassword = document.getElementById('settings-new-password').value;
-            if (!oldPassword || !newPassword) return alert('Please fill in both password fields.');
-            try {
-                const res = await fetch('/api/user/password', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ oldPassword, newPassword })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    alert(data.message || 'Password updated successfully!');
-                    document.getElementById('settings-old-password').value = '';
-                    document.getElementById('settings-new-password').value = '';
-                } else alert(data.error || 'Failed to update password.');
-            } catch (err) { console.error(err); alert('Error updating password'); }
-        }
-
-        let sd = null;
-
-        async function loadTargetData() {
-            document.getElementById('resCard').style.display = 'none';
-            const res = await fetch(`/api/simulator/load?subjectId=${document.getElementById('subSelect').value}`);
-            sd = await res.json();
-            
-            document.getElementById('quickStats').style.display = 'flex';
-            document.getElementById('calcCard').style.display = 'block';
-            document.getElementById('cGrade').innerText = (sd.currentScore || 0) + '%';
-            
-            const iw = sd.components.some(c => c.weight > 0);
-            document.getElementById('mDisplay').innerText = iw ? "Weighted" : "Total Points";
-            
-            const cs = document.getElementById('compSelect');
-            cs.innerHTML = "";
-            if (iw) {
-                cs.disabled = false;
-                sd.components.forEach(c => cs.innerHTML += `<option value="${c.id}">${c.name}</option>`);
-            } else {
-                cs.innerHTML = `<option value="all">Total Points (Not Weighted)</option>`;
-                cs.disabled = true;
-            }
-
-            const goalSelect = document.getElementById('goalGrade');
-            goalSelect.innerHTML = `<option value="">Custom %</option>`;
-            
-            const scale = sd.gradingScale ? sd.gradingScale.split(',') : [93, 88, 83, 78, 70, 60];
-            const letters = ['A', 'AB', 'B', 'BC', 'C', 'D'];
-            
-            letters.forEach((letter, index) => {
-                if(scale[index]) {
-                    goalSelect.innerHTML += `<option value="${scale[index]}">${letter} (${scale[index]}%)</option>`;
-                }
-            });
-            updateGoalInput();
-        }
-
-        function updateGoalInput() {
-            const val = document.getElementById('goalGrade').value;
-            if(val) document.getElementById('goal').value = val;
-        }
-
-        function calculate() {
-            const g = parseFloat(document.getElementById('goal').value);
-            const p = parseFloat(document.getElementById('pts').value);
-            
-            if(isNaN(g)) return alert("Please enter a valid Goal %");
-            if(isNaN(p) || p <= 0) return alert("Please enter valid Points Possible");
-
-            const iw = sd.components.some(c => c.weight > 0);
-            let targetPointsNeeded = 0;
-
-            if (iw) {
-                const compId = document.getElementById('compSelect').value;
-                const comp = sd.components.find(c => c.id == compId);
-                
-                if(!comp) return;
-                if(comp.weight <= 0) return alert("You cannot use a target calculation on a category worth 0% of your grade.");
-
-                let currentTotalWeightedPercent = 0;
-                sd.components.forEach(c => {
-                    if(c.totalPoints > 0) {
-                        currentTotalWeightedPercent += (c.score / c.totalPoints) * c.weight;
-                    }
-                });
-
-                let compCurrentContribution = (comp.totalPoints > 0) ? (comp.score / comp.totalPoints) * comp.weight : 0;
-                let otherComponentsPercent = currentTotalWeightedPercent - compCurrentContribution;
-
-                targetPointsNeeded = (((g - otherComponentsPercent) / comp.weight) * (comp.totalPoints + p)) - comp.score;
-
-            } else {
-                let totalEarned = 0;
-                let totalPossible = 0;
-                
-                sd.components.forEach(c => { 
-                    totalEarned += (c.score || 0); 
-                    totalPossible += (c.totalPoints || 0); 
-                });
-
-                targetPointsNeeded = ((g / 100) * (totalPossible + p)) - totalEarned;
-            }
-
-            const percentageNeeded = (targetPointsNeeded / p) * 100;
-            
-            document.getElementById('resCard').style.display = 'block';
-            document.getElementById('finalResult').innerText = percentageNeeded.toFixed(1) + "%";
-            document.getElementById('desc').innerText = `Target points: ${targetPointsNeeded.toFixed(1)} / ${p}`;
-        }
-    </script>
-</body>
-</html>
+        function toggleSettingsPwd(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.
