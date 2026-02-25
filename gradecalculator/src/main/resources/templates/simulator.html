@@ -47,7 +47,6 @@
         .mobile-overlay { display: none; }
         .mobile-close-sidebar { display: none; }
 
-        /* 👇 SMART MOBILE CSS 👇 */
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
@@ -55,7 +54,6 @@
             .sidebar.active { transform: translateX(0); }
             .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
             
-            /* Tighter Spacing */
             .main-content { padding: 15px; width: 100%; box-sizing: border-box; }
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
             .mobile-overlay.active { display: block; }
@@ -65,15 +63,13 @@
             .sim-header { padding: 15px; margin-bottom: 15px; }
             .grade-pill { font-size: 18px; padding: 6px 15px; }
             
-            /* Fix inputs getting cut off */
             .group-card { margin-bottom: 15px; }
             .group-header { padding: 10px 15px; font-size: 13px; }
             .sim-group-body { padding: 10px; }
             .assign-row { gap: 5px; }
             .assign-input { padding: 6px; font-size: 12px; }
-            .score-col, .total-col { width: 55px; } /* Fixed width on mobile prevents flex-squishing */
+            .score-col, .total-col { width: 55px; }
             
-            /* Modal Adjustments */
             .modal-content { width: 90%; padding: 20px; }
         }
     </style>
@@ -138,10 +134,39 @@
     </main>
 
     <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
-        <div class="modal-content">
-            <div class="modal-header"><h2 class="modal-title">Account Settings</h2><span style="cursor:pointer" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
-            <div style="margin-bottom:15px;"><label>Canvas API Token</label><input type="text" id="canvasApiToken" readonly style="width:100%; padding:10px; border-radius:8px; background:var(--bg-color); color:var(--text-main); margin-top:5px;"><button class="btn-save" onclick="resetCanvasToken()">Regenerate Token</button></div>
-            <button class="btn-save" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca" onclick="confirm('Are you sure?')">Delete Account</button>
+        <div class="modal-content" style="width: 500px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header"><h2 class="modal-title">Account Settings</h2><span class="close-btn" style="cursor:pointer;" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
+            
+            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Profile Details</h4>
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Username</label>
+                <input type="text" id="settings-username" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Email</label>
+                <input type="email" id="settings-email" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                
+                <button class="btn-save" onclick="saveProfileChanges()">Save Profile Changes</button>
+            </div>
+
+            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Change Password</h4>
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Current Password</label>
+                <input type="password" id="settings-old-password" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">New Password</label>
+                <input type="password" id="settings-new-password" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                
+                <button class="btn-save" onclick="updatePassword()">Reset Password</button>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Canvas Sync</h4>
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Canvas API Token</label>
+                <input type="text" id="canvasApiToken" readonly style="width:100%; padding:10px; border-radius:8px; background:var(--bg-color); color:var(--text-main); box-sizing: border-box; margin-bottom:10px;">
+                <button class="btn-save" style="margin-top:0;" onclick="resetCanvasToken()">Regenerate Token</button>
+            </div>
+            
+            <button class="btn-save" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca; margin-top: 10px;" onclick="confirm('Are you sure you want to delete your account? This cannot be undone.')">Delete Account</button>
         </div>
     </div>
 
@@ -158,9 +183,56 @@
             document.getElementById('themeBtnMobile').querySelector('i').className = `fa-solid ${icon}`;
         }
         if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
-        function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); }
+        
+        // UPDATE: Added loading User Profile functions
+        function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); loadUserProfile(); }
         async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
         async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
+
+        async function loadUserProfile() {
+            try {
+                const res = await fetch('/api/user/profile');
+                if(res.ok) {
+                    const data = await res.json();
+                    document.getElementById('settings-username').value = data.username || '';
+                    document.getElementById('settings-email').value = data.email || '';
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function saveProfileChanges() {
+            const username = document.getElementById('settings-username').value;
+            const email = document.getElementById('settings-email').value;
+            try {
+                const res = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email })
+                });
+                const data = await res.json();
+                if (res.ok) alert(data.message || 'Profile updated successfully!');
+                else alert(data.error || 'Failed to update profile.');
+            } catch (err) { console.error(err); alert('Error updating profile'); }
+        }
+
+        async function updatePassword() {
+            const oldPassword = document.getElementById('settings-old-password').value;
+            const newPassword = document.getElementById('settings-new-password').value;
+            if (!oldPassword || !newPassword) return alert('Please fill in both password fields.');
+            try {
+                const res = await fetch('/api/user/password', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ oldPassword, newPassword })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message || 'Password updated successfully!');
+                    document.getElementById('settings-old-password').value = '';
+                    document.getElementById('settings-new-password').value = '';
+                } else alert(data.error || 'Failed to update password.');
+            } catch (err) { console.error(err); alert('Error updating password'); }
+        }
 
         let cs = null;
         async function loadSimData() {
@@ -179,7 +251,6 @@
                 comp.assignments.forEach(a => {
                     const row = document.createElement('div'); row.className = 'assign-row';
                     if(a.score === 0) row.classList.add('not-graded');
-                    // 👇 Fixed flex-shrinking issue by assigning direct CSS classes instead of flex-ratios
                     row.innerHTML = `<input type="text" class="assign-input name-col" value="${a.name}">
                                      <input type="number" class="assign-input score-col" value="${a.score}" oninput="this.closest('.assign-row').setAttribute('data-mod','true'); this.closest('.assign-row').classList.remove('not-graded'); calc();">
                                      <input type="number" class="assign-input total-col" value="${a.totalPoints}" readonly>`;
