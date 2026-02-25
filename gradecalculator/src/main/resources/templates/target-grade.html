@@ -248,4 +248,150 @@
             const input = document.getElementById(inputId);
             if (input.type === 'password') {
                 input.type = 'text';
-                icon.
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        async function loadUserProfile() {
+            try {
+                const res = await fetch('/api/user/profile');
+                if(res.ok) {
+                    const data = await res.json();
+                    document.getElementById('settings-username').value = data.username || '';
+                    document.getElementById('settings-email').value = data.email || '';
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function saveProfileChanges() {
+            const username = document.getElementById('settings-username').value;
+            const email = document.getElementById('settings-email').value;
+            try {
+                const res = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email })
+                });
+                const data = await res.json();
+                if (res.ok) alert(data.message || 'Profile updated successfully!');
+                else alert(data.error || 'Failed to update profile.');
+            } catch (err) { console.error(err); alert('Error updating profile'); }
+        }
+
+        async function updatePassword() {
+            const oldPassword = document.getElementById('settings-old-password').value;
+            const newPassword = document.getElementById('settings-new-password').value;
+            if (!oldPassword || !newPassword) return alert('Please fill in both password fields.');
+            try {
+                const res = await fetch('/api/user/password', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ oldPassword, newPassword })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message || 'Password updated successfully!');
+                    document.getElementById('settings-old-password').value = '';
+                    document.getElementById('settings-new-password').value = '';
+                } else alert(data.error || 'Failed to update password.');
+            } catch (err) { console.error(err); alert('Error updating password'); }
+        }
+
+        let sd = null;
+
+        async function loadTargetData() {
+            document.getElementById('resCard').style.display = 'none';
+            const res = await fetch(`/api/simulator/load?subjectId=${document.getElementById('subSelect').value}`);
+            sd = await res.json();
+            
+            document.getElementById('quickStats').style.display = 'flex';
+            document.getElementById('calcCard').style.display = 'block';
+            document.getElementById('cGrade').innerText = (sd.currentScore || 0) + '%';
+            
+            const iw = sd.components.some(c => c.weight > 0);
+            document.getElementById('mDisplay').innerText = iw ? "Weighted" : "Total Points";
+            
+            const cs = document.getElementById('compSelect');
+            cs.innerHTML = "";
+            if (iw) {
+                cs.disabled = false;
+                sd.components.forEach(c => cs.innerHTML += `<option value="${c.id}">${c.name}</option>`);
+            } else {
+                cs.innerHTML = `<option value="all">Total Points (Not Weighted)</option>`;
+                cs.disabled = true;
+            }
+
+            const goalSelect = document.getElementById('goalGrade');
+            goalSelect.innerHTML = `<option value="">Custom %</option>`;
+            
+            const scale = sd.gradingScale ? sd.gradingScale.split(',') : [93, 88, 83, 78, 70, 60];
+            const letters = ['A', 'AB', 'B', 'BC', 'C', 'D'];
+            
+            letters.forEach((letter, index) => {
+                if(scale[index]) {
+                    goalSelect.innerHTML += `<option value="${scale[index]}">${letter} (${scale[index]}%)</option>`;
+                }
+            });
+            updateGoalInput();
+        }
+
+        function updateGoalInput() {
+            const val = document.getElementById('goalGrade').value;
+            if(val) document.getElementById('goal').value = val;
+        }
+
+        function calculate() {
+            const g = parseFloat(document.getElementById('goal').value);
+            const p = parseFloat(document.getElementById('pts').value);
+            
+            if(isNaN(g)) return alert("Please enter a valid Goal %");
+            if(isNaN(p) || p <= 0) return alert("Please enter valid Points Possible");
+
+            const iw = sd.components.some(c => c.weight > 0);
+            let targetPointsNeeded = 0;
+
+            if (iw) {
+                const compId = document.getElementById('compSelect').value;
+                const comp = sd.components.find(c => c.id == compId);
+                
+                if(!comp) return;
+                if(comp.weight <= 0) return alert("You cannot use a target calculation on a category worth 0% of your grade.");
+
+                let currentTotalWeightedPercent = 0;
+                sd.components.forEach(c => {
+                    if(c.totalPoints > 0) {
+                        currentTotalWeightedPercent += (c.score / c.totalPoints) * c.weight;
+                    }
+                });
+
+                let compCurrentContribution = (comp.totalPoints > 0) ? (comp.score / comp.totalPoints) * comp.weight : 0;
+                let otherComponentsPercent = currentTotalWeightedPercent - compCurrentContribution;
+
+                targetPointsNeeded = (((g - otherComponentsPercent) / comp.weight) * (comp.totalPoints + p)) - comp.score;
+
+            } else {
+                let totalEarned = 0;
+                let totalPossible = 0;
+                
+                sd.components.forEach(c => { 
+                    totalEarned += (c.score || 0); 
+                    totalPossible += (c.totalPoints || 0); 
+                });
+
+                targetPointsNeeded = ((g / 100) * (totalPossible + p)) - totalEarned;
+            }
+
+            const percentageNeeded = (targetPointsNeeded / p) * 100;
+            
+            document.getElementById('resCard').style.display = 'block';
+            document.getElementById('finalResult').innerText = percentageNeeded.toFixed(1) + "%";
+            document.getElementById('desc').innerText = `Target points: ${targetPointsNeeded.toFixed(1)} / ${p}`;
+        }
+    </script>
+</body>
+</html>
