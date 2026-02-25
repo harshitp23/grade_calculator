@@ -109,4 +109,201 @@
                     <div style="color:var(--text-muted);" th:text="${subject.subjectCode}">CODE</div>
                 </div>
                 <div style="text-align:right;">
-                    <div
+                    <div style="font-size:12px; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Score</div>
+                    <div class="header-score-text" th:text="${subject.currentScore != null ? subject.currentScore + '%' : '-'}">0%</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>Component</th><th>Weight</th><th>Score</th><th>%</th></tr></thead>
+                        <tbody>
+                            <th:block th:each="comp : ${subject.components}">
+                                <tr class="comp-row" onclick="toggle(this)">
+                                    <td><i class="fa-solid fa-chevron-right expand-icon"></i> <span th:text="${comp.name}"></span></td>
+                                    <td th:text="${comp.weight + '%'}"></td>
+                                    <td th:text="${comp.score + ' / ' + comp.totalPoints}"></td>
+                                    <td th:text="${comp.totalPoints != null and comp.totalPoints > 0 and comp.score != null ? #numbers.formatDecimal((comp.score * 100.0 / comp.totalPoints), 1, 1) + '%' : '-'}"></td>
+                                </tr>
+                                <tr class="nested-row">
+                                    <td colspan="4" style="padding:0;">
+                                        <table style="width:100%; border-top:1px solid var(--border-color); min-width:unset;">
+                                            <tr th:each="a : ${comp.assignments}">
+                                                <td style="padding-left:50px; color:var(--text-muted); font-size:13px;" th:text="${a.name}"></td>
+                                                <td colspan="2" th:text="${a.score + ' / ' + a.totalPoints}" style="font-size:13px; color:var(--text-muted);"></td>
+                                                <td></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </th:block>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <button class="icon-btn" style="margin-top:20px; padding:10px 20px; border:1px solid var(--border-color); border-radius:8px;" onclick="window.location.href='/'">Back to Dashboard</button>
+        </div>
+    </main>
+
+    <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
+        <div class="modal-content" style="width: 500px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header"><h2 class="modal-title" style="margin:0;">Account Settings</h2><span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
+            
+            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Profile Details</h4>
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Username</label>
+                <input type="text" id="settings-username" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Email</label>
+                <input type="email" id="settings-email" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                
+                <button class="btn-save" onclick="saveProfileChanges()">Save Profile Changes</button>
+            </div>
+
+            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Change Password</h4>
+                
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Current Password</label>
+                <div style="position: relative; margin-bottom: 10px;">
+                    <input type="password" id="settings-old-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
+                    <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-old-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                </div>
+                
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">New Password</label>
+                <div style="position: relative; margin-bottom: 10px;">
+                    <input type="password" id="settings-new-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
+                    <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-new-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                </div>
+                
+                <button class="btn-save" onclick="updatePassword()">Reset Password</button>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Canvas Sync</h4>
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Canvas API Token</label>
+                <input type="text" id="canvasApiToken" readonly style="width:100%; padding:10px; border-radius:8px; background:var(--bg-color); color:var(--text-main); box-sizing: border-box; margin-bottom:10px;">
+                <button class="btn-save" style="margin-top:0;" onclick="resetCanvasToken()">Regenerate Token</button>
+            </div>
+            
+            <button class="btn-save" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca; margin-top: 10px;" onclick="confirm('Are you sure you want to delete your account? This cannot be undone.')">Delete Account</button>
+        </div>
+    </div>
+
+    <div id="helpModal" class="modal" onclick="if(event.target.id==='helpModal') this.style.display='none'">
+        <div class="modal-content" style="width: 550px; max-height: 85vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2 class="modal-title" style="margin: 0;">Getting Started 🚀</h2>
+                <span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('helpModal').style.display='none'">&times;</span>
+            </div>
+            
+            <div style="line-height: 1.6; color: var(--text-main);">
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">1. Syncing with Canvas</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    The easiest way to get your grades into GradeCalc is using our Chrome Extension. 
+                    <br><br>
+                    • Install <b>GradeCalc Sync Pro</b> from the Chrome Web Store.<br>
+                    • Pin the extension to your browser toolbar.<br>
+                    • Log into your university's Canvas page.<br>
+                    • Click the extension icon and hit <b>Update Synced Grades</b> to instantly import your active classes and assignments!
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">2. Building Your Transcript</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    Your dashboard tracks your Cumulative GPA. To make it accurate, click <b>Add Old Subjects</b> in the sidebar to manually enter classes you completed in previous semesters. Your GPA trend graph will automatically update!
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">3. Grade Simulator</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    Wondering how a bad test score will affect your final grade? Go to the <b>Grade Simulator</b>, select an active class, and type in hypothetical scores to see exactly how your final percentage changes.
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">4. Target Calculator</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    If you want to keep an 'A', the <b>Target Calculator</b> tells you exactly what score you need on your next exam to hit your goal. It handles all the complex weighted math for you.
+                </p>
+            </div>
+
+            <button class="btn-save" onclick="document.getElementById('helpModal').style.display='none'">Got it!</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
+        function toggleTheme() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); updateIcons(false); }
+            else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); updateIcons(true); }
+        }
+        function updateIcons(isDark) {
+            const icon = isDark ? 'fa-sun' : 'fa-moon';
+            document.getElementById('themeBtn').querySelector('i').className = `fa-solid ${icon}`;
+            document.getElementById('themeBtnMobile').querySelector('i').className = `fa-solid ${icon}`;
+        }
+        if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
+        
+        function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); loadUserProfile(); }
+        async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
+        async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
+
+        function toggleSettingsPwd(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        async function loadUserProfile() {
+            try {
+                const res = await fetch('/api/user/profile');
+                if(res.ok) {
+                    const data = await res.json();
+                    document.getElementById('settings-username').value = data.username || '';
+                    document.getElementById('settings-email').value = data.email || '';
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function saveProfileChanges() {
+            const username = document.getElementById('settings-username').value;
+            const email = document.getElementById('settings-email').value;
+            try {
+                const res = await fetch('/api/user/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email })
+                });
+                const data = await res.json();
+                if (res.ok) alert(data.message || 'Profile updated successfully!');
+                else alert(data.error || 'Failed to update profile.');
+            } catch (err) { console.error(err); alert('Error updating profile'); }
+        }
+
+        async function updatePassword() {
+            const oldPassword = document.getElementById('settings-old-password').value;
+            const newPassword = document.getElementById('settings-new-password').value;
+            if (!oldPassword || !newPassword) return alert('Please fill in both password fields.');
+            try {
+                const res = await fetch('/api/user/password', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ oldPassword, newPassword })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message || 'Password updated successfully!');
+                    document.getElementById('settings-old-password').value = '';
+                    document.getElementById('settings-new-password').value = '';
+                } else alert(data.error || 'Failed to update password.');
+            } catch (err) { console.error(err); alert('Error updating password'); }
+        }
+
+        function toggle(row) { row.classList.toggle('active-row'); const next = row.nextElementSibling; next.style.display = next.style.display === 'table-row' ? 'none' : 'table-row'; }
+    </script>
+</body>
+</html>
