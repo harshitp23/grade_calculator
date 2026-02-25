@@ -100,6 +100,8 @@
             <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects</a>
             <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
             <a th:href="@{/target-grade}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+            
+            <a href="#" onclick="document.getElementById('helpModal').style.display='flex'" class="nav-link"><i class="fa-solid fa-book-open"></i> Getting Started</a>
         </nav>
         <div class="spacer"></div>
         <div class="user-profile">
@@ -127,7 +129,7 @@
 
     <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
         <div class="modal-content" style="width: 500px; max-height: 90vh; overflow-y: auto;">
-            <div class="modal-header"><h2 class="modal-title">Account Settings</h2><span class="close-btn" style="cursor:pointer;" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
+            <div class="modal-header"><h2 class="modal-title" style="margin:0;">Account Settings</h2><span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
             
             <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Profile Details</h4>
@@ -164,7 +166,7 @@
 
     <div id="subjectSettingsModal" class="modal" onclick="if(event.target.id==='subjectSettingsModal') this.style.display='none'">
         <div class="modal-content">
-            <div class="modal-header"><h2 class="modal-title">Subject Settings</h2><span class="close-btn" style="cursor:pointer;" onclick="document.getElementById('subjectSettingsModal').style.display='none'">&times;</span></div>
+            <div class="modal-header"><h2 class="modal-title" style="margin:0;">Subject Settings</h2><span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('subjectSettingsModal').style.display='none'">&times;</span></div>
             <form id="settingsForm">
                 <input type="hidden" name="id" id="set_id">
                 <div class="form-group"><label>Name</label><input type="text" name="name" id="set_name" class="modal-input" required></div>
@@ -204,7 +206,7 @@
 
     <div id="curveModal" class="modal" onclick="if(event.target.id==='curveModal') this.style.display='none'">
         <div class="modal-content">
-            <div class="modal-header"><h2 class="modal-title">Curve Adjustment</h2><span class="close-btn" style="cursor:pointer;" onclick="document.getElementById('curveModal').style.display='none'">&times;</span></div>
+            <div class="modal-header"><h2 class="modal-title" style="margin:0;">Curve Adjustment</h2><span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('curveModal').style.display='none'">&times;</span></div>
             <form id="curveForm">
                 <input type="hidden" name="id" id="curve_id">
                 <div class="form-group">
@@ -224,6 +226,44 @@
         </div>
     </div>
 
+    <div id="helpModal" class="modal" onclick="if(event.target.id==='helpModal') this.style.display='none'">
+        <div class="modal-content" style="width: 550px; max-height: 85vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2 class="modal-title" style="margin: 0;">Getting Started 🚀</h2>
+                <span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('helpModal').style.display='none'">&times;</span>
+            </div>
+            
+            <div style="line-height: 1.6; color: var(--text-main);">
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">1. Syncing with Canvas</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    The easiest way to get your grades into GradeCalc is using our Chrome Extension. 
+                    <br><br>
+                    • Install <b>GradeCalc Sync Pro</b> from the Chrome Web Store.<br>
+                    • Pin the extension to your browser toolbar.<br>
+                    • Log into your university's Canvas page.<br>
+                    • Click the extension icon and hit <b>Update Synced Grades</b> to instantly import your active classes and assignments!
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">2. Building Your Transcript</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    Your dashboard tracks your Cumulative GPA. To make it accurate, click <b>Add Old Subjects</b> in the sidebar to manually enter classes you completed in previous semesters. Your GPA trend graph will automatically update!
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">3. Grade Simulator</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    Wondering how a bad test score will affect your final grade? Go to the <b>Grade Simulator</b>, select an active class, and type in hypothetical scores to see exactly how your final percentage changes.
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">4. Target Calculator</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    If you want to keep an 'A', the <b>Target Calculator</b> tells you exactly what score you need on your next exam to hit your goal. It handles all the complex weighted math for you.
+                </p>
+            </div>
+
+            <button class="btn-save" onclick="document.getElementById('helpModal').style.display='none'">Got it!</button>
+        </div>
+    </div>
+
     <script>
         function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
         function toggleTheme() {
@@ -239,7 +279,7 @@
         }
         if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
         
-        // UPDATE: Added loading User Profile functions
+        // Loading User Profile & Token
         function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); loadUserProfile(); }
         async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
         async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
@@ -344,7 +384,7 @@
                     termsMap[termKey].subjects.push(sub);
                 });
 
-                // 1. Sort Chronologically (Oldest to Newest) for correct Cumulative Math
+                // Sort Chronologically
                 const seasonOrder = { 'Spring': 1, 'Summer': 2, 'Fall': 3 };
                 const sortedTerms = Object.values(termsMap).sort((a, b) => {
                     if (a.year !== b.year) return a.year - b.year;
@@ -360,26 +400,22 @@
                 const chartLabels = [];
                 const termGpas = [];
                 const cumGpas = [];
-                const uiBlocks = []; // To hold the HTML so we can reverse it
+                const uiBlocks = []; 
 
                 sortedTerms.forEach(term => {
-                    // Calculate GPAs (Going forwards in time)
                     const termGpa = term.totalCred > 0 ? (term.totalPts / term.totalCred) : 0.0;
                     cumulativePts += term.totalPts;
                     cumulativeCred += term.totalCred;
                     const cumGpa = cumulativeCred > 0 ? (cumulativePts / cumulativeCred) : 0.0;
                     
-                    // Chart Data
                     chartLabels.push(`${term.season} ${term.year}`);
                     termGpas.push(termGpa.toFixed(2));
                     cumGpas.push(cumGpa.toFixed(2));
 
-                    // UI Setup
                     let termHtml = `<div class="section-title"><i class="fa-solid fa-calendar" style="color:var(--primary);"></i> ${term.season} ${term.year} &nbsp;<span style="font-size:12px; font-weight:500; color:var(--text-muted); padding:2px 8px; background:rgba(0,0,0,0.05); border-radius:10px;">Term GPA: ${termGpa.toFixed(2)}</span></div>
                                     <div class="card"><table><thead><tr><th>Subject</th><th>Code</th><th>Credits</th><th>Status</th><th>Score</th><th>Grade</th><th style="text-align: right;">Actions</th></tr></thead><tbody>`;
                     
                     term.subjects.forEach(sub => {
-                        // Arrow Logic (Up/Down)
                         let arrowHtml = '';
                         if (sub.previousScore && sub.currentScore && sub.status === 'In Progress') {
                             if (sub.currentScore > sub.previousScore) {
@@ -389,7 +425,6 @@
                             }
                         }
 
-                        // Display Score Formatting
                         let scoreDisplay = '-';
                         if (sub.status === 'In Progress') {
                             scoreDisplay = (sub.currentScore || 0) + '%' + arrowHtml;
@@ -414,14 +449,11 @@
                     uiBlocks.push(termHtml);
                 });
 
-                // 2. Render Tables in Reverse (Newest Semesters at the Top)
                 container.innerHTML = uiBlocks.reverse().join('');
 
-                // Update Overall GPA Badge
                 const finalGpa = cumulativeCred > 0 ? (cumulativePts / cumulativeCred).toFixed(2) : "0.00";
                 document.getElementById('overall-gpa').innerText = finalGpa;
 
-                // Build Chart (using the chronological arrays)
                 if (chartLabels.length > 0) {
                     document.getElementById('chartWrapper').style.display = 'block';
                     window.chartData = { labels: chartLabels, termData: termGpas, cumData: cumGpas };
@@ -432,10 +464,9 @@
             });
         }
 
-        // --- Chart Generation ---
         function buildChart(data) {
             const ctx = document.getElementById('gpaChart').getContext('2d');
-            if (gpaChartInstance) gpaChartInstance.destroy(); // Clear old chart
+            if (gpaChartInstance) gpaChartInstance.destroy(); 
             
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             const gridColor = isDark ? '#334155' : '#e5e7eb';
@@ -465,7 +496,6 @@
             });
         }
 
-        // --- Modals Logic ---
         function openSettingsModal(id) {
             const sub = allSubjectsData.find(s => s.subjectId === id);
             if (!sub) return;
