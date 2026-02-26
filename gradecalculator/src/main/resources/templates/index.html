@@ -31,6 +31,9 @@
 
         .sync-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 10px 16px; background-color: var(--primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; transition: 0.2s; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
         .sync-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4); color: white; }
+        
+        .canvas-btn { background-color: #c5050c; box-shadow: 0 4px 10px rgba(197, 5, 12, 0.2); }
+        .canvas-btn:hover { background-color: #9a0409; box-shadow: 0 6px 15px rgba(197, 5, 12, 0.3); }
 
         .chart-container { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 30px; height: 300px; display: none; }
 
@@ -100,7 +103,7 @@
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
             <a th:href="@{/}" class="nav-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects</a>
+            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects(Not in Canvas)</a>
             <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
             <a th:href="@{/target-grade}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
             <a href="#" onclick="document.getElementById('helpModal').style.display='flex'" class="nav-link"><i class="fa-solid fa-book-open"></i> Getting Started</a>
@@ -120,12 +123,14 @@
         <div class="header-row">
             <div>
                 <h1 style="margin:0; font-size:28px;">Academic Overview</h1>
-                <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank" class="sync-btn">
-                    <i class="fa-brands fa-chrome"></i> Sync your grades!
-                </a>
-                <a href="https://canvas.wisc.edu" target="_blank" class="sync-btn canvas-btn">
-                    <i class="fa-solid fa-school"></i> Open Canvas
-                </a>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank" class="sync-btn">
+                        <i class="fa-brands fa-chrome"></i> Sync your grades!
+                    </a>
+                    <a href="https://canvas.wisc.edu" target="_blank" class="sync-btn canvas-btn">
+                        <i class="fa-solid fa-school"></i> Open Canvas
+                    </a>
+                </div>
             </div>
             <div class="gpa-card"><div class="gpa-label">Cumulative GPA</div><div class="gpa-value" id="overall-gpa">0.00</div></div>
         </div>
@@ -264,7 +269,7 @@
 
                 <h4 style="margin: 0 0 10px 0; color: var(--primary);">2. Building Your Transcript</h4>
                 <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
-                    Your dashboard tracks your Cumulative GPA. To make it accurate, click <b>Add Old Subjects</b> in the sidebar to manually enter classes you completed in previous semesters. Your GPA trend graph will automatically update!
+                    Your dashboard tracks your Cumulative GPA. To make it accurate, click <b>Add Subjects</b> in the sidebar to manually enter classes you completed in previous semesters which is not in canvas. Your GPA trend graph will automatically update!
                 </p>
 
                 <h4 style="margin: 0 0 10px 0; color: var(--primary);">3. Grade Simulator</h4>
@@ -307,7 +312,6 @@
         }
         if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
         
-        // Settings Script Logic
         function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); loadUserProfile(); }
         async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
         async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
@@ -397,6 +401,32 @@
             fetch('/api/subjects/list').then(r => r.json()).then(data => {
                 allSubjectsData = data;
                 
+                // --- NEW EMPTY STATE LOGIC ---
+                const container = document.getElementById('dynamic-terms-container');
+                if (data.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px; background: var(--card-bg); border-radius: 12px; border: 1px dashed var(--border-color); margin-top: 20px;">
+                            <i class="fa-solid fa-folder-open" style="font-size: 48px; color: var(--text-muted); margin-bottom: 20px;"></i>
+                            <h2 style="margin: 0 0 10px 0; color: var(--text-main);">Your transcript is empty!</h2>
+                            <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 20px auto; line-height: 1.6;">
+                                Let's get some grades on the board. Use the Chrome Extension to automatically sync your classes from Canvas, or add your old subjects manually.
+                            </p>
+                            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                                <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank" class="sync-btn" style="margin: 0;">
+                                    <i class="fa-brands fa-chrome"></i> Get the Extension
+                                </a>
+                                <button class="action-btn manage-btn" style="margin: 0; padding: 10px 20px; font-weight: 600;" onclick="window.location.href='/add-subject'">
+                                    <i class="fa-solid fa-plus"></i> Add Manually
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('overall-gpa').innerText = "0.00";
+                    document.getElementById('chartWrapper').style.display = 'none';
+                    return; // Stop the rest of the function from running
+                }
+                // --- END EMPTY STATE LOGIC ---
+                
                 const termsMap = {};
                 
                 data.forEach(sub => {
@@ -429,7 +459,6 @@
                     return seasonOrder[a.season] - seasonOrder[b.season];
                 });
 
-                const container = document.getElementById('dynamic-terms-container');
                 container.innerHTML = "";
                 
                 let cumulativePts = 0;
@@ -458,7 +487,7 @@
                         if (sub.previousScore && sub.currentScore && sub.status === 'In Progress') {
                             if (sub.currentScore > sub.previousScore) {
                                 arrowHtml = ` <i class="fa-solid fa-arrow-up" style="color:#10b981; font-size:12px; margin-left:5px;" title="Went up from ${sub.previousScore}%"></i>`;
-                            } else if (sub.currentScore < sub.currentScore) {
+                            } else if (sub.currentScore < sub.previousScore) {
                                 arrowHtml = ` <i class="fa-solid fa-arrow-down" style="color:#ef4444; font-size:12px; margin-left:5px;" title="Went down from ${sub.previousScore}%"></i>`;
                             }
                         }
@@ -572,5 +601,3 @@
     </script>
 </body>
 </html>
-
-
