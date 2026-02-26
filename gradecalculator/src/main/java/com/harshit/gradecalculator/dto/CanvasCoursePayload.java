@@ -12,7 +12,6 @@ public class CanvasCoursePayload {
     private String letterGrade;
     private String termSeason;
     private Integer termYear;
-    private Integer credits;
     
     // 👇 CHANGED: Now holds Components (Groups) instead of flat assignments
     private List<CanvasComponentPayload> components;
@@ -25,9 +24,6 @@ public class CanvasCoursePayload {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
-
-    public Integer getCredits() { return credits; }
-    public void setCredits(Integer credits) { this.credits = credits; }
 
     public Double getCurrentScore() { return currentScore; }
     public void setCurrentScore(Double currentScore) { this.currentScore = currentScore; }
