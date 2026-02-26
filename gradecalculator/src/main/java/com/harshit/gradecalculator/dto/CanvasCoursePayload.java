@@ -9,6 +9,11 @@ public class CanvasCoursePayload {
     private String status;
     private Integer credits;
     private Double currentScore;
+    private String status;
+    private String letterGrade;
+    private String termSeason;
+    private Integer termYear;
+    private Integer credits;
     
     // 👇 CHANGED: Now holds Components (Groups) instead of flat assignments
     private List<CanvasComponentPayload> components;
@@ -30,4 +35,19 @@ public class CanvasCoursePayload {
 
     public List<CanvasComponentPayload> getComponents() { return components; }
     public void setComponents(List<CanvasComponentPayload> components) { this.components = components; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getLetterGrade() { return letterGrade; }
+    public void setLetterGrade(String letterGrade) { this.letterGrade = letterGrade; }
+
+    public String getTermSeason() { return termSeason; }
+    public void setTermSeason(String termSeason) { this.termSeason = termSeason; }
+
+    public Integer getTermYear() { return termYear; }
+    public void setTermYear(Integer termYear) { this.termYear = termYear; }
+
+    public Integer getCredits() { return credits; }
+    public void setCredits(Integer credits) { this.credits = credits; }
 }
