@@ -103,7 +103,7 @@
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
             <a th:href="@{/}" class="nav-link active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects(Not in Canvas)</a>
+            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects</a>
             <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
             <a th:href="@{/target-grade}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
             <a href="#" onclick="document.getElementById('helpModal').style.display='flex'" class="nav-link"><i class="fa-solid fa-book-open"></i> Getting Started</a>
@@ -201,6 +201,7 @@
                             <option value="Fall">Fall</option>
                             <option value="Spring">Spring</option>
                             <option value="Summer">Summer</option>
+                            <option value="Winter">Winter</option>
                         </select>
                     </div>
                     <div class="form-group" style="flex:1;">
@@ -269,7 +270,7 @@
 
                 <h4 style="margin: 0 0 10px 0; color: var(--primary);">2. Building Your Transcript</h4>
                 <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
-                    Your dashboard tracks your Cumulative GPA. To make it accurate, click <b>Add Subjects</b> in the sidebar to manually enter classes you completed in previous semesters which is not in canvas. Your GPA trend graph will automatically update!
+                    Your dashboard tracks your Cumulative GPA. To make it accurate, click <b>Add Old Subjects</b> in the sidebar to manually enter classes you completed in previous semesters. Your GPA trend graph will automatically update!
                 </p>
 
                 <h4 style="margin: 0 0 10px 0; color: var(--primary);">3. Grade Simulator</h4>
@@ -303,7 +304,7 @@
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
             if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); updateIcons(false); }
             else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); updateIcons(true); }
-            if (gpaChartInstance) buildChart(window.chartData); // Rebuild chart to match theme colors
+            if (gpaChartInstance) buildChart(window.chartData); 
         }
         function updateIcons(isDark) {
             const iconClass = isDark ? 'fa-sun' : 'fa-moon';
@@ -401,7 +402,6 @@
             fetch('/api/subjects/list').then(r => r.json()).then(data => {
                 allSubjectsData = data;
                 
-                // --- NEW EMPTY STATE LOGIC ---
                 const container = document.getElementById('dynamic-terms-container');
                 if (data.length === 0) {
                     container.innerHTML = `
@@ -423,9 +423,8 @@
                     `;
                     document.getElementById('overall-gpa').innerText = "0.00";
                     document.getElementById('chartWrapper').style.display = 'none';
-                    return; // Stop the rest of the function from running
+                    return; 
                 }
-                // --- END EMPTY STATE LOGIC ---
                 
                 const termsMap = {};
                 
@@ -453,10 +452,11 @@
                     termsMap[termKey].subjects.push(sub);
                 });
 
-                const seasonOrder = { 'Spring': 1, 'Summer': 2, 'Fall': 3 };
+                // FIX 3: Sort exactly from Newest -> Oldest (e.g. 2026 -> 2025, Fall -> Spring)
+                const seasonOrder = { 'Winter': 1, 'Spring': 2, 'Summer': 3, 'Fall': 4 };
                 const sortedTerms = Object.values(termsMap).sort((a, b) => {
-                    if (a.year !== b.year) return a.year - b.year;
-                    return seasonOrder[a.season] - seasonOrder[b.season];
+                    if (a.year !== b.year) return b.year - a.year; // Descending year
+                    return seasonOrder[b.season] - seasonOrder[a.season]; // Descending season
                 });
 
                 container.innerHTML = "";
@@ -467,9 +467,10 @@
                 const chartLabels = [];
                 const termGpas = [];
                 const cumGpas = [];
-                const uiBlocks = []; 
 
-                sortedTerms.forEach(term => {
+                // 1. Calculate the math and build chart data from Oldest -> Newest
+                const chartTerms = [...sortedTerms].reverse();
+                chartTerms.forEach(term => {
                     const termGpa = term.totalCred > 0 ? (term.totalPts / term.totalCred) : 0.0;
                     cumulativePts += term.totalPts;
                     cumulativeCred += term.totalCred;
@@ -478,7 +479,13 @@
                     chartLabels.push(`${term.season} ${term.year}`);
                     termGpas.push(termGpa.toFixed(2));
                     cumGpas.push(cumGpa.toFixed(2));
+                });
 
+                // 2. Build the visual UI blocks exactly as they are sorted (Newest -> Oldest)
+                const uiBlocks = []; 
+                sortedTerms.forEach(term => {
+                    const termGpa = term.totalCred > 0 ? (term.totalPts / term.totalCred) : 0.0;
+                    
                     let termHtml = `<div class="section-title"><i class="fa-solid fa-calendar" style="color:var(--primary);"></i> ${term.season} ${term.year} &nbsp;<span style="font-size:12px; font-weight:500; color:var(--text-muted); padding:2px 8px; background:rgba(0,0,0,0.05); border-radius:10px;">Term GPA: ${termGpa.toFixed(2)}</span></div>
                                     <div class="card"><table><thead><tr><th>Subject</th><th>Code</th><th>Credits</th><th>Status</th><th>Score</th><th>Grade</th><th style="text-align: right;">Actions</th></tr></thead><tbody>`;
                     
@@ -516,7 +523,7 @@
                     uiBlocks.push(termHtml);
                 });
 
-                container.innerHTML = uiBlocks.reverse().join('');
+                container.innerHTML = uiBlocks.join('');
 
                 const finalGpa = cumulativeCred > 0 ? (cumulativePts / cumulativeCred).toFixed(2) : "0.00";
                 document.getElementById('overall-gpa').innerText = finalGpa;
