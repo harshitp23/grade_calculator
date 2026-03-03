@@ -8,92 +8,65 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-color: #f3f4f6; 
-            --card-bg: #ffffff;
-            --text-main: #111827;
-            --text-muted: #6b7280;
-            --border-color: #d1d5db;
-        }
+        /* Shared Core Theme Configuration */
+        :root { --primary: #4f46e5; --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
+        [data-theme="light"] { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --border-color: #e5e7eb; }
+        [data-theme="badger"] { --primary: #c5050c; --bg-color: #000000; --card-bg: #171717; --text-main: #ffffff; --text-muted: #a1a1aa; --border-color: #333333; }
+        [data-theme="ocean"] { --primary: #0284c7; --bg-color: #082f49; --card-bg: #0c4a6e; --text-main: #f0f9ff; --text-muted: #7dd3fc; --border-color: #0369a1; }
 
-        /* 👇 DARK MODE OVERRIDE 👇 */
-        [data-theme="dark"] {
-            --bg-color: #111827;
-            --card-bg: #1f2937; /* Adjusted card background for dark mode */
-            --text-main: #f9fafb;
-            --text-muted: #9ca3af;
-            --border-color: #374151;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: var(--text-main); transition: background-color 0.3s ease; }
 
-        /* FIX: Ensure inputs are perfectly visible in dark mode */
-        [data-theme="dark"] input {
-            background-color: #374151 !important;
-            color: #ffffff !important;
-            border-color: #4b5563 !important;
-        }
+        /* Fix for input text visibility in all dark variants */
+        input { background-color: var(--bg-color) !important; color: var(--text-main) !important; border-color: var(--border-color) !important; }
         
-        [data-theme="dark"] .modal .card {
-            background-color: #1f2937;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color); 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            color: var(--text-main);
-            transition: background-color 0.3s ease; 
-        }
-
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; }
-        
-        .card { background: var(--card-bg); padding: 40px; border-radius: 16px; width: 360px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); text-align: center; border: 1px solid var(--border-color); }
-        h1 { color: var(--text-main); margin-bottom: 8px; font-weight: 700; font-size: 24px; }
+        .card { background: var(--card-bg); padding: 40px; border-radius: 16px; width: 360px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; border: 1px solid var(--border-color); }
+        h1 { margin-bottom: 8px; font-weight: 700; font-size: 24px; }
         .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
-        input { width: 100%; padding: 12px 16px; margin: 8px 0; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        input { width: 100%; padding: 12px 16px; margin: 8px 0; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+        input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         .password-container { position: relative; width: 100%; margin-bottom: 5px; }
         .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); font-size: 14px; }
-        .remember-me-container { text-align: left; margin: 10px 0 20px 0; font-size: 14px; color: var(--text-main); display: flex; align-items: center; }
+        .remember-me-container { text-align: left; margin: 10px 0 20px 0; font-size: 14px; display: flex; align-items: center; }
         .remember-me-container input { width: 16px; height: 16px; margin-right: 8px; accent-color: var(--primary); cursor: pointer; }
         button { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: background-color 0.2s; }
-        button:hover { background-color: var(--primary-hover); }
-        .error { background-color: #fef2f2; color: #991b1b; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 20px; display: none; border: 1px solid #fecaca; }
+        button:hover { opacity: 0.9; }
+        .error { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 20px; display: none; border: 1px solid #ef4444; }
         a { display: block; margin-top: 20px; color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
         a:hover { color: var(--primary); }
 
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            color: var(--text-main);
-            font-size: 18px;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
+        /* Dropdown UI */
+        .theme-dropdown-container { position: absolute; top: 20px; right: 20px; }
+        .theme-toggle { background: var(--card-bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--text-main); font-size: 18px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .theme-toggle:hover { transform: scale(1.1); }
+        .theme-dropdown { position: absolute; right: 0; top: 100%; margin-top: 10px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 160px; z-index: 1000; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; text-align: left; }
+        .theme-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .theme-dropdown-header { font-size: 11px; font-weight: 800; color: var(--text-muted); padding: 12px 16px 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .theme-option { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-main); transition: 0.2s; }
+        .theme-option:hover { background: rgba(128,128,128,0.1); color: var(--primary); }
+        .theme-option:last-child { border-radius: 0 0 8px 8px; margin-bottom: 5px; }
+        .active-indicator { display: none; color: var(--primary); font-size: 14px; }
     </style>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
 </head>
 <body>
 
-    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
-        <i class="fa-solid fa-moon"></i>
-    </button>
+    <div class="theme-dropdown-container">
+        <button class="theme-toggle" onclick="toggleThemeMenu()">
+            <i class="fa-solid fa-palette"></i>
+        </button>
+        <div class="theme-dropdown" id="themeDropdown">
+            <div class="theme-dropdown-header">Theme</div>
+            <div class="theme-option" onclick="setTheme('dark')">🌙 Dark <i class="fa-solid fa-circle-dot active-indicator check-dark"></i></div>
+            <div class="theme-option" onclick="setTheme('light')">☀️ Light <i class="fa-solid fa-circle-dot active-indicator check-light"></i></div>
+            <div class="theme-option" onclick="setTheme('badger')">🦡 Badger <i class="fa-solid fa-circle-dot active-indicator check-badger"></i></div>
+            <div class="theme-option" onclick="setTheme('ocean')">🌊 Ocean <i class="fa-solid fa-circle-dot active-indicator check-ocean"></i></div>
+        </div>
+    </div>
 
 <div class="card">
     <h1>Welcome Back 👋</h1>
@@ -109,8 +82,6 @@
             <i class="fa fa-eye toggle-password" id="togglePassword"></i>
         </div>
 
-        <a href="#" onclick="document.getElementById('forgotPasswordModal').style.display='flex'" style="display: block; text-align: right; font-size: 0.85em; margin-top: 5px; color: var(--primary); text-decoration: none; margin-bottom: 10px;">Forgot Password?</a>
-
         <div class="remember-me-container">
             <input type="checkbox" id="remember-me" name="remember-me">
             <label for="remember-me">Remember me</label>
@@ -122,38 +93,34 @@
     <a href="register.html">Don't have an account? <span style="color:var(--primary); font-weight:600;">Sign Up</span></a>
 </div>
 
-<div id="forgotPasswordModal" class="modal" onclick="if(event.target.id==='forgotPasswordModal') this.style.display='none'">
-    <div class="card" style="padding: 30px; width: 350px;" onclick="event.stopPropagation()">
-        <h2 style="margin-top:0; font-size: 20px;">Reset Password</h2>
-        <p class="subtitle" style="margin-bottom: 20px;">Enter the email you signed up with to receive a reset code.</p>
-        <input type="email" id="forgot-email" placeholder="Email Address" required style="margin-bottom:15px;">
-        <button onclick="sendResetEmail()" id="sendOtpBtn" style="margin-bottom:10px;">Send Reset Code</button>
-        <button onclick="document.getElementById('forgotPasswordModal').style.display='none'" style="background:transparent; color:var(--text-main); border:1px solid var(--border-color);">Cancel</button>
-    </div>
-</div>
-
 <script>
-    const themeBtn = document.getElementById('themeBtn');
-    const icon = themeBtn.querySelector('i');
-
-    if (localStorage.getItem('theme') === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        icon.classList.replace('fa-moon', 'fa-sun');
+    // Theme logic
+    function toggleThemeMenu() { document.getElementById('themeDropdown').classList.toggle('show'); }
+    
+    function setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        updateActiveThemeIndicator(theme);
+        document.getElementById('themeDropdown').classList.remove('show');
     }
 
-    function toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        if (currentTheme === 'dark') {
-            document.documentElement.removeAttribute('data-theme');
-            localStorage.setItem('theme', 'light');
-            icon.classList.replace('fa-sun', 'fa-moon');
-        } else {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            localStorage.setItem('theme', 'dark');
-            icon.classList.replace('fa-moon', 'fa-sun');
+    function updateActiveThemeIndicator(theme) {
+        document.querySelectorAll('.active-indicator').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.check-' + theme).forEach(el => el.style.display = 'inline-block');
+    }
+
+    window.addEventListener('click', function(e) {
+        if (!e.target.closest('.theme-dropdown-container')) {
+            const dropdown = document.getElementById('themeDropdown');
+            if(dropdown) dropdown.classList.remove('show');
         }
-    }
+    });
 
+    document.addEventListener('DOMContentLoaded', () => {
+        updateActiveThemeIndicator(localStorage.getItem('theme') || 'dark');
+    });
+
+    // Password Toggle
     const togglePassword = document.querySelector('#togglePassword');
     const password = document.querySelector('#password');
     togglePassword.addEventListener('click', function (e) {
@@ -165,37 +132,6 @@
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('error')) {
         document.getElementById('error-msg').style.display = 'block';
-    }
-
-    // UPDATE: Connect to backend OTP route
-    async function sendResetEmail() {
-        const email = document.getElementById('forgot-email').value;
-        if (!email) return alert('Please enter your email.');
-        
-        const btn = document.getElementById('sendOtpBtn');
-        btn.innerText = "Sending...";
-        btn.disabled = true;
-
-        try {
-            const res = await fetch('/api/auth/forgot-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                alert('OTP Reset Code sent! Please check your email.');
-                // Next step: hide this modal, show an input to verify the OTP code.
-            } else {
-                alert(data.error || 'Failed to send email.');
-            }
-        } catch (err) {
-            console.error(err);
-            alert('Error connecting to server.');
-        } finally {
-            btn.innerText = "Send Reset Code";
-            btn.disabled = false;
-        }
     }
 </script>
 
