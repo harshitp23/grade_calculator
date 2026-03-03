@@ -8,31 +8,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-color: #f3f4f6; 
-            --card-bg: #ffffff;
-            --text-main: #111827;
-            --text-muted: #6b7280;
-            --border-color: #d1d5db;
-        }
+        /* Shared Core Theme Configuration */
+        :root { --primary: #4f46e5; --primary-hover: #4338ca; --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
+        [data-theme="light"] { --primary: #4f46e5; --primary-hover: #4338ca; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --border-color: #d1d5db; }
+        [data-theme="badger"] { --primary: #c5050c; --primary-hover: #9a0409; --bg-color: #000000; --card-bg: #171717; --text-main: #ffffff; --text-muted: #a1a1aa; --border-color: #333333; }
+        [data-theme="ocean"] { --primary: #0284c7; --primary-hover: #0369a1; --bg-color: #082f49; --card-bg: #0c4a6e; --text-main: #f0f9ff; --text-muted: #7dd3fc; --border-color: #0369a1; }
 
-        /* 👇 EXACT DARK MODE OVERRIDE FROM LOGIN 👇 */
-        [data-theme="dark"] {
-            --bg-color: #111827;
-            --card-bg: #1f2937; 
-            --text-main: #f9fafb;
-            --text-muted: #9ca3af;
-            --border-color: #374151;
-        }
-
-        /* Fix for input text visibility in dark mode */
-        [data-theme="dark"] input {
-            background-color: #374151 !important;
-            color: #ffffff !important;
-            border-color: #4b5563 !important;
-        }
+        /* Fix for input text visibility in all variants */
+        input { background-color: var(--bg-color) !important; color: var(--text-main) !important; border-color: var(--border-color) !important; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -46,14 +29,11 @@
             transition: background-color 0.3s ease; 
         }
 
-        .card { background: var(--card-bg); padding: 40px; border-radius: 16px; width: 360px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); text-align: center; border: 1px solid var(--border-color); }
+        .card { background: var(--card-bg); padding: 40px; border-radius: 16px; width: 360px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3), 0 8px 10px -6px rgba(0,0,0,0.1); text-align: center; border: 1px solid var(--border-color); }
         h1 { color: var(--text-main); margin-bottom: 8px; font-weight: 700; font-size: 24px; }
         .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
-        
-        /* Updated Input CSS to match Login */
-        input { width: 100%; padding: 12px 16px; margin: 8px 0; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-        
+        input { width: 100%; padding: 12px 16px; margin: 8px 0; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+        input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         .password-container { position: relative; width: 100%; margin-bottom: 20px; }
         .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); font-size: 14px; }
         button { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: background-color 0.2s; margin-top: 10px; }
@@ -61,33 +41,38 @@
         a { display: block; margin-top: 20px; color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
         a:hover { color: var(--primary); }
 
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            color: var(--text-main);
-            font-size: 18px;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
+        /* Dropdown UI */
+        .theme-dropdown-container { position: absolute; top: 20px; right: 20px; }
+        .theme-toggle { background: var(--card-bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--text-main); font-size: 18px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .theme-toggle:hover { transform: scale(1.1); }
+        .theme-dropdown { position: absolute; right: 0; top: 100%; margin-top: 10px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 160px; z-index: 1000; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; text-align: left; }
+        .theme-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .theme-dropdown-header { font-size: 11px; font-weight: 800; color: var(--text-muted); padding: 12px 16px 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .theme-option { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-main); transition: 0.2s; }
+        .theme-option:hover { background: rgba(128,128,128,0.1); color: var(--primary); }
+        .theme-option:last-child { border-radius: 0 0 8px 8px; margin-bottom: 5px; }
+        .active-indicator { display: none; color: var(--primary); font-size: 14px; }
     </style>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
 </head>
 <body>
 
-    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
-        <i class="fa-solid fa-moon"></i>
-    </button>
+    <div class="theme-dropdown-container">
+        <button class="theme-toggle" onclick="toggleThemeMenu()">
+            <i class="fa-solid fa-palette"></i>
+        </button>
+        <div class="theme-dropdown" id="themeDropdown">
+            <div class="theme-dropdown-header">Theme</div>
+            <div class="theme-option" onclick="setTheme('dark')">🌙 Dark <i class="fa-solid fa-circle-dot active-indicator check-dark"></i></div>
+            <div class="theme-option" onclick="setTheme('light')">☀️ Light <i class="fa-solid fa-circle-dot active-indicator check-light"></i></div>
+            <div class="theme-option" onclick="setTheme('badger')">🦡 Badger <i class="fa-solid fa-circle-dot active-indicator check-badger"></i></div>
+            <div class="theme-option" onclick="setTheme('ocean')">🌊 Ocean <i class="fa-solid fa-circle-dot active-indicator check-ocean"></i></div>
+        </div>
+    </div>
 
 <div class="card">
     <h1>Create Account 🚀</h1>
@@ -110,26 +95,30 @@
 
 <script>
     // 1. Theme Logic
-    const themeBtn = document.getElementById('themeBtn');
-    const icon = themeBtn.querySelector('i');
-
-    if (localStorage.getItem('theme') === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        icon.classList.replace('fa-moon', 'fa-sun');
+    function toggleThemeMenu() { document.getElementById('themeDropdown').classList.toggle('show'); }
+    
+    function setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        updateActiveThemeIndicator(theme);
+        document.getElementById('themeDropdown').classList.remove('show');
     }
 
-    function toggleTheme() {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        if (currentTheme === 'dark') {
-            document.documentElement.removeAttribute('data-theme');
-            localStorage.setItem('theme', 'light');
-            icon.classList.replace('fa-sun', 'fa-moon');
-        } else {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            localStorage.setItem('theme', 'dark');
-            icon.classList.replace('fa-moon', 'fa-sun');
+    function updateActiveThemeIndicator(theme) {
+        document.querySelectorAll('.active-indicator').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.check-' + theme).forEach(el => el.style.display = 'inline-block');
+    }
+
+    window.addEventListener('click', function(e) {
+        if (!e.target.closest('.theme-dropdown-container')) {
+            const dropdown = document.getElementById('themeDropdown');
+            if(dropdown) dropdown.classList.remove('show');
         }
-    }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateActiveThemeIndicator(localStorage.getItem('theme') || 'dark');
+    });
 
     // 2. Password Logic
     const togglePassword = document.querySelector('#togglePassword');
