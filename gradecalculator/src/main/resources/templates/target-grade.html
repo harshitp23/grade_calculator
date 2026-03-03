@@ -7,13 +7,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --sidebar-width: 260px; --border-color: #e5e7eb; --danger: #ef4444; }
-        [data-theme="dark"] { --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
+        :root { --primary: #4f46e5; --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; --danger: #ef4444; --sidebar-width: 260px; }
+        [data-theme="light"] { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --border-color: #e5e7eb; }
+        [data-theme="badger"] { --primary: #c5050c; --bg-color: #000000; --card-bg: #171717; --text-main: #ffffff; --text-muted: #a1a1aa; --border-color: #333333; }
+        [data-theme="ocean"] { --primary: #0284c7; --bg-color: #082f49; --card-bg: #0c4a6e; --text-main: #f0f9ff; --text-muted: #7dd3fc; --border-color: #0369a1; }
+
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
+        
+        .theme-dropdown-container { position: relative; display: inline-block; margin: 0; }
+        .theme-dropdown { position: absolute; right: 0; top: 100%; margin-top: 10px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 160px; z-index: 1000; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; }
+        .theme-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .theme-dropdown-header { font-size: 11px; font-weight: 800; color: var(--text-muted); padding: 12px 16px 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .theme-option { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-main); transition: 0.2s; }
+        .theme-option:hover { background: rgba(128,128,128,0.1); color: var(--primary); }
+        .theme-option:last-child { border-radius: 0 0 8px 8px; margin-bottom: 5px; }
+        .active-indicator { display: none; color: var(--primary); font-size: 14px; }
+
         .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; transition: transform 0.3s ease; }
         .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
-        .nav-link:hover, .nav-link.active { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .nav-link:hover, .nav-link.active { background-color: rgba(128,128,128, 0.1); color: var(--primary); }
         .spacer { flex: 1; }
         .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
         .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
@@ -24,8 +37,9 @@
         label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; }
         select, input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); color: var(--text-main); margin-bottom: 20px; box-sizing: border-box; }
         .btn-calc { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-calc:hover { opacity: 0.9; }
         .result-huge { font-size: 48px; font-weight: 900; color: var(--primary); margin: 10px 0; text-align: center; }
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
         .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
@@ -62,6 +76,11 @@
             .modal-content { width: 90%; padding: 20px; }
         }
     </style>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
 </head>
 <body>
     <div class="mobile-nav">
@@ -69,8 +88,19 @@
             <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
             <div class="logo" style="margin:0; font-size:18px;"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         </div>
-        <div style="display:flex; gap:15px;">
-            <button class="icon-btn" id="themeBtnMobile" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+        <div style="display:flex; gap:15px; align-items:center;">
+            
+            <div class="theme-dropdown-container">
+                <button class="icon-btn" onclick="toggleThemeMenu('mobile')"><i class="fa-solid fa-palette"></i></button>
+                <div class="theme-dropdown" id="themeDropdown-mobile" style="top: 100%; right: 0;">
+                    <div class="theme-dropdown-header">Theme</div>
+                    <div class="theme-option" onclick="setTheme('dark')">🌙 Dark <i class="fa-solid fa-circle-dot active-indicator check-dark"></i></div>
+                    <div class="theme-option" onclick="setTheme('light')">☀️ Light <i class="fa-solid fa-circle-dot active-indicator check-light"></i></div>
+                    <div class="theme-option" onclick="setTheme('badger')">🦡 Badger <i class="fa-solid fa-circle-dot active-indicator check-badger"></i></div>
+                    <div class="theme-option" onclick="setTheme('ocean')">🌊 Ocean <i class="fa-solid fa-circle-dot active-indicator check-ocean"></i></div>
+                </div>
+            </div>
+
             <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
             <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
         </div>
@@ -89,8 +119,19 @@
         <div class="spacer"></div>
         <div class="user-profile">
             <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">Signed in as <strong sec:authentication="name" style="color:var(--text-main)">Student</strong></span>
-            <div style="display:flex; gap:10px;">
-                <button class="icon-btn" id="themeBtn" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+            <div style="display:flex; gap:10px; align-items:center;">
+                
+                <div class="theme-dropdown-container">
+                    <button class="icon-btn" onclick="toggleThemeMenu('desktop')"><i class="fa-solid fa-palette"></i></button>
+                    <div class="theme-dropdown" id="themeDropdown-desktop" style="bottom: 100%; top: auto; right: 0; margin-bottom: 10px; margin-top: 0;">
+                        <div class="theme-dropdown-header">Theme</div>
+                        <div class="theme-option" onclick="setTheme('dark')">🌙 Dark <i class="fa-solid fa-circle-dot active-indicator check-dark"></i></div>
+                        <div class="theme-option" onclick="setTheme('light')">☀️ Light <i class="fa-solid fa-circle-dot active-indicator check-light"></i></div>
+                        <div class="theme-option" onclick="setTheme('badger')">🦡 Badger <i class="fa-solid fa-circle-dot active-indicator check-badger"></i></div>
+                        <div class="theme-option" onclick="setTheme('ocean')">🌊 Ocean <i class="fa-solid fa-circle-dot active-indicator check-ocean"></i></div>
+                    </div>
+                </div>
+
                 <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
                 <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
             </div>
@@ -184,7 +225,7 @@
                 <button class="btn-save" style="margin-top:0;" onclick="resetCanvasToken()">Regenerate Token</button>
             </div>
             
-            <button class="btn-save" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca; margin-top: 10px;" onclick="confirm('Are you sure you want to delete your account? This cannot be undone.')">Delete Account</button>
+            <button class="btn-save" style="background:var(--danger); color:white; border:none; margin-top: 10px;" onclick="confirm('Are you sure you want to delete your account? This cannot be undone.')">Delete Account</button>
         </div>
     </div>
 
@@ -238,18 +279,33 @@
     </div>
 
     <script>
+        function toggleThemeMenu(menuId) {
+            document.getElementById('themeDropdown-' + menuId).classList.toggle('show');
+        }
+
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            updateActiveThemeIndicator(theme);
+            document.querySelectorAll('.theme-dropdown').forEach(d => d.classList.remove('show'));
+        }
+
+        function updateActiveThemeIndicator(theme) {
+            document.querySelectorAll('.active-indicator').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.check-' + theme).forEach(el => el.style.display = 'inline-block');
+        }
+
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.theme-dropdown-container')) {
+                document.querySelectorAll('.theme-dropdown').forEach(d => d.classList.remove('show'));
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateActiveThemeIndicator(localStorage.getItem('theme') || 'dark');
+        });
+
         function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
-        function toggleTheme() {
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            if (isDark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); updateIcons(false); }
-            else { document.documentElement.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); updateIcons(true); }
-        }
-        function updateIcons(isDark) {
-            const icon = isDark ? 'fa-sun' : 'fa-moon';
-            document.getElementById('themeBtn').querySelector('i').className = `fa-solid ${icon}`;
-            document.getElementById('themeBtnMobile').querySelector('i').className = `fa-solid ${icon}`;
-        }
-        if (localStorage.getItem('theme') === 'dark') { document.documentElement.setAttribute('data-theme', 'dark'); updateIcons(true); }
         
         function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); loadUserProfile(); }
         async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
