@@ -6,7 +6,6 @@
     <title>Subject Details - GradeCalc</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
     <style>
         /* Shared Core Theme Configuration */
         :root { --primary: #4f46e5; --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; --danger: #ef4444; --sidebar-width: 260px; }
@@ -29,12 +28,11 @@
         .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; transition: transform 0.3s ease; }
         .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
-        .nav-link:hover, .nav-link.active { background-color: rgba(128,128,128, 0.1); color: var(--primary); }
+        .nav-link:hover { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
         .spacer { flex: 1; }
         .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
         .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
         .icon-btn:hover { color: var(--primary); }
-        
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
         .container { max-width: 1000px; margin: 0 auto; }
         .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border-color); overflow: hidden; margin-top: 20px; }
@@ -44,17 +42,13 @@
         th { text-align: left; padding: 16px 24px; font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.02); }
         td { padding: 16px 24px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
         .comp-row { cursor: pointer; font-weight: 600; }
-        .comp-row:hover { background: rgba(128,128,128,0.02); }
         .expand-icon { transition: 0.2s; margin-right: 10px; }
         .active-row .expand-icon { transform: rotate(90deg); }
         .nested-row { display: none; background: rgba(0,0,0,0.02); }
         
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
-        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .modal-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); box-sizing: border-box; margin-bottom: 15px; }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
+        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; }
         .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
-        .btn-save:hover { opacity: 0.9; }
 
         /* Header Alignment Class */
         .page-header { display:flex; justify-content:space-between; align-items:center; }
@@ -67,12 +61,12 @@
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
-            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.3); z-index: 999; }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.1); z-index: 999; }
             .sidebar.active { transform: translateX(0); }
             .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
             
             .main-content { padding: 15px; width: 100%; box-sizing: border-box; }
-            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 900; }
+            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
             .mobile-overlay.active { display: block; }
 
             .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
@@ -94,7 +88,6 @@
     </script>
 </head>
 <body>
-
     <div class="mobile-nav">
         <div style="display:flex; align-items:center; gap:15px;">
             <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
@@ -117,15 +110,13 @@
             <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
         </div>
     </div>
-
     <div class="mobile-overlay" onclick="toggleSidebar()"></div>
-
     <aside class="sidebar">
         <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
             <a th:href="@{/}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects</a>
+            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects(Not in Canvas)</a>
             <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
             <a th:href="@{/target-grade}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
             <a href="#" onclick="document.getElementById('helpModal').style.display='flex'" class="nav-link"><i class="fa-solid fa-book-open"></i> Getting Started</a>
@@ -164,7 +155,6 @@
                     <div class="header-score-text" th:text="${subject.currentScore != null ? subject.currentScore + '%' : '-'}">0%</div>
                 </div>
             </div>
-            
             <div class="card">
                 <div class="table-wrapper">
                     <table>
@@ -193,8 +183,7 @@
                     </table>
                 </div>
             </div>
-            
-            <button class="icon-btn" style="margin-top:20px; padding:10px 20px; border:1px solid var(--border-color); border-radius:8px; font-family: 'Inter', sans-serif;" onclick="window.location.href='/'">Back to Dashboard</button>
+            <button class="icon-btn" style="margin-top:20px; padding:10px 20px; border:1px solid var(--border-color); border-radius:8px;" onclick="window.location.href='/'">Back to Dashboard</button>
         </div>
     </main>
 
@@ -205,10 +194,10 @@
             <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Profile Details</h4>
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Username</label>
-                <input type="text" id="settings-username" class="modal-input">
+                <input type="text" id="settings-username" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
                 
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Email</label>
-                <input type="email" id="settings-email" class="modal-input">
+                <input type="email" id="settings-email" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
                 
                 <button class="btn-save" onclick="saveProfileChanges()">Save Profile Changes</button>
             </div>
@@ -218,13 +207,13 @@
                 
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Current Password</label>
                 <div style="position: relative; margin-bottom: 10px;">
-                    <input type="password" id="settings-old-password" class="modal-input" style="padding-right: 40px;">
+                    <input type="password" id="settings-old-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
                     <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-old-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
                 </div>
                 
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">New Password</label>
                 <div style="position: relative; margin-bottom: 10px;">
-                    <input type="password" id="settings-new-password" class="modal-input" style="padding-right: 40px;">
+                    <input type="password" id="settings-new-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
                     <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-new-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
                 </div>
                 
@@ -234,16 +223,62 @@
             <div style="margin-bottom:15px;">
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Canvas Sync</h4>
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Canvas API Token</label>
-                <input type="text" id="canvasApiToken" class="modal-input" readonly>
+                <input type="text" id="canvasApiToken" readonly style="width:100%; padding:10px; border-radius:8px; background:var(--bg-color); color:var(--text-main); box-sizing: border-box; margin-bottom:10px;">
                 <button class="btn-save" style="margin-top:0;" onclick="resetCanvasToken()">Regenerate Token</button>
             </div>
             
-            <button class="btn-save" style="background:var(--danger); color:white; border:none; margin-top: 10px;" onclick="confirm('Are you sure you want to delete your account? This cannot be undone.')">Delete Account</button>
+            <button class="btn-save" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca; margin-top: 10px;" onclick="confirm('Are you sure you want to delete your account? This cannot be undone.')">Delete Account</button>
         </div>
     </div>
 
     <div id="helpModal" class="modal" onclick="if(event.target.id==='helpModal') this.style.display='none'">
+        <div class="modal-content" style="width: 550px; max-height: 85vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2 class="modal-title" style="margin: 0;">Getting Started 🚀</h2>
+                <span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('helpModal').style.display='none'">&times;</span>
+            </div>
+            
+            <div style="line-height: 1.6; color: var(--text-main);">
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">1. Syncing with Canvas</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    The easiest way to get your grades into GradeCalc is using our Chrome Extension. 
+                    <br><br>
+                    • Install <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank" style="color: var(--primary); font-weight: 600; text-decoration: none;">GradeCalc Sync Pro</a> from the Chrome Web Store.<br>
+                    • Pin the extension to your browser toolbar.<br>
+                    • Log into your university's Canvas page.<br>
+                    • If it is a new semester, use the extension to quickly set up and add your new subjects.<br>
+                    • Click the extension icon and hit <b>Update Synced Grades</b> to instantly import your active classes and assignments!
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">2. Building Your Transcript</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    Your dashboard tracks your Cumulative GPA. To make it accurate, click <b>Add Old Subjects</b> in the sidebar to manually enter classes you completed in previous semesters which is not in canvas. Your GPA trend graph will automatically update!
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">3. Grade Simulator</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    Wondering how a bad test score will affect your final grade? Go to the <b>Grade Simulator</b>, select an active class, and type in hypothetical scores to see exactly how your final percentage changes.
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">4. Target Calculator</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    If you want to keep an 'A', the <b>Target Calculator</b> tells you exactly what score you need on your next exam/assignment to hit your goal. It handles all the complex weighted math for you.
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">5. Custom Grading Scales</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    Not every class uses the standard 90-80-70 scale. Click the <b>gear icon</b> next to any subject on your dashboard to set a custom grading scale (e.g., 93 for an 'A') so your GPA is calculated perfectly.
+                </p>
+
+                <h4 style="margin: 0 0 10px 0; color: var(--primary);">6. Curve Adjustments</h4>
+                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
+                    Did your professor curve the final class grade? For any completed class, click the <b>trending up arrow</b> icon to apply a manual curve adjustment, overriding the calculated percentage with your official final letter grade.
+                </p>
+            </div>
+
+            <button class="btn-save" onclick="document.getElementById('helpModal').style.display='none'">Got it!</button>
         </div>
+    </div>
 
     <script>
         // --- NEW THEME SCRIPT LOGIC ---
