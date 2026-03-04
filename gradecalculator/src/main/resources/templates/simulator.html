@@ -363,6 +363,20 @@
             } catch (err) { console.error(err); alert('Error updating password'); }
         }
 
+        async function deleteAccount() {
+            if (!confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
+            try {
+                const res = await fetch('/api/account/delete', { method: 'DELETE' });
+                if (res.ok) {
+                    window.location.href = '/login.html?deleted';
+                } else {
+                    alert('Failed to delete account.');
+                }
+            } catch (e) {
+                alert('Error deleting account.');
+            }
+        }
+
         let cs = null;
         async function loadSimData() {
             const res = await fetch(`/api/simulator/load?subjectId=${document.getElementById('subSelect').value}`);
