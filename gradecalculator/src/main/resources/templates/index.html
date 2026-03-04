@@ -69,6 +69,19 @@
         .kpi-value { font-size: 26px; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 4px; }
         .kpi-sub { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+        /* ===== GPA GOAL TRACKER ===== */
+        .goal-tracker { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 24px; margin-bottom: 28px; display: none; }
+        .goal-tracker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .goal-tracker-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .goal-tracker-title i { color: var(--primary); }
+        .goal-edit-btn { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 10px; cursor: pointer; color: var(--text-muted); font-size: 12px; font-weight: 600; transition: 0.2s; font-family: 'Inter', sans-serif; }
+        .goal-edit-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .goal-bar-container { background: rgba(128,128,128,0.1); border-radius: 10px; height: 28px; overflow: hidden; position: relative; }
+        .goal-bar-fill { height: 100%; border-radius: 10px; transition: width 0.6s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; min-width: 40px; }
+        .goal-bar-label { font-size: 11px; font-weight: 700; color: white; }
+        .goal-stats { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; color: var(--text-muted); }
+        .goal-stats span { font-weight: 600; color: var(--text-main); }
+
         /* ===== CHARTS ROW ===== */
         .charts-row { display: grid; grid-template-columns: 1fr 340px; gap: 20px; margin-bottom: 28px; }
         .chart-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 24px; }
@@ -76,6 +89,26 @@
         .chart-box-title span { font-size: 11px; font-weight: 500; color: var(--text-muted); background: rgba(128,128,128,0.1); padding: 2px 8px; border-radius: 10px; }
         .bar-chart-container { height: 240px; }
         .pie-chart-container { height: 240px; display: flex; align-items: center; justify-content: center; }
+
+        /* ===== SEMESTER COMPARISON ===== */
+        .sem-compare { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 24px; margin-bottom: 28px; display: none; }
+        .sem-compare-title { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .sem-compare-title i { color: var(--primary); }
+        .sem-compare-title span { font-size: 11px; font-weight: 500; color: var(--text-muted); background: rgba(128,128,128,0.1); padding: 2px 8px; border-radius: 10px; }
+        .sem-compare-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+        .sem-card { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; transition: transform 0.2s; position: relative; overflow: hidden; }
+        .sem-card:hover { transform: translateY(-2px); }
+        .sem-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 10px 10px 0 0; }
+        .sem-card.sem-best::before { background: linear-gradient(90deg, #10b981, #34d399); }
+        .sem-card.sem-worst::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+        .sem-card.sem-normal::before { background: var(--primary); }
+        .sem-card-term { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+        .sem-card-gpa { font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 6px; }
+        [data-theme="badger"] .sem-card-gpa { color: #ff4b52; }
+        [data-theme="ocean"] .sem-card-gpa { color: #38bdf8; }
+        .sem-card-meta { font-size: 11px; color: var(--text-muted); line-height: 1.6; }
+        .sem-card-bar { display: flex; gap: 2px; margin-top: 10px; height: 6px; border-radius: 3px; overflow: hidden; }
+        .sem-card-bar div { height: 100%; border-radius: 3px; }
 
         /* ===== SEMESTER SECTIONS ===== */
         .section-header { display: flex; align-items: center; justify-content: space-between; margin: 28px 0 12px 0; }
@@ -138,6 +171,7 @@
         @media (max-width: 1200px) {
             .kpi-grid { grid-template-columns: repeat(3, 1fr); }
             .charts-row { grid-template-columns: 1fr; }
+            .sem-compare-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
         }
         @media (max-width: 900px) {
             .kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -157,6 +191,7 @@
             .header-row { flex-direction: column; gap: 15px; }
             table { min-width: 550px; }
             .term-body { overflow-x: auto; }
+            .sem-compare-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 
@@ -271,6 +306,24 @@
             </div>
         </div>
 
+        <!-- GPA Goal Tracker -->
+        <div class="goal-tracker" id="goalTracker">
+            <div class="goal-tracker-header">
+                <div class="goal-tracker-title"><i class="fa-solid fa-bullseye"></i> GPA Goal Tracker</div>
+                <button class="goal-edit-btn" onclick="openGoalModal()"><i class="fa-solid fa-pen" style="margin-right:4px;"></i> Edit Goal</button>
+            </div>
+            <div class="goal-bar-container">
+                <div class="goal-bar-fill" id="goalBarFill" style="width:0%; background: linear-gradient(90deg, var(--primary), #818cf8);">
+                    <span class="goal-bar-label" id="goalBarLabel">0%</span>
+                </div>
+            </div>
+            <div class="goal-stats">
+                <div>Current: <span id="goalCurrentGpa">0.00</span></div>
+                <div>Target: <span id="goalTargetGpa">0.00</span></div>
+                <div>Remaining: <span id="goalRemaining">—</span></div>
+            </div>
+        </div>
+
         <!-- Charts Row -->
         <div class="charts-row" id="charts-row" style="display:none;">
             <div class="chart-box">
@@ -293,6 +346,16 @@
                     <canvas id="pieChart"></canvas>
                 </div>
             </div>
+        </div>
+
+        <!-- Semester Comparison -->
+        <div class="sem-compare" id="semCompare">
+            <div class="sem-compare-title">
+                <i class="fa-solid fa-code-compare"></i>
+                Semester Comparison
+                <span>Side by Side</span>
+            </div>
+            <div class="sem-compare-grid" id="semCompareGrid"></div>
         </div>
 
         <!-- Semesters -->
@@ -332,6 +395,19 @@
                 <button class="btn-save" style="margin-top:0;" onclick="resetCanvasToken()">Regenerate Token</button>
             </div>
             <button class="btn-save" style="background:var(--danger); color:white; border:none; margin-top:10px;" onclick="deleteAccount()">Delete Account</button>
+        </div>
+    </div>
+
+    <!-- GPA Goal Modal -->
+    <div id="goalModal" class="modal" onclick="if(event.target.id==='goalModal') this.style.display='none'">
+        <div class="modal-content" style="width:380px;">
+            <div class="modal-header"><h2 style="margin:0;">Set GPA Goal</h2><span style="cursor:pointer; font-size:24px; color:var(--text-muted);" onclick="document.getElementById('goalModal').style.display='none'">&times;</span></div>
+            <div class="form-group">
+                <label>Target GPA (0.00 - 4.00)</label>
+                <input type="number" id="goalInput" class="modal-input" min="0" max="4" step="0.01" placeholder="e.g. 3.50">
+            </div>
+            <button class="btn-primary" onclick="saveGpaGoal()">Save Goal</button>
+            <button class="btn-save" style="background:transparent; color:var(--text-muted); border:1px solid var(--border-color); margin-top:8px;" onclick="clearGpaGoal()">Remove Goal</button>
         </div>
     </div>
 
@@ -453,16 +529,7 @@
         }
         async function deleteAccount() {
             if (!confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
-            try {
-                const res = await fetch('/api/account/delete', { method: 'DELETE' });
-                if (res.ok) {
-                    window.location.href = '/login.html?deleted';
-                } else {
-                    alert('Failed to delete account.');
-                }    
-            } catch (e) {
-                alert('Error deleting account.');
-            }
+            try { const res = await fetch('/api/account/delete', { method: 'DELETE' }); if (res.ok) { window.location.href = '/login.html?deleted'; } else { alert('Failed to delete account.'); } } catch (e) { alert('Error deleting account.'); }
         }
 
         // ===== GRADE LOGIC =====
@@ -497,8 +564,131 @@
             return map[theme] || map.dark;
         }
 
+        // ===== GPA GOAL =====
+        let userGpaGoal = 0;
+
+        async function loadGpaGoal() {
+            try {
+                const res = await fetch('/api/user/gpa-goal');
+                if (res.ok) {
+                    const d = await res.json();
+                    userGpaGoal = parseFloat(d.targetGpa) || 0;
+                }
+            } catch(e) {}
+        }
+
+        function openGoalModal() {
+            document.getElementById('goalInput').value = userGpaGoal > 0 ? userGpaGoal : '';
+            document.getElementById('goalModal').style.display = 'flex';
+        }
+
+        async function saveGpaGoal() {
+            const val = parseFloat(document.getElementById('goalInput').value);
+            if (isNaN(val) || val < 0 || val > 4) return alert('Enter a GPA between 0.00 and 4.00');
+            try {
+                const res = await fetch('/api/user/gpa-goal', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({targetGpa: val})});
+                if (res.ok) {
+                    userGpaGoal = val;
+                    document.getElementById('goalModal').style.display = 'none';
+                    updateGoalTracker(parseFloat(document.getElementById('kpi-cum-gpa').textContent) || 0);
+                }
+            } catch(e) { alert('Error saving goal.'); }
+        }
+
+        async function clearGpaGoal() {
+            try {
+                await fetch('/api/user/gpa-goal', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({targetGpa: 0})});
+                userGpaGoal = 0;
+                document.getElementById('goalModal').style.display = 'none';
+                document.getElementById('goalTracker').style.display = 'none';
+            } catch(e) {}
+        }
+
+        function updateGoalTracker(currentGpa) {
+            if (userGpaGoal <= 0) {
+                document.getElementById('goalTracker').style.display = 'none';
+                return;
+            }
+            document.getElementById('goalTracker').style.display = 'block';
+            const pct = Math.min((currentGpa / userGpaGoal) * 100, 100);
+            const bar = document.getElementById('goalBarFill');
+            bar.style.width = pct + '%';
+
+            if (pct >= 100) {
+                bar.style.background = 'linear-gradient(90deg, #10b981, #34d399)';
+            } else if (pct >= 75) {
+                bar.style.background = 'linear-gradient(90deg, var(--primary), #818cf8)';
+            } else if (pct >= 50) {
+                bar.style.background = 'linear-gradient(90deg, #f59e0b, #fbbf24)';
+            } else {
+                bar.style.background = 'linear-gradient(90deg, #ef4444, #f87171)';
+            }
+
+            document.getElementById('goalBarLabel').textContent = pct.toFixed(0) + '%';
+            document.getElementById('goalCurrentGpa').textContent = currentGpa.toFixed(2);
+            document.getElementById('goalTargetGpa').textContent = userGpaGoal.toFixed(2);
+
+            const diff = userGpaGoal - currentGpa;
+            if (diff <= 0) {
+                document.getElementById('goalRemaining').textContent = 'Goal reached!';
+                document.getElementById('goalRemaining').style.color = '#10b981';
+            } else {
+                document.getElementById('goalRemaining').textContent = '+' + diff.toFixed(2) + ' needed';
+                document.getElementById('goalRemaining').style.color = '';
+            }
+        }
+
+        // ===== SEMESTER COMPARISON =====
+        function buildSemesterComparison(sortedTerms) {
+            if (sortedTerms.length < 2) {
+                document.getElementById('semCompare').style.display = 'none';
+                return;
+            }
+            document.getElementById('semCompare').style.display = 'block';
+            const grid = document.getElementById('semCompareGrid');
+
+            // Find best and worst
+            let bestGpa = -1, worstGpa = 99;
+            const termData = sortedTerms.map(term => {
+                const gpa = term.totalCred > 0 ? term.totalPts / term.totalCred : 0;
+                if (gpa > bestGpa) bestGpa = gpa;
+                if (gpa < worstGpa && gpa > 0) worstGpa = gpa;
+
+                // Grade distribution for this term
+                const dist = {A:0, AB:0, B:0, BC:0, C:0, D:0, F:0};
+                term.subjects.forEach(sub => {
+                    const g = sub._gradeInfo?.grade;
+                    if (dist.hasOwnProperty(g)) dist[g]++;
+                });
+                return { ...term, gpa, dist };
+            });
+
+            const colorMap = {A:'#10b981', AB:'#34d399', B:'#60a5fa', BC:'#93c5fd', C:'#f59e0b', D:'#f97316', F:'#ef4444'};
+
+            grid.innerHTML = termData.map(t => {
+                const cardClass = t.gpa === bestGpa ? 'sem-best' : (t.gpa === worstGpa && worstGpa < bestGpa ? 'sem-worst' : 'sem-normal');
+                const total = Object.values(t.dist).reduce((a,b) => a+b, 0);
+                const barSegments = Object.entries(t.dist)
+                    .filter(([,v]) => v > 0)
+                    .map(([g,v]) => `<div style="width:${(v/total)*100}%; background:${colorMap[g]};"></div>`)
+                    .join('');
+
+                return `<div class="sem-card ${cardClass}">
+                    <div class="sem-card-term">${t.season} ${t.year}</div>
+                    <div class="sem-card-gpa">${t.gpa.toFixed(2)}</div>
+                    <div class="sem-card-meta">
+                        ${t.subjects.length} class${t.subjects.length !== 1 ? 'es' : ''} · ${t.totalCred} credits
+                    </div>
+                    ${total > 0 ? `<div class="sem-card-bar">${barSegments}</div>` : ''}
+                </div>`;
+            }).join('');
+        }
+
         // ===== MAIN FETCH =====
-        window.onload = function() { fetchSubjects(); };
+        window.onload = async function() {
+            await loadGpaGoal();
+            fetchSubjects();
+        };
 
         function fetchSubjects() {
             fetch('/api/subjects/list').then(r => r.json()).then(data => {
@@ -517,6 +707,7 @@
                             </div>
                         </div>`;
                     document.getElementById('charts-row').style.display = 'none';
+                    document.getElementById('semCompare').style.display = 'none';
                     setKpiEmpty();
                     return;
                 }
@@ -596,6 +787,9 @@
                 document.getElementById('kpi-best-grade').textContent = bestScore >= 0 ? (bestScore <= 4 ? (bestScore*25).toFixed(0)+'%' : bestScore.toFixed(1)+'%') : '—';
                 document.getElementById('kpi-best-name').textContent = bestName || '—';
 
+                // GPA Goal Tracker
+                updateGoalTracker(parseFloat(finalGpa));
+
                 // Charts
                 if (chartLabels.length > 0) {
                     document.getElementById('charts-row').style.display = 'grid';
@@ -604,6 +798,9 @@
                     buildBarChart(window.chartData);
                     buildPieChart(gradeDistribution);
                 }
+
+                // Semester Comparison
+                buildSemesterComparison(sortedTerms);
 
                 // Build collapsible semester UI
                 const seasonIcons = {Fall:'🍂', Spring:'🌸', Summer:'☀️', Winter:'❄️'};
@@ -840,5 +1037,3 @@
     </script>
 </body>
 </html>
-
-
