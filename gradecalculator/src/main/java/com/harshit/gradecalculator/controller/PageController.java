@@ -52,10 +52,6 @@ public class PageController {
         return "add-subject";
     }
 
-    @GetMapping("/roadmap", "/roadmap.html")
-    public String showRoadmap() {
-        return "roadmap";
-    }
 
     @Transactional(readOnly = true)
     @GetMapping({"/subject-details", "/subject-details.html"})
