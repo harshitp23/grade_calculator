@@ -2,6 +2,7 @@ package com.harshit.gradecalculator.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -25,12 +26,14 @@ public class User {
     @Column(name = "api_token", unique = true)
     private String apiToken;
 
+    @Column(name = "target_gpa", precision = 3, scale = 2)
+    private BigDecimal targetGpa;
+
     // Link to Subjects: One User has Many Subjects
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Subject> subjects;
 
     // --- Getters and Setters ---
-
     public Integer getUserId() { return userId; }
     public void setUserId(Integer userId) { this.userId = userId; }
 
@@ -46,7 +49,9 @@ public class User {
     public String getApiToken() { return apiToken; }
     public void setApiToken(String apiToken) { this.apiToken = apiToken; }
 
-    // Fix: Only ONE getSubjects method
+    public BigDecimal getTargetGpa() { return targetGpa; }
+    public void setTargetGpa(BigDecimal targetGpa) { this.targetGpa = targetGpa; }
+
     public List<Subject> getSubjects() { return subjects; }
     public void setSubjects(List<Subject> subjects) { this.subjects = subjects; }
 }
