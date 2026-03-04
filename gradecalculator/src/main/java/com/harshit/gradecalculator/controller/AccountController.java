@@ -6,7 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -33,5 +34,17 @@ public class AccountController {
         user.setApiToken(UUID.randomUUID().toString());
         userRepository.save(user);
         return Map.of("token", user.getApiToken());
+    }
+
+    @DeleteMapping("/delete")
+    public Map<String, String> deleteAccount(@AuthenticationPrincipal UserDetails userDetails, HttpServletRequest request) {
+        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
+        userRepository.delete(user);
+        try {
+            request.logout();
+        } catch (ServletException e) {
+            // User is deleted, logout failure is non-critical
+        }
+        return Map.of("message", "Account deleted successfully");
     }
 }
