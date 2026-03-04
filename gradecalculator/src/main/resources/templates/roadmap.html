@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Degree Roadmap - GradeCalc</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <style>
+        :root { --primary: #4f46e5; --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; --danger: #ef4444; --sidebar-width: 260px; }
+        [data-theme="light"] { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --border-color: #e5e7eb; }
+        [data-theme="badger"] { --primary: #c5050c; --bg-color: #000000; --card-bg: #171717; --text-main: #ffffff; --text-muted: #a1a1aa; --border-color: #333333; }
+        [data-theme="ocean"] { --primary: #0284c7; --bg-color: #082f49; --card-bg: #0c4a6e; --text-main: #f0f9ff; --text-muted: #7dd3fc; --border-color: #0369a1; }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
+        
+        /* Dropdown Theme Menu CSS */
+        .theme-dropdown-container { position: relative; display: inline-block; margin: 0; }
+        .theme-dropdown { position: absolute; right: 0; top: 100%; margin-top: 10px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 160px; z-index: 1000; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; }
+        .theme-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        .theme-dropdown-header { font-size: 11px; font-weight: 800; color: var(--text-muted); padding: 12px 16px 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .theme-option { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text-main); transition: 0.2s; }
+        .theme-option:hover { background: rgba(128,128,128,0.1); color: var(--primary); }
+        .theme-option:last-child { border-radius: 0 0 8px 8px; margin-bottom: 5px; }
+        .active-indicator { display: none; color: var(--primary); font-size: 14px; }
+
+        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; transition: transform 0.3s ease; flex-shrink:0; }
+        .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
+        .nav-link:hover, .nav-link.active { background-color: rgba(128,128,128, 0.1); color: var(--primary); }
+        .spacer { flex: 1; }
+        .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
+        .icon-btn:hover { color: var(--primary); }
+
+        .main-content { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; }
+        
+        /* Master GPA Banner */
+        .master-banner { background: linear-gradient(135deg, var(--primary) 0%, #818cf8 100%); border-radius: 16px; padding: 30px 40px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.15); margin-bottom: 30px; flex-shrink:0; }
+        [data-theme="badger"] .master-banner { background: linear-gradient(135deg, #c5050c 0%, #ff4b52 100%); }
+        [data-theme="ocean"] .master-banner { background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%); }
+        .master-label { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9; }
+        .master-gpa { font-size: 48px; font-weight: 900; line-height: 1; margin-top: 5px; }
+
+        /* Kanban Board Styles */
+        .board-container { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 20px; flex: 1; align-items: flex-start; }
+        .term-column { width: 320px; min-width: 320px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; max-height: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .term-column.past { background: rgba(0,0,0,0.02); opacity: 0.9; }
+        .term-column.present { border: 2px solid var(--primary); }
+        .term-column.future { border: 2px dashed var(--border-color); }
+        
+        .term-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .term-title { font-weight: 700; font-size: 16px; }
+        .term-stats { font-size: 12px; color: var(--text-muted); font-weight: 600; background: var(--bg-color); padding: 4px 8px; border-radius: 6px; }
+        
+        .term-body { padding: 15px; flex: 1; overflow-y: auto; min-height: 100px; }
+        
+        .course-card { background: var(--bg-color); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .course-card.draggable { cursor: grab; }
+        .course-card.draggable:active { cursor: grabbing; }
+        .course-card.past-card { border-left: 4px solid var(--text-muted); }
+        .course-card.present-card { border-left: 4px solid var(--primary); }
+        .course-card.future-card { border-left: 4px dashed var(--primary); }
+        
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .card-code { font-weight: 700; font-size: 15px; color: var(--text-main); }
+        .card-credits { font-size: 12px; color: var(--text-muted); }
+        
+        .card-bottom { display: flex; justify-content: space-between; align-items: center; }
+        .card-grade-lock { font-weight: 800; font-size: 16px; color: var(--primary); }
+        .target-select { padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--primary); font-weight: 700; font-size: 14px; outline: none; cursor:pointer;}
+        
+        .btn-add-class { width: calc(100% - 30px); margin: 0 15px 15px 15px; padding: 12px; background: rgba(128,128,128,0.05); color: var(--text-main); border: 1px dashed var(--border-color); border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-add-class:hover { background: var(--bg-color); color: var(--primary); border-color: var(--primary); }
+        
+        .btn-add-term { min-width: 200px; background: transparent; border: 2px dashed var(--border-color); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-add-term:hover { color: var(--primary); border-color: var(--primary); background: rgba(128,128,128,0.02); }
+
+        /* Modals */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
+        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); box-sizing: border-box; margin-bottom: 15px; font-family:'Inter', sans-serif;}
+        .btn-primary { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size:14px; margin-top:10px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted); }
+
+        .mobile-nav { display: none; }
+        .mobile-overlay { display: none; }
+        .mobile-close-sidebar { display: none; }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.3); z-index: 999; }
+            .sidebar.active { transform: translateX(0); }
+            .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+            .main-content { padding: 15px; width: 100%; box-sizing: border-box; }
+            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 900; }
+            .mobile-overlay.active { display: block; }
+            .master-banner { padding: 20px; flex-direction: column; align-items: flex-start; gap: 10px; }
+            .master-gpa { font-size: 36px; }
+            .term-column { min-width: 85vw; width: 85vw; }
+            .btn-add-term { min-height: 200px; }
+        }
+    </style>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</head>
+<body>
+
+    <div class="mobile-nav">
+        <div style="display:flex; align-items:center; gap:15px;">
+            <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+            <div class="logo" style="margin:0; font-size:18px;"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        </div>
+        <div style="display:flex; gap:15px; align-items:center;">
+            <div class="theme-dropdown-container">
+                <button class="icon-btn" onclick="toggleThemeMenu('mobile')"><i class="fa-solid fa-palette"></i></button>
+                <div class="theme-dropdown" id="themeDropdown-mobile" style="top: 100%; right: 0;">
+                    <div class="theme-dropdown-header">Theme</div>
+                    <div class="theme-option" onclick="setTheme('dark')">🌙 Dark <i class="fa-solid fa-circle-dot active-indicator check-dark"></i></div>
+                    <div class="theme-option" onclick="setTheme('light')">☀️ Light <i class="fa-solid fa-circle-dot active-indicator check-light"></i></div>
+                    <div class="theme-option" onclick="setTheme('badger')">🦡 Badger <i class="fa-solid fa-circle-dot active-indicator check-badger"></i></div>
+                    <div class="theme-option" onclick="setTheme('ocean')">🌊 Ocean <i class="fa-solid fa-circle-dot active-indicator check-ocean"></i></div>
+                </div>
+            </div>
+            <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
+            <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+        </div>
+    </div>
+
+    <div class="mobile-overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar">
+        <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
+        <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        <nav>
+            <a th:href="@{/}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            
+            <a href="/roadmap" class="nav-link active"><i class="fa-solid fa-map-location-dot"></i> Degree Roadmap</a>
+            
+            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects</a>
+            <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
+            <a th:href="@{/target-grade}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+            <a href="#" onclick="document.getElementById('helpModal').style.display='flex'" class="nav-link"><i class="fa-solid fa-book-open"></i> Getting Started</a>
+        </nav>
+        <div class="spacer"></div>
+        <div class="user-profile">
+            <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">Signed in as <strong sec:authentication="name" style="color:var(--text-main)">Student</strong></span>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <div class="theme-dropdown-container">
+                    <button class="icon-btn" onclick="toggleThemeMenu('desktop')"><i class="fa-solid fa-palette"></i></button>
+                    <div class="theme-dropdown" id="themeDropdown-desktop" style="bottom: 100%; top: auto; right: 0; margin-bottom: 10px; margin-top: 0;">
+                        <div class="theme-dropdown-header">Theme</div>
+                        <div class="theme-option" onclick="setTheme('dark')">🌙 Dark <i class="fa-solid fa-circle-dot active-indicator check-dark"></i></div>
+                        <div class="theme-option" onclick="setTheme('light')">☀️ Light <i class="fa-solid fa-circle-dot active-indicator check-light"></i></div>
+                        <div class="theme-option" onclick="setTheme('badger')">🦡 Badger <i class="fa-solid fa-circle-dot active-indicator check-badger"></i></div>
+                        <div class="theme-option" onclick="setTheme('ocean')">🌊 Ocean <i class="fa-solid fa-circle-dot active-indicator check-ocean"></i></div>
+                    </div>
+                </div>
+                <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
+                <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="master-banner">
+            <div>
+                <div class="master-label">Projected Graduation GPA</div>
+                <div style="font-size:13px; margin-top:5px; opacity:0.8;">Combining Past, Present, and Future Planned grades.</div>
+            </div>
+            <div class="master-gpa" id="master-gpa-display">0.00</div>
+        </div>
+
+        <div class="board-container" id="kanban-board">
+            </div>
+    </main>
+
+    <div id="addPlannedModal" class="modal" onclick="if(event.target.id==='addPlannedModal') this.style.display='none'">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" style="margin:0;">Plan Future Class</h2>
+                <span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('addPlannedModal').style.display='none'">&times;</span>
+            </div>
+            <form id="plannedForm">
+                <input type="hidden" name="status" value="Planned">
+                <input type="hidden" name="termSeason" id="planSeason">
+                <input type="hidden" name="termYear" id="planYear">
+                <input type="hidden" name="gradingScale" value="93,88,83,78,70,60">
+
+                <div class="form-group"><label>Course Code</label><input type="text" name="code" id="planCode" class="modal-input" placeholder="e.g. COMP SCI 577" required></div>
+                <div class="form-group"><label>Course Name (Optional)</label><input type="text" name="name" id="planName" class="modal-input" placeholder="e.g. Algorithms"></div>
+                <div class="form-group"><label>Credits</label><input type="number" name="credits" class="modal-input" value="3" min="1" max="10" required></div>
+                
+                <div class="form-group">
+                    <label>Target Goal Grade</label>
+                    <select name="letterGrade" class="modal-input" required>
+                        <option value="A">A (4.0)</option>
+                        <option value="AB">AB (3.5)</option>
+                        <option value="B">B (3.0)</option>
+                        <option value="BC">BC (2.5)</option>
+                        <option value="C">C (2.0)</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-primary">Add to Roadmap</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addTermModal" class="modal" onclick="if(event.target.id==='addTermModal') this.style.display='none'">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" style="margin:0;">Add Future Semester</h2>
+                <span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('addTermModal').style.display='none'">&times;</span>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;">
+                    <label>Season</label>
+                    <select id="newTermSeason" class="modal-input">
+                        <option value="Spring">Spring</option>
+                        <option value="Summer">Summer</option>
+                        <option value="Fall">Fall</option>
+                        <option value="Winter">Winter</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label>Year</label>
+                    <input type="number" id="newTermYear" class="modal-input" required>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="createNewTermColumn()">Create Empty Semester</button>
+        </div>
+    </div>
+
+    <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
+        </div>
+    <div id="helpModal" class="modal" onclick="if(event.target.id==='helpModal') this.style.display='none'">
+        </div>
+
+    <script>
+        let allRoadmapData = [];
+        const seasonOrder = { 'Winter': 1, 'Spring': 2, 'Summer': 3, 'Fall': 4 };
+
+        window.onload = function() { fetchRoadmapData(); };
+
+        function fetchRoadmapData() {
+            fetch('/api/subjects/list').then(r => r.json()).then(data => {
+                allRoadmapData = data;
+                renderBoard();
+            });
+        }
+
+        function getPointFromLetter(letter) {
+            const scale = {'A':4.0, 'AB':3.5, 'B':3.0, 'BC':2.5, 'C':2.0, 'D':1.0, 'F':0.0};
+            return scale[letter?.toUpperCase()] || 0.0;
+        }
+        
+        function calculateGrade(score, customScaleStr) {
+            let thresholds = [93, 88, 83, 78, 70, 60];
+            if (customScaleStr) thresholds = customScaleStr.split(',').map(Number);
+            if (score >= thresholds[0]) return { point: 4.0, letter: 'A' };
+            if (score >= thresholds[1]) return { point: 3.5, letter: 'AB' };
+            if (score >= thresholds[2]) return { point: 3.0, letter: 'B' };
+            if (score >= thresholds[3]) return { point: 2.5, letter: 'BC' };
+            if (score >= thresholds[4]) return { point: 2.0, letter: 'C' };
+            if (score >= thresholds[5]) return { point: 1.0, letter: 'D' };
+            return { point: 0.0, letter: 'F' };
+        }
+
+        function renderBoard() {
+            const termsMap = {};
+            let globalPts = 0;
+            let globalCreds = 0;
+
+            allRoadmapData.forEach(sub => {
+                if (sub.includeInGpa === false) return;
+
+                const season = sub.termSeason || 'Spring';
+                const year = sub.termYear || new Date().getFullYear();
+                const termKey = `${season} ${year}`;
+                
+                if (!termsMap[termKey]) termsMap[termKey] = { season, year, subjects: [], state: 'past' };
+                termsMap[termKey].subjects.push(sub);
+
+                // Math Engine
+                let pts = 0;
+                if (sub.status === 'Completed' || sub.status === 'Planned') {
+                    pts = getPointFromLetter(sub.letterGrade);
+                } else if (sub.status === 'In Progress') {
+                    pts = calculateGrade(parseFloat(sub.currentScore || 0), sub.gradingScale).point;
+                }
+                
+                globalPts += (pts * sub.credits);
+                globalCreds += sub.credits;
+            });
+
+            // Master GPA Update
+            const finalGpa = globalCreds > 0 ? (globalPts / globalCreds).toFixed(2) : "0.00";
+            document.getElementById('master-gpa-display').innerText = finalGpa;
+
+            // Sort Chronologically (Oldest to Newest for Roadmap)
+            const sortedTerms = Object.values(termsMap).sort((a, b) => {
+                if (a.year !== b.year) return a.year - b.year; 
+                return seasonOrder[a.season] - seasonOrder[b.season]; 
+            });
+
+            // Determine Term States (Past, Present, Future)
+            let foundPresent = false;
+            sortedTerms.forEach(term => {
+                const hasInProgress = term.subjects.some(s => s.status === 'In Progress');
+                const hasCompleted = term.subjects.some(s => s.status === 'Completed');
+                
+                if (hasInProgress || (!foundPresent && !hasCompleted && term.subjects.length > 0)) {
+                    term.state = 'present';
+                    foundPresent = true;
+                } else if (foundPresent) {
+                    term.state = 'future';
+                } else {
+                    term.state = 'past';
+                }
+            });
+
+            // Render DOM
+            const board = document.getElementById('kanban-board');
+            board.innerHTML = "";
+
+            sortedTerms.forEach(term => {
+                const col = document.createElement('div');
+                col.className = `term-column ${term.state}`;
+                col.setAttribute('data-season', term.season);
+                col.setAttribute('data-year', term.year);
+
+                let termCreds = 0;
+                term.subjects.forEach(s => termCreds += s.credits);
+
+                col.innerHTML = `
+                    <div class="term-header">
+                        <span class="term-title">${term.season} ${term.year}</span>
+                        <span class="term-stats">${termCreds} CR</span>
+                    </div>
+                    <div class="term-body ${term.state === 'future' ? 'sortable-list' : ''}">
+                        ${term.subjects.map(sub => generateCardHTML(sub, term.state)).join('')}
+                    </div>
+                    ${term.state === 'future' ? `<button class="btn-add-class" onclick="openAddModal('${term.season}', ${term.year})">+ Add Class</button>` : ''}
+                `;
+                board.appendChild(col);
+            });
+
+            // Add the "Create Semester" Button Column
+            const addCol = document.createElement('div');
+            addCol.innerHTML = `<button class="btn-add-term" onclick="openAddTermModal()"><i class="fa-solid fa-plus" style="margin-right:10px;"></i> Add Future Semester</button>`;
+            board.appendChild(addCol);
+
+            // Init Drag and Drop for Future Columns
+            initSortable();
+        }
+
+        function generateCardHTML(sub, colState) {
+            let gradeDisplay = '';
+            
+            if (colState === 'future' || sub.status === 'Planned') {
+                const opts = ['A', 'AB', 'B', 'BC', 'C', 'D'].map(l => 
+                    `<option value="${l}" ${sub.letterGrade === l ? 'selected' : ''}>${l}</option>`
+                ).join('');
+                gradeDisplay = `<select class="target-select" onchange="updateTargetGrade(${sub.subjectId}, this.value)">${opts}</select>`;
+            } else if (sub.status === 'In Progress') {
+                const est = calculateGrade(parseFloat(sub.currentScore || 0), sub.gradingScale).letter;
+                gradeDisplay = `<span class="card-grade-lock">Est: ${est}</span>`;
+            } else {
+                gradeDisplay = `<span class="card-grade-lock" style="color:var(--text-muted);">${sub.letterGrade || '-'}</span>`;
+            }
+
+            const dragClass = (colState === 'future' || sub.status === 'Planned') ? 'draggable' : '';
+
+            return `
+                <div class="course-card ${dragClass} ${colState}-card" data-id="${sub.subjectId}">
+                    <div class="card-top">
+                        <div class="card-code">${sub.subjectCode}</div>
+                        <div class="card-credits">${sub.credits} CR</div>
+                    </div>
+                    <div class="card-bottom">
+                        <div style="font-size:12px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px;">${sub.subjectName || 'Elective'}</div>
+                        ${gradeDisplay}
+                    </div>
+                </div>
+            `;
+        }
+
+        function initSortable() {
+            document.querySelectorAll('.sortable-list').forEach(el => {
+                new Sortable(el, {
+                    group: 'planned-courses',
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    onEnd: function(evt) {
+                        const item = evt.item;
+                        const newCol = evt.to.closest('.term-column');
+                        if(!newCol) return;
+                        
+                        const subId = parseInt(item.getAttribute('data-id'));
+                        const newSeason = newCol.getAttribute('data-season');
+                        const newYear = newCol.getAttribute('data-year');
+                        
+                        const sub = allRoadmapData.find(s => s.subjectId === subId);
+                        if(sub && (sub.termSeason !== newSeason || sub.termYear != newYear)) {
+                            updateCourseTerm(sub, newSeason, newYear);
+                        }
+                    }
+                });
+            });
+        }
+
+        // --- API INTEGRATION --- //
+
+        // 1. Updating Term via Drag and Drop (Uses your existing Update endpoint!)
+        function updateCourseTerm(sub, newSeason, newYear) {
+            const formData = new URLSearchParams();
+            formData.append('id', sub.subjectId);
+            formData.append('name', sub.subjectName || '');
+            formData.append('code', sub.subjectCode);
+            formData.append('termSeason', newSeason);
+            formData.append('termYear', newYear);
+            formData.append('gradingScale', sub.gradingScale || '');
+            formData.append('status', sub.status);
+            formData.append('includeInGpa', sub.includeInGpa);
+
+            fetch('/api/subjects/update-settings', { method: 'POST', body: formData })
+            .then(() => fetchRoadmapData());
+        }
+
+        // 2. Updating Target Grade (Uses your existing Curve endpoint!)
+        function updateTargetGrade(id, newLetter) {
+            const formData = new URLSearchParams();
+            formData.append('id', id);
+            formData.append('letter', newLetter);
+            
+            fetch('/api/subjects/update-curve', { method: 'POST', body: formData })
+            .then(() => fetchRoadmapData());
+        }
+
+        // 3. Adding a new Planned Course (Uses your existing Add endpoint!)
+        function openAddModal(season, year) {
+            document.getElementById('planSeason').value = season;
+            document.getElementById('planYear').value = year;
+            if(!document.getElementById('planCode').value) document.getElementById('planCode').value = "ELECTIVE 100";
+            document.getElementById('addPlannedModal').style.display = 'flex';
+        }
+
+        document.getElementById('plannedForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            if(!formData.get('name')) formData.set('name', 'Planned Course');
+            
+            fetch('/api/subjects/add', { method: 'POST', body: formData })
+            .then(() => {
+                document.getElementById('addPlannedModal').style.display = 'none';
+                this.reset();
+                fetchRoadmapData();
+            });
+        });
+
+        // Add Empty Term Logic
+        function openAddTermModal() {
+            document.getElementById('newTermYear').value = new Date().getFullYear() + 1;
+            document.getElementById('addTermModal').style.display = 'flex';
+        }
+        
+        function createNewTermColumn() {
+            const s = document.getElementById('newTermSeason').value;
+            const y = parseInt(document.getElementById('newTermYear').value);
+            document.getElementById('addTermModal').style.display = 'none';
+            
+            // We just trick the UI into creating an empty array for this term
+            allRoadmapData.push({ subjectId: -999, termSeason: s, termYear: y, status: 'Planned', includeInGpa: false });
+            renderBoard();
+            
+            // Remove the dummy item immediately so it doesn't break future fetches
+            allRoadmapData = allRoadmapData.filter(sub => sub.subjectId !== -999);
+        }
+
+        // Standard Theme / Nav Scripts
+        function toggleThemeMenu(menuId) { document.getElementById('themeDropdown-' + menuId).classList.toggle('show'); }
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            updateActiveThemeIndicator(theme);
+            document.querySelectorAll('.theme-dropdown').forEach(d => d.classList.remove('show'));
+        }
+        function updateActiveThemeIndicator(theme) {
+            document.querySelectorAll('.active-indicator').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.check-' + theme).forEach(el => el.style.display = 'inline-block');
+        }
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.theme-dropdown-container')) document.querySelectorAll('.theme-dropdown').forEach(d => d.classList.remove('show'));
+        });
+        document.addEventListener('DOMContentLoaded', () => { updateActiveThemeIndicator(localStorage.getItem('theme') || 'dark'); });
+        function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
+    </script>
+</body>
+</html>
