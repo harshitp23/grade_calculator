@@ -90,25 +90,17 @@
         .bar-chart-container { height: 240px; }
         .pie-chart-container { height: 240px; display: flex; align-items: center; justify-content: center; }
 
-        /* ===== SEMESTER COMPARISON ===== */
-        .sem-compare { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 24px; margin-bottom: 28px; display: none; }
-        .sem-compare-title { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-        .sem-compare-title i { color: var(--primary); }
-        .sem-compare-title span { font-size: 11px; font-weight: 500; color: var(--text-muted); background: rgba(128,128,128,0.1); padding: 2px 8px; border-radius: 10px; }
-        .sem-compare-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-        .sem-card { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; transition: transform 0.2s; position: relative; overflow: hidden; }
-        .sem-card:hover { transform: translateY(-2px); }
-        .sem-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 10px 10px 0 0; }
-        .sem-card.sem-best::before { background: linear-gradient(90deg, #10b981, #34d399); }
-        .sem-card.sem-worst::before { background: linear-gradient(90deg, #ef4444, #f87171); }
-        .sem-card.sem-normal::before { background: var(--primary); }
-        .sem-card-term { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
-        .sem-card-gpa { font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 6px; }
-        [data-theme="badger"] .sem-card-gpa { color: #ff4b52; }
-        [data-theme="ocean"] .sem-card-gpa { color: #38bdf8; }
-        .sem-card-meta { font-size: 11px; color: var(--text-muted); line-height: 1.6; }
-        .sem-card-bar { display: flex; gap: 2px; margin-top: 10px; height: 6px; border-radius: 3px; overflow: hidden; }
-        .sem-card-bar div { height: 100%; border-radius: 3px; }
+        /* ===== GRADING SCALE VISUAL ===== */
+        .scale-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .scale-item { display: flex; flex-direction: column; gap: 4px; }
+        .scale-item label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 5px; }
+        .scale-item label .scale-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .scale-item input { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); font-size: 13px; font-weight: 600; text-align: center; box-sizing: border-box; }
+        .scale-item input:focus { border-color: var(--primary); outline: none; }
+        .scale-preset-row { display: flex; gap: 6px; margin-bottom: 10px; }
+        .scale-preset-btn { flex: 1; padding: 6px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-muted); font-size: 11px; font-weight: 600; cursor: pointer; text-align: center; transition: 0.2s; font-family: 'Inter', sans-serif; }
+        .scale-preset-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .scale-preset-btn.active { border-color: var(--primary); background: rgba(79,70,229,0.1); color: var(--primary); }
 
         /* ===== SEMESTER SECTIONS ===== */
         .section-header { display: flex; align-items: center; justify-content: space-between; margin: 28px 0 12px 0; }
@@ -171,7 +163,6 @@
         @media (max-width: 1200px) {
             .kpi-grid { grid-template-columns: repeat(3, 1fr); }
             .charts-row { grid-template-columns: 1fr; }
-            .sem-compare-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
         }
         @media (max-width: 900px) {
             .kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -191,7 +182,6 @@
             .header-row { flex-direction: column; gap: 15px; }
             table { min-width: 550px; }
             .term-body { overflow-x: auto; }
-            .sem-compare-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 
@@ -348,16 +338,6 @@
             </div>
         </div>
 
-        <!-- Semester Comparison -->
-        <div class="sem-compare" id="semCompare">
-            <div class="sem-compare-title">
-                <i class="fa-solid fa-code-compare"></i>
-                Semester Comparison
-                <span>Side by Side</span>
-            </div>
-            <div class="sem-compare-grid" id="semCompareGrid"></div>
-        </div>
-
         <!-- Semesters -->
         <div id="dynamic-terms-container"></div>
     </main>
@@ -420,6 +400,7 @@
                 <div class="form-group"><label>Name</label><input type="text" name="name" id="set_name" class="modal-input" required></div>
                 <div class="form-group"><label>Code</label><input type="text" name="code" id="set_code" class="modal-input" required></div>
                 <div style="display:flex; gap:10px;">
+                    <div class="form-group" style="flex:1;"><label>Credits</label><input type="number" name="credits" id="set_credits" class="modal-input" min="1" max="10" required></div>
                     <div class="form-group" style="flex:1;"><label>Term Season</label>
                         <select name="termSeason" id="set_termSeason" class="modal-input" required>
                             <option value="Fall">Fall</option><option value="Spring">Spring</option><option value="Summer">Summer</option><option value="Winter">Winter</option>
@@ -427,7 +408,24 @@
                     </div>
                     <div class="form-group" style="flex:1;"><label>Term Year</label><input type="number" name="termYear" id="set_termYear" class="modal-input" required></div>
                 </div>
-                <div class="form-group"><label>Grading Scale (e.g. 93,88,83,78,70,60)</label><input type="text" name="gradingScale" id="set_scale" class="modal-input"></div>
+                <div class="form-group">
+                    <label style="margin-bottom:8px;">Grading Scale</label>
+                    <div class="scale-preset-row">
+                        <button type="button" class="scale-preset-btn" onclick="applyScalePreset('standard')">Standard</button>
+                        <button type="button" class="scale-preset-btn" onclick="applyScalePreset('strict')">Strict</button>
+                        <button type="button" class="scale-preset-btn" onclick="applyScalePreset('lenient')">Lenient</button>
+                        <button type="button" class="scale-preset-btn" onclick="applyScalePreset('custom')">Custom</button>
+                    </div>
+                    <div class="scale-grid">
+                        <div class="scale-item"><label><span class="scale-dot" style="background:#10b981;"></span> A</label><input type="number" id="scale_A" min="0" max="100" step="0.5" placeholder="93"></div>
+                        <div class="scale-item"><label><span class="scale-dot" style="background:#34d399;"></span> AB</label><input type="number" id="scale_AB" min="0" max="100" step="0.5" placeholder="88"></div>
+                        <div class="scale-item"><label><span class="scale-dot" style="background:#60a5fa;"></span> B</label><input type="number" id="scale_B" min="0" max="100" step="0.5" placeholder="83"></div>
+                        <div class="scale-item"><label><span class="scale-dot" style="background:#93c5fd;"></span> BC</label><input type="number" id="scale_BC" min="0" max="100" step="0.5" placeholder="78"></div>
+                        <div class="scale-item"><label><span class="scale-dot" style="background:#f59e0b;"></span> C</label><input type="number" id="scale_C" min="0" max="100" step="0.5" placeholder="70"></div>
+                        <div class="scale-item"><label><span class="scale-dot" style="background:#f97316;"></span> D</label><input type="number" id="scale_D" min="0" max="100" step="0.5" placeholder="60"></div>
+                    </div>
+                    <input type="hidden" name="gradingScale" id="set_scale">
+                </div>
                 <div class="form-group"><label>Status</label>
                     <select name="status" id="set_status" class="modal-input">
                         <option value="In Progress">In Progress</option><option value="Completed">Completed</option>
@@ -638,50 +636,50 @@
             }
         }
 
-        // ===== SEMESTER COMPARISON =====
-        function buildSemesterComparison(sortedTerms) {
-            if (sortedTerms.length < 2) {
-                document.getElementById('semCompare').style.display = 'none';
-                return;
+        // ===== GRADING SCALE PRESETS =====
+        const scalePresets = {
+            standard: [93, 88, 83, 78, 70, 60],
+            strict:   [94, 90, 84, 80, 74, 64],
+            lenient:  [90, 85, 80, 75, 65, 55]
+        };
+
+        function applyScalePreset(type) {
+            document.querySelectorAll('.scale-preset-btn').forEach(b => b.classList.remove('active'));
+            if (type === 'custom') {
+                event.target.classList.add('active');
+                return; // Just highlight custom, don't change values
             }
-            document.getElementById('semCompare').style.display = 'block';
-            const grid = document.getElementById('semCompareGrid');
+            const vals = scalePresets[type];
+            if (!vals) return;
+            const ids = ['scale_A','scale_AB','scale_B','scale_BC','scale_C','scale_D'];
+            ids.forEach((id, i) => document.getElementById(id).value = vals[i]);
+            event.target.classList.add('active');
+        }
 
-            // Find best and worst
-            let bestGpa = -1, worstGpa = 99;
-            const termData = sortedTerms.map(term => {
-                const gpa = term.totalCred > 0 ? term.totalPts / term.totalCred : 0;
-                if (gpa > bestGpa) bestGpa = gpa;
-                if (gpa < worstGpa && gpa > 0) worstGpa = gpa;
+        function getScaleFromGrid() {
+            const ids = ['scale_A','scale_AB','scale_B','scale_BC','scale_C','scale_D'];
+            const vals = ids.map(id => document.getElementById(id).value).filter(v => v !== '');
+            return vals.length === 6 ? vals.join(',') : '';
+        }
 
-                // Grade distribution for this term
-                const dist = {A:0, AB:0, B:0, BC:0, C:0, D:0, F:0};
-                term.subjects.forEach(sub => {
-                    const g = sub._gradeInfo?.grade;
-                    if (dist.hasOwnProperty(g)) dist[g]++;
-                });
-                return { ...term, gpa, dist };
-            });
-
-            const colorMap = {A:'#10b981', AB:'#34d399', B:'#60a5fa', BC:'#93c5fd', C:'#f59e0b', D:'#f97316', F:'#ef4444'};
-
-            grid.innerHTML = termData.map(t => {
-                const cardClass = t.gpa === bestGpa ? 'sem-best' : (t.gpa === worstGpa && worstGpa < bestGpa ? 'sem-worst' : 'sem-normal');
-                const total = Object.values(t.dist).reduce((a,b) => a+b, 0);
-                const barSegments = Object.entries(t.dist)
-                    .filter(([,v]) => v > 0)
-                    .map(([g,v]) => `<div style="width:${(v/total)*100}%; background:${colorMap[g]};"></div>`)
-                    .join('');
-
-                return `<div class="sem-card ${cardClass}">
-                    <div class="sem-card-term">${t.season} ${t.year}</div>
-                    <div class="sem-card-gpa">${t.gpa.toFixed(2)}</div>
-                    <div class="sem-card-meta">
-                        ${t.subjects.length} class${t.subjects.length !== 1 ? 'es' : ''} · ${t.totalCred} credits
-                    </div>
-                    ${total > 0 ? `<div class="sem-card-bar">${barSegments}</div>` : ''}
-                </div>`;
-            }).join('');
+        function setScaleGrid(scaleStr) {
+            const ids = ['scale_A','scale_AB','scale_B','scale_BC','scale_C','scale_D'];
+            const defaults = [93, 88, 83, 78, 70, 60];
+            if (scaleStr && scaleStr.includes(',')) {
+                const parts = scaleStr.split(',').map(Number);
+                ids.forEach((id, i) => document.getElementById(id).value = parts[i] !== undefined ? parts[i] : defaults[i]);
+            } else {
+                ids.forEach((id, i) => document.getElementById(id).value = defaults[i]);
+            }
+            // Highlight matching preset
+            document.querySelectorAll('.scale-preset-btn').forEach(b => b.classList.remove('active'));
+            const current = getScaleFromGrid();
+            for (const [name, vals] of Object.entries(scalePresets)) {
+                if (current === vals.join(',')) {
+                    document.querySelector(`.scale-preset-btn[onclick*="${name}"]`).classList.add('active');
+                    return;
+                }
+            }
         }
 
         // ===== MAIN FETCH =====
@@ -707,7 +705,6 @@
                             </div>
                         </div>`;
                     document.getElementById('charts-row').style.display = 'none';
-                    document.getElementById('semCompare').style.display = 'none';
                     setKpiEmpty();
                     return;
                 }
@@ -798,9 +795,6 @@
                     buildBarChart(window.chartData);
                     buildPieChart(gradeDistribution);
                 }
-
-                // Semester Comparison
-                buildSemesterComparison(sortedTerms);
 
                 // Build collapsible semester UI
                 const seasonIcons = {Fall:'🍂', Spring:'🌸', Summer:'☀️', Winter:'❄️'};
@@ -996,9 +990,10 @@
             document.getElementById('set_id').value = sub.subjectId;
             document.getElementById('set_name').value = sub.subjectName;
             document.getElementById('set_code').value = sub.subjectCode;
+            document.getElementById('set_credits').value = sub.credits || 3;
             document.getElementById('set_termSeason').value = sub.termSeason || 'Spring';
             document.getElementById('set_termYear').value = sub.termYear || new Date().getFullYear();
-            document.getElementById('set_scale').value = sub.gradingScale || '';
+            setScaleGrid(sub.gradingScale || '');
             document.getElementById('set_status').value = sub.status;
             document.getElementById('set_gpa').checked = sub.includeInGpa !== false;
             document.getElementById('subjectSettingsModal').style.display = 'flex';
@@ -1006,6 +1001,8 @@
 
         document.getElementById('settingsForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            // Sync scale grid into hidden field before submit
+            document.getElementById('set_scale').value = getScaleFromGrid();
             const formData = new FormData(this);
             if (!document.getElementById('set_gpa').checked) formData.set('includeInGpa', 'false');
             fetch('/api/subjects/update-settings', {method:'POST', body: new URLSearchParams(formData)})
