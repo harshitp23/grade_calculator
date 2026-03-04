@@ -649,7 +649,7 @@
                             if (sub.currentScore > sub.previousScore) arrowHtml = ` <i class="fa-solid fa-arrow-up" style="color:#10b981; font-size:11px;" title="Up from ${sub.previousScore}%"></i>`;
                             else if (sub.currentScore < sub.previousScore) arrowHtml = ` <i class="fa-solid fa-arrow-down" style="color:var(--danger); font-size:11px;" title="Down from ${sub.previousScore}%"></i>`;
                         }
-                        const scoreDisplay = sub.status === 'In Progress' ? `${sub.currentScore || 0}%${arrowHtml}` : '—';
+                        const scoreDisplay = sub.currentScore ? `${sub.currentScore}%${sub.status === 'In Progress' ? arrowHtml : ''}` : '—';
 
                         html += `<tr>
                             <td><a href="/subject-details?id=${sub.subjectId}" style="text-decoration:none; color:inherit; font-weight:600;">${sub.subjectName}</a></td>
@@ -840,4 +840,5 @@
     </script>
 </body>
 </html>
+
 
