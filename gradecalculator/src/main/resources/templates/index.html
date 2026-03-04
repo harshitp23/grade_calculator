@@ -331,7 +331,7 @@
                 <input type="text" id="canvasApiToken" readonly style="width:100%; padding:10px; border-radius:8px; background:var(--bg-color); color:var(--text-main); box-sizing:border-box; margin-bottom:10px; border:1px solid var(--border-color);">
                 <button class="btn-save" style="margin-top:0;" onclick="resetCanvasToken()">Regenerate Token</button>
             </div>
-            <button class="btn-save" style="background:var(--danger); color:white; border:none; margin-top:10px;" onclick="confirm('Are you sure you want to delete your account? This cannot be undone.')">Delete Account</button>
+            <button class="btn-save" style="background:var(--danger); color:white; border:none; margin-top:10px;" onclick="deleteAccount()">Delete Account</button>
         </div>
     </div>
 
@@ -450,6 +450,19 @@
             const newPassword = document.getElementById('settings-new-password').value;
             if (!oldPassword||!newPassword) return alert('Fill in both fields.');
             try { const res = await fetch('/api/user/password', {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({oldPassword,newPassword})}); const d = await res.json(); if (res.ok) { alert(d.message||'Password updated!'); document.getElementById('settings-old-password').value=''; document.getElementById('settings-new-password').value=''; } else alert(d.error||'Failed.'); } catch(e) { alert('Error'); }
+        }
+        async function deleteAccount() {
+            if (!confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
+            try {
+                const res = await fetch('/api/account/delete', { method: 'DELETE' });
+                if (res.ok) {
+                    window.location.href = '/login.html?deleted';
+                } else {
+                    alert('Failed to delete account.');
+                }    
+            } catch (e) {
+                alert('Error deleting account.');
+            }
         }
 
         // ===== GRADE LOGIC =====
@@ -827,3 +840,4 @@
     </script>
 </body>
 </html>
+
