@@ -97,10 +97,6 @@
         .scale-item label .scale-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
         .scale-item input { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); font-size: 13px; font-weight: 600; text-align: center; box-sizing: border-box; }
         .scale-item input:focus { border-color: var(--primary); outline: none; }
-        .scale-preset-row { display: flex; gap: 6px; margin-bottom: 10px; }
-        .scale-preset-btn { flex: 1; padding: 6px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-muted); font-size: 11px; font-weight: 600; cursor: pointer; text-align: center; transition: 0.2s; font-family: 'Inter', sans-serif; }
-        .scale-preset-btn:hover { border-color: var(--primary); color: var(--primary); }
-        .scale-preset-btn.active { border-color: var(--primary); background: rgba(79,70,229,0.1); color: var(--primary); }
 
         /* ===== SEMESTER SECTIONS ===== */
         .section-header { display: flex; align-items: center; justify-content: space-between; margin: 28px 0 12px 0; }
@@ -410,12 +406,6 @@
                 </div>
                 <div class="form-group">
                     <label style="margin-bottom:8px;">Grading Scale</label>
-                    <div class="scale-preset-row">
-                        <button type="button" class="scale-preset-btn" onclick="applyScalePreset('standard')">Standard</button>
-                        <button type="button" class="scale-preset-btn" onclick="applyScalePreset('strict')">Strict</button>
-                        <button type="button" class="scale-preset-btn" onclick="applyScalePreset('lenient')">Lenient</button>
-                        <button type="button" class="scale-preset-btn" onclick="applyScalePreset('custom')">Custom</button>
-                    </div>
                     <div class="scale-grid">
                         <div class="scale-item"><label><span class="scale-dot" style="background:#10b981;"></span> A</label><input type="number" id="scale_A" min="0" max="100" step="0.5" placeholder="93"></div>
                         <div class="scale-item"><label><span class="scale-dot" style="background:#34d399;"></span> AB</label><input type="number" id="scale_AB" min="0" max="100" step="0.5" placeholder="88"></div>
@@ -636,26 +626,7 @@
             }
         }
 
-        // ===== GRADING SCALE PRESETS =====
-        const scalePresets = {
-            standard: [93, 88, 83, 78, 70, 60],
-            strict:   [94, 90, 84, 80, 74, 64],
-            lenient:  [90, 85, 80, 75, 65, 55]
-        };
-
-        function applyScalePreset(type) {
-            document.querySelectorAll('.scale-preset-btn').forEach(b => b.classList.remove('active'));
-            if (type === 'custom') {
-                event.target.classList.add('active');
-                return; // Just highlight custom, don't change values
-            }
-            const vals = scalePresets[type];
-            if (!vals) return;
-            const ids = ['scale_A','scale_AB','scale_B','scale_BC','scale_C','scale_D'];
-            ids.forEach((id, i) => document.getElementById(id).value = vals[i]);
-            event.target.classList.add('active');
-        }
-
+        // ===== GRADING SCALE HELPERS =====
         function getScaleFromGrid() {
             const ids = ['scale_A','scale_AB','scale_B','scale_BC','scale_C','scale_D'];
             const vals = ids.map(id => document.getElementById(id).value).filter(v => v !== '');
@@ -670,15 +641,6 @@
                 ids.forEach((id, i) => document.getElementById(id).value = parts[i] !== undefined ? parts[i] : defaults[i]);
             } else {
                 ids.forEach((id, i) => document.getElementById(id).value = defaults[i]);
-            }
-            // Highlight matching preset
-            document.querySelectorAll('.scale-preset-btn').forEach(b => b.classList.remove('active'));
-            const current = getScaleFromGrid();
-            for (const [name, vals] of Object.entries(scalePresets)) {
-                if (current === vals.join(',')) {
-                    document.querySelector(`.scale-preset-btn[onclick*="${name}"]`).classList.add('active');
-                    return;
-                }
             }
         }
 
