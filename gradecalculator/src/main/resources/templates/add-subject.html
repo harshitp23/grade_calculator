@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulator - GradeCalc</title>
+    <title>Add Old Subject - Grade Calculator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* THEMES */
+        /* Shared Core Theme Configuration */
         :root { --primary: #4f46e5; --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; --danger: #ef4444; --sidebar-width: 260px; --success: #10b981; }
         [data-theme="light"] { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --border-color: #e5e7eb; }
         [data-theme="badger"] { --primary: #c5050c; --bg-color: #000000; --card-bg: #171717; --text-main: #ffffff; --text-muted: #a1a1aa; --border-color: #333333; }
@@ -16,8 +16,8 @@
 
         * { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
-
-        /* Dropdown Theme Menu */
+        
+        /* Dropdown Theme Menu CSS */
         .theme-dropdown-container { position: relative; display: inline-block; margin: 0; }
         .theme-dropdown { position: absolute; right: 0; top: 100%; margin-top: 10px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 160px; z-index: 1000; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; }
         .theme-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
@@ -30,85 +30,76 @@
         .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; transition: transform 0.3s ease; flex-shrink: 0; }
         .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
-        .nav-link:hover, .nav-link.active { background-color: rgba(128,128,128,0.1); color: var(--primary); }
+        .nav-link:hover, .nav-link.active { background-color: rgba(128,128,128, 0.1); color: var(--primary); }
         .spacer { flex: 1; }
         .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
         .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
         .icon-btn:hover { color: var(--primary); }
-
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
-        .container { max-width: 900px; }
 
         /* ===== PAGE HEADER ===== */
-        .page-header { margin-bottom: 28px; }
+        .page-header { margin-bottom: 32px; }
         .page-header h1 { font-size: 26px; font-weight: 800; margin: 0 0 6px 0; }
         .page-header p { color: var(--text-muted); font-size: 14px; margin: 0; }
 
-        /* ===== SUBJECT SELECTOR ===== */
-        .selector-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 14px; }
-        .selector-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: rgba(79,70,229,0.12); color: var(--primary); flex-shrink: 0; }
-        [data-theme="badger"] .selector-icon { background: rgba(197,5,12,0.12); color: #ff4b52; }
-        [data-theme="ocean"] .selector-icon { background: rgba(2,132,199,0.12); color: #38bdf8; }
-        .selector-card select { flex: 1; padding: 11px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; outline: none; }
-        .selector-card select:focus { border-color: var(--primary); }
+        /* ===== FORM CARD ===== */
+        .form-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 32px; max-width: 680px; }
+        .form-card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        .form-card-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: rgba(79,70,229,0.12); color: var(--primary); }
+        [data-theme="badger"] .form-card-icon { background: rgba(197,5,12,0.12); color: #ff4b52; }
+        [data-theme="ocean"] .form-card-icon { background: rgba(2,132,199,0.12); color: #38bdf8; }
+        .form-card-title { font-size: 17px; font-weight: 700; }
+        .form-card-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-        /* ===== EMPTY STATE ===== */
-        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
-        .empty-state i { font-size: 48px; opacity: 0.15; margin-bottom: 16px; display: block; }
-        .empty-state-title { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; }
-        .empty-state-desc { font-size: 13px; max-width: 400px; margin: 0 auto; }
+        /* ===== FORM FIELDS ===== */
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px; }
+        .form-input { width: 100%; padding: 11px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; background: var(--bg-color); color: var(--text-main); transition: border-color 0.2s; outline: none; }
+        .form-input:focus { border-color: var(--primary); }
+        .form-input::placeholder { color: var(--text-muted); opacity: 0.6; }
+        select.form-input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+        .form-row { display: flex; gap: 14px; }
+        .form-row > * { flex: 1; }
 
-        /* ===== SCORE BANNER ===== */
-        .score-banner { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 24px; margin-bottom: 24px; display: none; align-items: center; justify-content: space-between; gap: 20px; }
-        .score-banner-left { display: flex; align-items: center; gap: 16px; }
-        .score-ring { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
-        .score-ring svg { width: 72px; height: 72px; transform: rotate(-90deg); }
-        .score-ring circle { fill: none; stroke-width: 5; }
-        .score-ring .ring-bg { stroke: var(--border-color); }
-        .score-ring .ring-fill { stroke: var(--primary); stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
-        [data-theme="badger"] .score-ring .ring-fill { stroke: #ff4b52; }
-        [data-theme="ocean"] .score-ring .ring-fill { stroke: #38bdf8; }
-        .score-ring-value { position: absolute; font-size: 16px; font-weight: 800; }
-        .score-info .score-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
-        .score-info .score-grade { font-size: 20px; font-weight: 800; margin-top: 2px; }
-        .score-info .score-mode { font-size: 12px; color: var(--text-muted); margin-top: 4px; display: flex; align-items: center; gap: 6px; }
-        .score-info .score-mode .mode-tag { background: rgba(79,70,229,0.1); color: var(--primary); padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
-        [data-theme="badger"] .score-info .score-mode .mode-tag { background: rgba(197,5,12,0.1); color: #ff4b52; }
-        [data-theme="ocean"] .score-info .score-mode .mode-tag { background: rgba(2,132,199,0.1); color: #38bdf8; }
-        .score-banner-right { display: flex; gap: 16px; }
-        .score-stat { text-align: center; }
-        .score-stat-value { font-size: 18px; font-weight: 800; }
-        .score-stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        /* ===== GRADE SELECTOR ===== */
+        .grade-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+        .grade-option { flex: 1; min-width: 70px; }
+        .grade-option input[type="radio"] { display: none; }
+        .grade-option label { display: flex; flex-direction: column; align-items: center; padding: 12px 6px; border: 1px solid var(--border-color); border-radius: 10px; cursor: pointer; transition: all 0.2s; background: var(--bg-color); }
+        .grade-option label:hover { border-color: var(--primary); }
+        .grade-option input:checked + label { border-color: var(--primary); background: rgba(79,70,229,0.08); }
+        [data-theme="badger"] .grade-option input:checked + label { border-color: var(--primary); background: rgba(197,5,12,0.08); }
+        [data-theme="ocean"] .grade-option input:checked + label { border-color: var(--primary); background: rgba(2,132,199,0.08); }
+        .grade-letter { font-size: 18px; font-weight: 800; color: var(--text-main); }
+        .grade-gpa { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-        /* ===== COMPONENT CARDS ===== */
-        .group-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; margin-bottom: 16px; overflow: hidden; }
-        .group-header { padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .group-header-left { display: flex; align-items: center; gap: 10px; }
-        .group-header-left .group-name { font-size: 14px; font-weight: 700; }
-        .group-header-right { display: flex; align-items: center; gap: 12px; }
-        .group-weight-pill { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 10px; background: rgba(79,70,229,0.1); color: var(--primary); }
-        [data-theme="badger"] .group-weight-pill { background: rgba(197,5,12,0.1); color: #ff4b52; }
-        [data-theme="ocean"] .group-weight-pill { background: rgba(2,132,199,0.1); color: #38bdf8; }
-        .group-score { font-size: 13px; font-weight: 700; color: var(--text-muted); }
-        .group-body { padding: 4px 0; }
+        /* ===== SUBMIT BUTTON ===== */
+        .btn-submit { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 24px; }
+        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,70,229,0.3); }
+        [data-theme="badger"] .btn-submit:hover { box-shadow: 0 6px 20px rgba(197,5,12,0.3); }
+        [data-theme="ocean"] .btn-submit:hover { box-shadow: 0 6px 20px rgba(2,132,199,0.3); }
 
-        /* ===== ASSIGNMENT ROWS ===== */
-        .assign-row { display: flex; align-items: center; gap: 10px; padding: 10px 20px; border-bottom: 1px solid rgba(128,128,128,0.06); transition: background 0.15s; }
-        .assign-row:last-child { border-bottom: none; }
-        .assign-row:hover { background: rgba(128,128,128,0.03); }
-        .assign-row.not-graded { opacity: 0.45; }
-        .assign-row.not-graded:hover { opacity: 0.7; }
-        .assign-row.modified { opacity: 1; background: rgba(79,70,229,0.04); }
-        [data-theme="badger"] .assign-row.modified { background: rgba(197,5,12,0.04); }
-        [data-theme="ocean"] .assign-row.modified { background: rgba(2,132,199,0.04); }
-        .assign-status { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-        .assign-status.graded { background: var(--success); }
-        .assign-status.ungraded { background: var(--text-muted); opacity: 0.3; }
-        .assign-name { flex: 1; font-size: 13px; font-weight: 500; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .assign-input { width: 64px; padding: 7px 8px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-main); font-size: 13px; font-family: 'Inter', sans-serif; text-align: center; outline: none; transition: border-color 0.2s; }
-        .assign-input:focus { border-color: var(--primary); }
-        .assign-divider { color: var(--text-muted); font-size: 12px; opacity: 0.4; }
-        .assign-total { width: 50px; text-align: center; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        /* ===== RECENTLY ADDED ===== */
+        .recent-section { margin-top: 28px; max-width: 680px; display: none; }
+        .recent-header { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .recent-item { display: flex; align-items: center; gap: 14px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px 18px; margin-bottom: 8px; transition: transform 0.2s; }
+        .recent-item:hover { transform: translateX(4px); }
+        .recent-grade { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; }
+        .recent-grade.grade-A { background: rgba(16,185,129,0.12); color: #10b981; }
+        .recent-grade.grade-AB { background: rgba(52,211,153,0.12); color: #34d399; }
+        .recent-grade.grade-B { background: rgba(96,165,250,0.12); color: #60a5fa; }
+        .recent-grade.grade-BC { background: rgba(147,197,253,0.12); color: #93c5fd; }
+        .recent-grade.grade-C { background: rgba(245,158,11,0.12); color: #f59e0b; }
+        .recent-grade.grade-D { background: rgba(249,115,22,0.12); color: #f97316; }
+        .recent-grade.grade-F { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .recent-info { flex: 1; }
+        .recent-name { font-size: 14px; font-weight: 600; }
+        .recent-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .recent-credits { font-size: 12px; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+
+        /* ===== SUCCESS TOAST ===== */
+        .toast { position: fixed; bottom: 30px; right: 30px; background: var(--success); color: white; padding: 14px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 25px rgba(16,185,129,0.3); transform: translateY(100px); opacity: 0; transition: all 0.3s ease; z-index: 999; }
+        .toast.show { transform: translateY(0); opacity: 1; }
 
         /* ===== MODAL ===== */
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
@@ -128,14 +119,10 @@
             .sidebar.active { transform: translateX(0); }
             .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
             .main-content { padding: 20px; width: 100%; }
-            .selector-card { padding: 16px; flex-direction: column; align-items: stretch; gap: 10px; }
-            .selector-icon { display: none; }
-            .score-banner { flex-direction: column; align-items: flex-start; }
-            .score-banner-right { width: 100%; justify-content: space-around; padding-top: 16px; border-top: 1px solid var(--border-color); }
-            .assign-row { padding: 10px 14px; gap: 8px; }
-            .assign-input { width: 54px; padding: 6px; font-size: 12px; }
-            .assign-name { font-size: 12px; }
-            .modal-content { width: 90%; padding: 20px; }
+            .form-card { padding: 24px; }
+            .form-row { flex-direction: column; gap: 0; }
+            .grade-selector { gap: 6px; }
+            .grade-option { min-width: 60px; }
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 900; }
             .mobile-overlay.active { display: block; }
         }
@@ -165,7 +152,7 @@
                 </div>
             </div>
             <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
-            <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+            <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
         </div>
     </div>
 
@@ -175,10 +162,10 @@
         <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
-            <a th:href="@{/}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects</a>
-            <a th:href="@{/simulator}" class="nav-link active"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
-            <a th:href="@{/target-grade}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+            <a href="index.html" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="add-subject.html" class="nav-link active"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects</a>
+            <a href="/simulator" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
+            <a href="target-grade.html" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
             <a href="#" onclick="document.getElementById('helpModal').style.display='flex'" class="nav-link"><i class="fa-solid fa-book-open"></i> Getting Started</a>
         </nav>
         <div class="spacer"></div>
@@ -196,71 +183,89 @@
                     </div>
                 </div>
                 <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
-                <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+                <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
             </div>
         </div>
     </aside>
 
     <main class="main-content">
-        <div class="container">
-            <div class="page-header">
-                <h1>Grade Simulator</h1>
-                <p>Test hypothetical scores on your in-progress classes to see how they impact your final grade.</p>
+        <div class="page-header">
+            <h1>Add Old Subjects</h1>
+            <p>Add completed classes not synced from Canvas to build your full transcript.</p>
+        </div>
+
+        <div class="form-card">
+            <div class="form-card-header">
+                <div class="form-card-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                <div>
+                    <div class="form-card-title">New Transcript Entry</div>
+                    <div class="form-card-subtitle">Fill in the details for a completed course</div>
+                </div>
             </div>
 
-            <div class="selector-card">
-                <div class="selector-icon"><i class="fa-solid fa-flask"></i></div>
-                <select id="subSelect" onchange="loadSimData()">
-                    <option value="" disabled selected>Select a subject...</option>
-                    <th:block th:each="sub : ${subjects}"><option th:value="${sub.id}" th:text="${sub.subjectName}"></option></th:block>
-                </select>
-            </div>
+            <form id="addSubjectForm">
+                <input type="hidden" name="status" value="Completed">
 
-            <!-- Empty State -->
-            <div id="emptyState" class="empty-state">
-                <i class="fa-solid fa-flask"></i>
-                <div class="empty-state-title">Select a subject to begin</div>
-                <div class="empty-state-desc">Choose one of your in-progress classes above to start simulating scores and see how they affect your final grade.</div>
-            </div>
+                <div class="form-group">
+                    <label>Subject Name</label>
+                    <input type="text" name="name" class="form-input" placeholder="e.g. Introduction to Computer Science" required>
+                </div>
 
-            <!-- Sim Content (hidden until subject selected) -->
-            <div id="simBody" style="display:none;">
-                <!-- Score Banner -->
-                <div class="score-banner" id="scoreBanner">
-                    <div class="score-banner-left">
-                        <div class="score-ring">
-                            <svg viewBox="0 0 72 72">
-                                <circle class="ring-bg" cx="36" cy="36" r="30"></circle>
-                                <circle class="ring-fill" id="ringFill" cx="36" cy="36" r="30" stroke-dasharray="188.5" stroke-dashoffset="188.5"></circle>
-                            </svg>
-                            <span class="score-ring-value" id="ringValue">0%</span>
-                        </div>
-                        <div class="score-info">
-                            <div class="score-label">Simulated Score</div>
-                            <div class="score-grade" id="simGradeLetter">—</div>
-                            <div class="score-mode"><span class="mode-tag" id="modeTag">Weighted</span> <span id="simSubName"></span></div>
-                        </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Course Code</label>
+                        <input type="text" name="code" class="form-input" placeholder="e.g. CS 400" required>
                     </div>
-                    <div class="score-banner-right">
-                        <div class="score-stat">
-                            <div class="score-stat-value" id="gradedCount">0</div>
-                            <div class="score-stat-label">Graded</div>
-                        </div>
-                        <div class="score-stat">
-                            <div class="score-stat-value" id="ungradedCount">0</div>
-                            <div class="score-stat-label">Ungraded</div>
-                        </div>
-                        <div class="score-stat">
-                            <div class="score-stat-value" id="modifiedCount" style="color:var(--primary);">0</div>
-                            <div class="score-stat-label">Modified</div>
-                        </div>
+                    <div class="form-group">
+                        <label>Credits</label>
+                        <input type="number" name="credits" class="form-input" placeholder="3" min="1" max="10" value="3" required>
                     </div>
                 </div>
 
-                <div id="groupsArea"></div>
-            </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Term Season</label>
+                        <select name="termSeason" class="form-input" required>
+                            <option value="Fall">Fall</option>
+                            <option value="Spring">Spring</option>
+                            <option value="Summer">Summer</option>
+                            <option value="Winter">Winter</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Term Year</label>
+                        <input type="number" name="termYear" id="termYearInput" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Final Grade Achieved</label>
+                    <div class="grade-selector">
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gA" value="A" checked><label for="gA"><span class="grade-letter">A</span><span class="grade-gpa">4.0</span></label></div>
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gAB" value="AB"><label for="gAB"><span class="grade-letter">AB</span><span class="grade-gpa">3.5</span></label></div>
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gB" value="B"><label for="gB"><span class="grade-letter">B</span><span class="grade-gpa">3.0</span></label></div>
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gBC" value="BC"><label for="gBC"><span class="grade-letter">BC</span><span class="grade-gpa">2.5</span></label></div>
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gC" value="C"><label for="gC"><span class="grade-letter">C</span><span class="grade-gpa">2.0</span></label></div>
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gD" value="D"><label for="gD"><span class="grade-letter">D</span><span class="grade-gpa">1.0</span></label></div>
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gF" value="F"><label for="gF"><span class="grade-letter">F</span><span class="grade-gpa">0.0</span></label></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-plus"></i> Add to Transcript
+                </button>
+            </form>
+        </div>
+
+        <!-- Recently Added -->
+        <div class="recent-section" id="recentSection">
+            <div class="recent-header"><i class="fa-solid fa-history" style="color:var(--primary);"></i> Recently Added</div>
+            <div id="recentList"></div>
         </div>
     </main>
+
+    <!-- Success Toast -->
+    <div class="toast" id="toast"><i class="fa-solid fa-check-circle"></i> Subject added to transcript!</div>
 
     <!-- Global Settings Modal -->
     <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
@@ -270,9 +275,9 @@
             <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Profile Details</h4>
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Username</label>
-                <input type="text" id="settings-username" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                <input type="text" id="settings-username" class="form-input" style="margin-bottom:10px;">
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Email</label>
-                <input type="email" id="settings-email" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
+                <input type="email" id="settings-email" class="form-input" style="margin-bottom:10px;">
                 <button class="btn-save" onclick="saveProfileChanges()">Save Profile Changes</button>
             </div>
 
@@ -280,12 +285,12 @@
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Change Password</h4>
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Current Password</label>
                 <div style="position: relative; margin-bottom: 10px;">
-                    <input type="password" id="settings-old-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
+                    <input type="password" id="settings-old-password" class="form-input" style="padding-right:40px;">
                     <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-old-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
                 </div>
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">New Password</label>
                 <div style="position: relative; margin-bottom: 10px;">
-                    <input type="password" id="settings-new-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
+                    <input type="password" id="settings-new-password" class="form-input" style="padding-right:40px;">
                     <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-new-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
                 </div>
                 <button class="btn-save" onclick="updatePassword()">Reset Password</button>
@@ -294,7 +299,7 @@
             <div style="margin-bottom:15px;">
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Canvas Sync</h4>
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Canvas API Token</label>
-                <input type="text" id="canvasApiToken" readonly style="width:100%; padding:10px; border-radius:8px; background:var(--bg-color); color:var(--text-main); box-sizing: border-box; margin-bottom:10px;">
+                <input type="text" id="canvasApiToken" readonly class="form-input" style="margin-bottom:10px;">
                 <button class="btn-save" style="margin-top:0;" onclick="resetCanvasToken()">Regenerate Token</button>
             </div>
             
@@ -302,32 +307,12 @@
         </div>
     </div>
 
-    <!-- Help Modal -->
-    <div id="helpModal" class="modal" onclick="if(event.target.id==='helpModal') this.style.display='none'">
-        <div class="modal-content" style="width: 550px; max-height: 85vh; overflow-y: auto;">
-            <div class="modal-header">
-                <h2 style="margin: 0;">Getting Started</h2>
-                <span style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('helpModal').style.display='none'">&times;</span>
-            </div>
-            <div style="line-height: 1.6; color: var(--text-main);">
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">1. Syncing with Canvas</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">Install <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank" style="color: var(--primary); font-weight: 600; text-decoration: none;">GradeCalc Sync Pro</a> from the Chrome Web Store. Pin it, open Canvas, and click "Update Synced Grades" to import your classes.</p>
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">2. Building Your Transcript</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">Click <b>Add Old Subjects</b> in the sidebar to manually enter classes from previous semesters not in Canvas. Your GPA trend graph will automatically update!</p>
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">3. Grade Simulator</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">Select an active class, and type in hypothetical scores to see exactly how your final percentage changes.</p>
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">4. Target Calculator</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">The <b>Target Calculator</b> tells you exactly what score you need on your next exam/assignment to hit your goal.</p>
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">5. Custom Grading Scales</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">Click the gear icon next to any subject on your dashboard to set a custom grading scale so your GPA is calculated perfectly.</p>
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">6. Curve Adjustments</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">For completed classes, click the trending up arrow icon to apply a manual curve adjustment.</p>
-            </div>
-            <button class="btn-save" onclick="document.getElementById('helpModal').style.display='none'">Got it!</button>
-        </div>
-    </div>
-
     <script>
+        document.getElementById('termYearInput').value = new Date().getFullYear();
+
+        // Session-local recently added list
+        const recentlyAdded = [];
+
         // --- THEME ---
         function toggleThemeMenu(menuId) { document.getElementById('themeDropdown-' + menuId).classList.toggle('show'); }
         function setTheme(theme) {
@@ -340,21 +325,24 @@
             document.querySelectorAll('.active-indicator').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.check-' + theme).forEach(el => el.style.display = 'inline-block');
         }
-        window.addEventListener('click', function(e) { if (!e.target.closest('.theme-dropdown-container')) document.querySelectorAll('.theme-dropdown').forEach(d => d.classList.remove('show')); });
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.theme-dropdown-container')) {
+                document.querySelectorAll('.theme-dropdown').forEach(d => d.classList.remove('show'));
+            }
+        });
         document.addEventListener('DOMContentLoaded', () => { updateActiveThemeIndicator(localStorage.getItem('theme') || 'dark'); });
-
-        // --- SIDEBAR ---
-        function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
 
         // --- GLOBAL SETTINGS ---
         function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); loadUserProfile(); }
         async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
         async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
+
         function toggleSettingsPwd(inputId, icon) {
             const input = document.getElementById(inputId);
             if (input.type === 'password') { input.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
             else { input.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
         }
+
         async function loadUserProfile() {
             try { const res = await fetch('/api/user/profile'); if(res.ok) { const data = await res.json(); document.getElementById('settings-username').value = data.username || ''; document.getElementById('settings-email').value = data.email || ''; } } catch(e) { console.error(e); }
         }
@@ -374,141 +362,61 @@
             try { const res = await fetch('/api/account/delete', { method: 'DELETE' }); if (res.ok) window.location.href = '/login.html?deleted'; else alert('Failed to delete account.'); } catch (e) { alert('Error deleting account.'); }
         }
 
-        // ===== SIMULATOR LOGIC =====
-        let cs = null; // current subject data
+        // --- SIDEBAR ---
+        function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
 
-        async function loadSimData() {
-            const subId = document.getElementById('subSelect').value;
-            if (!subId) return;
-
-            const res = await fetch(`/api/simulator/load?subjectId=${subId}`);
-            cs = await res.json();
-
-            // Hide empty state, show sim
-            document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('simBody').style.display = 'block';
-            document.getElementById('scoreBanner').style.display = 'flex';
-
-            // Set subject name in banner
-            const selEl = document.getElementById('subSelect');
-            document.getElementById('simSubName').textContent = selEl.options[selEl.selectedIndex].text;
-
-            render();
+        // --- TOAST ---
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
         }
 
-        function render() {
-            const area = document.getElementById('groupsArea');
-            area.innerHTML = '';
-
-            const isWeighted = cs.components.some(c => c.weight > 0);
-            document.getElementById('modeTag').textContent = isWeighted ? 'Weighted' : 'Points';
-
-            cs.components.forEach((comp, idx) => {
-                const card = document.createElement('div');
-                card.className = 'group-card';
-
-                const weightLabel = comp.weight > 0 ? comp.weight + '%' : 'Points';
-
-                card.innerHTML = `
-                    <div class="group-header">
-                        <div class="group-header-left"><span class="group-name">${comp.name}</span></div>
-                        <div class="group-header-right">
-                            <span class="group-score" id="gs-${idx}">—</span>
-                            <span class="group-weight-pill">${weightLabel}</span>
-                        </div>
+        // --- RECENTLY ADDED ---
+        function addToRecentList(name, code, credits, termSeason, termYear, grade) {
+            recentlyAdded.unshift({ name, code, credits, termSeason, termYear, grade });
+            const section = document.getElementById('recentSection');
+            const list = document.getElementById('recentList');
+            section.style.display = 'block';
+            list.innerHTML = recentlyAdded.map(r => `
+                <div class="recent-item">
+                    <div class="recent-grade grade-${r.grade}">${r.grade}</div>
+                    <div class="recent-info">
+                        <div class="recent-name">${r.name}</div>
+                        <div class="recent-meta">${r.termSeason} ${r.termYear} · ${r.code}</div>
                     </div>
-                    <div class="group-body" id="g-${idx}"></div>`;
-                area.appendChild(card);
-
-                const body = card.querySelector(`#g-${idx}`);
-                comp.assignments.forEach(a => {
-                    const isGraded = a.score > 0;
-                    const row = document.createElement('div');
-                    row.className = 'assign-row' + (isGraded ? '' : ' not-graded');
-                    row.innerHTML = `
-                        <div class="assign-status ${isGraded ? 'graded' : 'ungraded'}"></div>
-                        <div class="assign-name">${a.name}</div>
-                        <input type="number" class="assign-input" value="${a.score}" data-original="${a.score}" oninput="onScoreEdit(this)">
-                        <span class="assign-divider">/</span>
-                        <div class="assign-total">${a.totalPoints}</div>`;
-                    body.appendChild(row);
-                });
-            });
-
-            calc();
+                    <div class="recent-credits">${r.credits} credits</div>
+                </div>
+            `).join('');
         }
 
-        function onScoreEdit(el) {
-            const row = el.closest('.assign-row');
-            row.classList.remove('not-graded');
-            row.classList.add('modified');
-            row.querySelector('.assign-status').className = 'assign-status graded';
-            row.setAttribute('data-mod', 'true');
-            calc();
-        }
-
-        function calc() {
-            const isWeighted = cs.components.some(c => c.weight > 0);
-            let tw = 0, ws = 0, te = 0, tp = 0;
-            let graded = 0, ungradedCt = 0, modified = 0;
-
-            cs.components.forEach((comp, idx) => {
-                const rows = document.querySelectorAll(`#g-${idx} .assign-row`);
-                let gs = 0, gt = 0;
-
-                rows.forEach(row => {
-                    const scoreInput = row.querySelector('.assign-input');
-                    const totalEl = row.querySelector('.assign-total');
-                    const s = parseFloat(scoreInput.value) || 0;
-                    const t = parseFloat(totalEl.textContent) || 0;
-                    const isMod = row.getAttribute('data-mod') === 'true';
-                    const isUngraded = row.classList.contains('not-graded');
-
-                    if (isMod) {
-                        modified++;
-                        graded++;
-                        gs += s; gt += t;
-                    } else if (!isUngraded && s > 0) {
-                        graded++;
-                        gs += s; gt += t;
-                    } else {
-                        ungradedCt++;
-                    }
-                });
-
-                // Update group score display
-                const gsEl = document.getElementById('gs-' + idx);
-                if (gsEl) gsEl.textContent = gt > 0 ? gs + '/' + gt : '—';
-
-                if (gt > 0) {
-                    if (isWeighted) { ws += (gs / gt) * comp.weight; tw += comp.weight; }
-                    else { te += gs; tp += gt; }
-                }
-            });
-
-            const pct = isWeighted ? (tw > 0 ? (ws / tw) * 100 : 0) : (tp > 0 ? (te / tp) * 100 : 0);
-
-            // Update ring
-            const circ = 2 * Math.PI * 30;
-            const offset = circ - (Math.min(pct, 100) / 100) * circ;
-            document.getElementById('ringFill').setAttribute('stroke-dashoffset', offset);
-            document.getElementById('ringValue').textContent = pct.toFixed(1) + '%';
-
-            // Grade letter
-            let letter = 'F';
-            if (pct >= 93) letter = 'A';
-            else if (pct >= 88) letter = 'AB';
-            else if (pct >= 83) letter = 'B';
-            else if (pct >= 78) letter = 'BC';
-            else if (pct >= 70) letter = 'C';
-            else if (pct >= 60) letter = 'D';
-            document.getElementById('simGradeLetter').textContent = letter;
-
-            // Stats
-            document.getElementById('gradedCount').textContent = graded;
-            document.getElementById('ungradedCount').textContent = ungradedCt;
-            document.getElementById('modifiedCount').textContent = modified;
-        }
+        // --- FORM SUBMIT ---
+        document.getElementById('addSubjectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('/api/subjects/add', { method: 'POST', body: formData })
+            .then(response => { if (!response.ok) throw new Error("Failed"); return response.json(); })
+            .then(() => {
+                // Show toast + add to recent list
+                showToast();
+                addToRecentList(
+                    formData.get('name'),
+                    formData.get('code'),
+                    formData.get('credits'),
+                    formData.get('termSeason'),
+                    formData.get('termYear'),
+                    formData.get('letterGrade')
+                );
+                // Reset form but keep term year and season
+                const season = formData.get('termSeason');
+                const year = formData.get('termYear');
+                this.reset();
+                this.querySelector('[name="termSeason"]').value = season;
+                document.getElementById('termYearInput').value = year;
+                document.getElementById('gA').checked = true;
+            })
+            .catch(error => { console.error(error); alert("Error creating subject."); });
+        });
     </script>
 </body>
 </html>
