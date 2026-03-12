@@ -1,20 +1,24 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Old Subjects - Preview</title>
+    <title>Add Old Subject - Grade Calculator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
+        /* Shared Core Theme Configuration */
         :root { --primary: #4f46e5; --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; --danger: #ef4444; --sidebar-width: 260px; --success: #10b981; }
         [data-theme="light"] { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --border-color: #e5e7eb; }
         [data-theme="badger"] { --primary: #c5050c; --bg-color: #000000; --card-bg: #171717; --text-main: #ffffff; --text-muted: #a1a1aa; --border-color: #333333; }
         [data-theme="ocean"] { --primary: #0284c7; --bg-color: #082f49; --card-bg: #0c4a6e; --text-main: #f0f9ff; --text-muted: #7dd3fc; --border-color: #0369a1; }
+
         * { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
-
-        .theme-dropdown-container { position: relative; display: inline-block; }
+        
+        /* Dropdown Theme Menu CSS */
+        .theme-dropdown-container { position: relative; display: inline-block; margin: 0; }
         .theme-dropdown { position: absolute; right: 0; top: 100%; margin-top: 10px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 160px; z-index: 1000; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; }
         .theme-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
         .theme-dropdown-header { font-size: 11px; font-weight: 800; color: var(--text-muted); padding: 12px 16px 8px; text-transform: uppercase; letter-spacing: 1px; }
@@ -23,15 +27,14 @@
         .theme-option:last-child { border-radius: 0 0 8px 8px; margin-bottom: 5px; }
         .active-indicator { display: none; color: var(--primary); font-size: 14px; }
 
-        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; flex-shrink: 0; }
+        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; transition: transform 0.3s ease; flex-shrink: 0; }
         .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
-        .nav-link:hover, .nav-link.active { background-color: rgba(128,128,128,0.1); color: var(--primary); }
+        .nav-link:hover, .nav-link.active { background-color: rgba(128,128,128, 0.1); color: var(--primary); }
         .spacer { flex: 1; }
         .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
         .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
         .icon-btn:hover { color: var(--primary); }
-
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
 
         /* ===== PAGE HEADER ===== */
@@ -55,7 +58,6 @@
         .form-input:focus { border-color: var(--primary); }
         .form-input::placeholder { color: var(--text-muted); opacity: 0.6; }
         select.form-input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
-
         .form-row { display: flex; gap: 14px; }
         .form-row > * { flex: 1; }
 
@@ -78,7 +80,7 @@
         [data-theme="ocean"] .btn-submit:hover { box-shadow: 0 6px 20px rgba(2,132,199,0.3); }
 
         /* ===== RECENTLY ADDED ===== */
-        .recent-section { margin-top: 28px; max-width: 680px; }
+        .recent-section { margin-top: 28px; max-width: 680px; display: none; }
         .recent-header { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .recent-item { display: flex; align-items: center; gap: 14px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px 18px; margin-bottom: 8px; transition: transform 0.2s; }
         .recent-item:hover { transform: translateX(4px); }
@@ -87,6 +89,9 @@
         .recent-grade.grade-AB { background: rgba(52,211,153,0.12); color: #34d399; }
         .recent-grade.grade-B { background: rgba(96,165,250,0.12); color: #60a5fa; }
         .recent-grade.grade-BC { background: rgba(147,197,253,0.12); color: #93c5fd; }
+        .recent-grade.grade-C { background: rgba(245,158,11,0.12); color: #f59e0b; }
+        .recent-grade.grade-D { background: rgba(249,115,22,0.12); color: #f97316; }
+        .recent-grade.grade-F { background: rgba(239,68,68,0.12); color: #ef4444; }
         .recent-info { flex: 1; }
         .recent-name { font-size: 14px; font-weight: 600; }
         .recent-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
@@ -96,33 +101,80 @@
         .toast { position: fixed; bottom: 30px; right: 30px; background: var(--success); color: white; padding: 14px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 25px rgba(16,185,129,0.3); transform: translateY(100px); opacity: 0; transition: all 0.3s ease; z-index: 999; }
         .toast.show { transform: translateY(0); opacity: 1; }
 
+        /* ===== MODAL ===== */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
+        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px; font-family: 'Inter', sans-serif; }
+        .btn-save:hover { opacity: 0.9; }
+
+        .mobile-nav { display: none; }
+        .mobile-overlay { display: none; }
+        .mobile-close-sidebar { display: none; }
+
         @media (max-width: 768px) {
-            .sidebar { display: none; }
-            .main-content { padding: 20px; }
+            body { flex-direction: column; }
+            .mobile-nav { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--card-bg); border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.3); z-index: 999; }
+            .sidebar.active { transform: translateX(0); }
+            .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
+            .main-content { padding: 20px; width: 100%; }
+            .form-card { padding: 24px; }
             .form-row { flex-direction: column; gap: 0; }
             .grade-selector { gap: 6px; }
             .grade-option { min-width: 60px; }
+            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 900; }
+            .mobile-overlay.active { display: block; }
         }
     </style>
+
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
 </head>
 <body>
 
+    <div class="mobile-nav">
+        <div style="display:flex; align-items:center; gap:15px;">
+            <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
+            <div class="logo" style="margin:0; font-size:18px;"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
+        </div>
+        <div style="display:flex; gap:15px; align-items:center;">
+            <div class="theme-dropdown-container">
+                <button class="icon-btn" onclick="toggleThemeMenu('mobile')"><i class="fa-solid fa-palette"></i></button>
+                <div class="theme-dropdown" id="themeDropdown-mobile" style="top: 100%; right: 0;">
+                    <div class="theme-dropdown-header">Theme</div>
+                    <div class="theme-option" onclick="setTheme('dark')">🌙 Dark <i class="fa-solid fa-circle-dot active-indicator check-dark"></i></div>
+                    <div class="theme-option" onclick="setTheme('light')">☀️ Light <i class="fa-solid fa-circle-dot active-indicator check-light"></i></div>
+                    <div class="theme-option" onclick="setTheme('badger')">🦡 Badger <i class="fa-solid fa-circle-dot active-indicator check-badger"></i></div>
+                    <div class="theme-option" onclick="setTheme('ocean')">🌊 Ocean <i class="fa-solid fa-circle-dot active-indicator check-ocean"></i></div>
+                </div>
+            </div>
+            <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
+            <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
+        </div>
+    </div>
+
+    <div class="mobile-overlay" onclick="toggleSidebar()"></div>
+
     <aside class="sidebar">
+        <div class="mobile-close-sidebar" onclick="toggleSidebar()">&times;</div>
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
-            <a href="#" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a href="#" class="nav-link active"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects</a>
-            <a href="#" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
-            <a href="#" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
-            <a href="#" class="nav-link"><i class="fa-solid fa-book-open"></i> Getting Started</a>
+            <a href="index.html" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="add-subject.html" class="nav-link active"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects</a>
+            <a href="/simulator" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
+            <a href="target-grade.html" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
+            <a href="#" onclick="document.getElementById('helpModal').style.display='flex'" class="nav-link"><i class="fa-solid fa-book-open"></i> Getting Started</a>
         </nav>
         <div class="spacer"></div>
         <div class="user-profile">
-            <span style="font-size:12px; color:var(--text-muted);">Signed in as <strong style="color:var(--text-main)">harshit</strong></span>
+            <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">Signed in as <strong sec:authentication="name" style="color:var(--text-main)">Student</strong></span>
             <div style="display:flex; gap:10px; align-items:center;">
                 <div class="theme-dropdown-container">
-                    <button class="icon-btn" onclick="toggleThemeMenu()"><i class="fa-solid fa-palette"></i></button>
-                    <div class="theme-dropdown" id="themeDropdown" style="bottom:100%; top:auto; right:0; margin-bottom:10px; margin-top:0;">
+                    <button class="icon-btn" onclick="toggleThemeMenu('desktop')"><i class="fa-solid fa-palette"></i></button>
+                    <div class="theme-dropdown" id="themeDropdown-desktop" style="bottom: 100%; top: auto; right: 0; margin-bottom: 10px; margin-top: 0;">
                         <div class="theme-dropdown-header">Theme</div>
                         <div class="theme-option" onclick="setTheme('dark')">🌙 Dark <i class="fa-solid fa-circle-dot active-indicator check-dark"></i></div>
                         <div class="theme-option" onclick="setTheme('light')">☀️ Light <i class="fa-solid fa-circle-dot active-indicator check-light"></i></div>
@@ -130,8 +182,8 @@
                         <div class="theme-option" onclick="setTheme('ocean')">🌊 Ocean <i class="fa-solid fa-circle-dot active-indicator check-ocean"></i></div>
                     </div>
                 </div>
-                <button class="icon-btn"><i class="fa-solid fa-gear"></i></button>
-                <button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button>
+                <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
+                <form action="/logout" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
             </div>
         </div>
     </aside>
@@ -151,49 +203,51 @@
                 </div>
             </div>
 
-            <form id="addSubjectForm" onsubmit="event.preventDefault(); showToast();">
+            <form id="addSubjectForm">
+                <input type="hidden" name="status" value="Completed">
+
                 <div class="form-group">
                     <label>Subject Name</label>
-                    <input type="text" class="form-input" placeholder="e.g. Introduction to Computer Science" required>
+                    <input type="text" name="name" class="form-input" placeholder="e.g. Introduction to Computer Science" required>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label>Course Code</label>
-                        <input type="text" class="form-input" placeholder="e.g. CS 400" required>
+                        <input type="text" name="code" class="form-input" placeholder="e.g. CS 400" required>
                     </div>
                     <div class="form-group">
                         <label>Credits</label>
-                        <input type="number" class="form-input" placeholder="3" min="1" max="10" value="3" required>
+                        <input type="number" name="credits" class="form-input" placeholder="3" min="1" max="10" value="3" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label>Term Season</label>
-                        <select class="form-input">
+                        <select name="termSeason" class="form-input" required>
                             <option value="Fall">Fall</option>
-                            <option value="Spring" selected>Spring</option>
+                            <option value="Spring">Spring</option>
                             <option value="Summer">Summer</option>
                             <option value="Winter">Winter</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Term Year</label>
-                        <input type="number" class="form-input" value="2025" required>
+                        <input type="number" name="termYear" id="termYearInput" class="form-input" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Final Grade Achieved</label>
                     <div class="grade-selector">
-                        <div class="grade-option"><input type="radio" name="grade" id="gA" value="A" checked><label for="gA"><span class="grade-letter">A</span><span class="grade-gpa">4.0</span></label></div>
-                        <div class="grade-option"><input type="radio" name="grade" id="gAB" value="AB"><label for="gAB"><span class="grade-letter">AB</span><span class="grade-gpa">3.5</span></label></div>
-                        <div class="grade-option"><input type="radio" name="grade" id="gB" value="B"><label for="gB"><span class="grade-letter">B</span><span class="grade-gpa">3.0</span></label></div>
-                        <div class="grade-option"><input type="radio" name="grade" id="gBC" value="BC"><label for="gBC"><span class="grade-letter">BC</span><span class="grade-gpa">2.5</span></label></div>
-                        <div class="grade-option"><input type="radio" name="grade" id="gC" value="C"><label for="gC"><span class="grade-letter">C</span><span class="grade-gpa">2.0</span></label></div>
-                        <div class="grade-option"><input type="radio" name="grade" id="gD" value="D"><label for="gD"><span class="grade-letter">D</span><span class="grade-gpa">1.0</span></label></div>
-                        <div class="grade-option"><input type="radio" name="grade" id="gF" value="F"><label for="gF"><span class="grade-letter">F</span><span class="grade-gpa">0.0</span></label></div>
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gA" value="A" checked><label for="gA"><span class="grade-letter">A</span><span class="grade-gpa">4.0</span></label></div>
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gAB" value="AB"><label for="gAB"><span class="grade-letter">AB</span><span class="grade-gpa">3.5</span></label></div>
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gB" value="B"><label for="gB"><span class="grade-letter">B</span><span class="grade-gpa">3.0</span></label></div>
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gBC" value="BC"><label for="gBC"><span class="grade-letter">BC</span><span class="grade-gpa">2.5</span></label></div>
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gC" value="C"><label for="gC"><span class="grade-letter">C</span><span class="grade-gpa">2.0</span></label></div>
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gD" value="D"><label for="gD"><span class="grade-letter">D</span><span class="grade-gpa">1.0</span></label></div>
+                        <div class="grade-option"><input type="radio" name="letterGrade" id="gF" value="F"><label for="gF"><span class="grade-letter">F</span><span class="grade-gpa">0.0</span></label></div>
                     </div>
                 </div>
 
@@ -203,55 +257,166 @@
             </form>
         </div>
 
-        <!-- Recently Added Section (mock data) -->
-        <div class="recent-section">
+        <!-- Recently Added -->
+        <div class="recent-section" id="recentSection">
             <div class="recent-header"><i class="fa-solid fa-history" style="color:var(--primary);"></i> Recently Added</div>
-            <div class="recent-item">
-                <div class="recent-grade grade-A">A</div>
-                <div class="recent-info">
-                    <div class="recent-name">COMP SCI 300</div>
-                    <div class="recent-meta">Fall 2023 · CS 300</div>
-                </div>
-                <div class="recent-credits">3 credits</div>
-            </div>
-            <div class="recent-item">
-                <div class="recent-grade grade-AB">AB</div>
-                <div class="recent-info">
-                    <div class="recent-name">MATH 222</div>
-                    <div class="recent-meta">Fall 2023 · MATH 222</div>
-                </div>
-                <div class="recent-credits">4 credits</div>
-            </div>
-            <div class="recent-item">
-                <div class="recent-grade grade-B">B</div>
-                <div class="recent-info">
-                    <div class="recent-name">PHYSICS 201</div>
-                    <div class="recent-meta">Spring 2023 · PHYS 201</div>
-                </div>
-                <div class="recent-credits">5 credits</div>
-            </div>
+            <div id="recentList"></div>
         </div>
     </main>
 
     <!-- Success Toast -->
     <div class="toast" id="toast"><i class="fa-solid fa-check-circle"></i> Subject added to transcript!</div>
 
+    <!-- Global Settings Modal -->
+    <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
+        <div class="modal-content" style="width: 500px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header"><h2 style="margin:0;">Account Settings</h2><span style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
+            
+            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Profile Details</h4>
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Username</label>
+                <input type="text" id="settings-username" class="form-input" style="margin-bottom:10px;">
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Email</label>
+                <input type="email" id="settings-email" class="form-input" style="margin-bottom:10px;">
+                <button class="btn-save" onclick="saveProfileChanges()">Save Profile Changes</button>
+            </div>
+
+            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+                <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Change Password</h4>
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Current Password</label>
+                <div style="position: relative; margin-bottom: 10px;">
+                    <input type="password" id="settings-old-password" class="form-input" style="padding-right:40px;">
+                    <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-old-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                </div>
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">New Password</label>
+                <div style="position: relative; margin-bottom: 10px;">
+                    <input type="password" id="settings-new-password" class="form-input" style="padding-right:40px;">
+                    <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-new-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
+                </div>
+                <button class="btn-save" onclick="updatePassword()">Reset Password</button>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Canvas Sync</h4>
+                <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Canvas API Token</label>
+                <input type="text" id="canvasApiToken" readonly class="form-input" style="margin-bottom:10px;">
+                <button class="btn-save" style="margin-top:0;" onclick="resetCanvasToken()">Regenerate Token</button>
+            </div>
+            
+            <button class="btn-save" style="background:var(--danger); color:white; border:none; margin-top: 10px;" onclick="deleteAccount()">Delete Account</button>
+        </div>
+    </div>
+
     <script>
-        function toggleThemeMenu() { document.getElementById('themeDropdown').classList.toggle('show'); }
-        function setTheme(t) {
-            document.documentElement.setAttribute('data-theme', t);
-            document.querySelectorAll('.active-indicator').forEach(el => el.style.display='none');
-            document.querySelectorAll('.check-'+t).forEach(el => el.style.display='inline-block');
+        document.getElementById('termYearInput').value = new Date().getFullYear();
+
+        // Session-local recently added list
+        const recentlyAdded = [];
+
+        // --- THEME ---
+        function toggleThemeMenu(menuId) { document.getElementById('themeDropdown-' + menuId).classList.toggle('show'); }
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            updateActiveThemeIndicator(theme);
             document.querySelectorAll('.theme-dropdown').forEach(d => d.classList.remove('show'));
         }
-        window.addEventListener('click', e => { if(!e.target.closest('.theme-dropdown-container')) document.querySelectorAll('.theme-dropdown').forEach(d=>d.classList.remove('show')); });
-        document.querySelectorAll('.check-dark').forEach(el => el.style.display='inline-block');
+        function updateActiveThemeIndicator(theme) {
+            document.querySelectorAll('.active-indicator').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.check-' + theme).forEach(el => el.style.display = 'inline-block');
+        }
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.theme-dropdown-container')) {
+                document.querySelectorAll('.theme-dropdown').forEach(d => d.classList.remove('show'));
+            }
+        });
+        document.addEventListener('DOMContentLoaded', () => { updateActiveThemeIndicator(localStorage.getItem('theme') || 'dark'); });
 
+        // --- GLOBAL SETTINGS ---
+        function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); loadUserProfile(); }
+        async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
+        async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
+
+        function toggleSettingsPwd(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') { input.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
+            else { input.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+        }
+
+        async function loadUserProfile() {
+            try { const res = await fetch('/api/user/profile'); if(res.ok) { const data = await res.json(); document.getElementById('settings-username').value = data.username || ''; document.getElementById('settings-email').value = data.email || ''; } } catch(e) { console.error(e); }
+        }
+        async function saveProfileChanges() {
+            const username = document.getElementById('settings-username').value;
+            const email = document.getElementById('settings-email').value;
+            try { const res = await fetch('/api/user/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email }) }); const data = await res.json(); if (res.ok) alert(data.message || 'Profile updated!'); else alert(data.error || 'Failed.'); } catch (err) { alert('Error updating profile'); }
+        }
+        async function updatePassword() {
+            const oldPassword = document.getElementById('settings-old-password').value;
+            const newPassword = document.getElementById('settings-new-password').value;
+            if (!oldPassword || !newPassword) return alert('Please fill in both password fields.');
+            try { const res = await fetch('/api/user/password', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ oldPassword, newPassword }) }); const data = await res.json(); if (res.ok) { alert(data.message || 'Password updated!'); document.getElementById('settings-old-password').value = ''; document.getElementById('settings-new-password').value = ''; } else alert(data.error || 'Failed.'); } catch (err) { alert('Error updating password'); }
+        }
+        async function deleteAccount() {
+            if (!confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
+            try { const res = await fetch('/api/account/delete', { method: 'DELETE' }); if (res.ok) window.location.href = '/login.html?deleted'; else alert('Failed to delete account.'); } catch (e) { alert('Error deleting account.'); }
+        }
+
+        // --- SIDEBAR ---
+        function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
+
+        // --- TOAST ---
         function showToast() {
             const toast = document.getElementById('toast');
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2500);
         }
+
+        // --- RECENTLY ADDED ---
+        function addToRecentList(name, code, credits, termSeason, termYear, grade) {
+            recentlyAdded.unshift({ name, code, credits, termSeason, termYear, grade });
+            const section = document.getElementById('recentSection');
+            const list = document.getElementById('recentList');
+            section.style.display = 'block';
+            list.innerHTML = recentlyAdded.map(r => `
+                <div class="recent-item">
+                    <div class="recent-grade grade-${r.grade}">${r.grade}</div>
+                    <div class="recent-info">
+                        <div class="recent-name">${r.name}</div>
+                        <div class="recent-meta">${r.termSeason} ${r.termYear} · ${r.code}</div>
+                    </div>
+                    <div class="recent-credits">${r.credits} credits</div>
+                </div>
+            `).join('');
+        }
+
+        // --- FORM SUBMIT ---
+        document.getElementById('addSubjectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('/api/subjects/add', { method: 'POST', body: formData })
+            .then(response => { if (!response.ok) throw new Error("Failed"); return response.json(); })
+            .then(() => {
+                // Show toast + add to recent list
+                showToast();
+                addToRecentList(
+                    formData.get('name'),
+                    formData.get('code'),
+                    formData.get('credits'),
+                    formData.get('termSeason'),
+                    formData.get('termYear'),
+                    formData.get('letterGrade')
+                );
+                // Reset form but keep term year and season
+                const season = formData.get('termSeason');
+                const year = formData.get('termYear');
+                this.reset();
+                this.querySelector('[name="termSeason"]').value = season;
+                document.getElementById('termYearInput').value = year;
+                document.getElementById('gA').checked = true;
+            })
+            .catch(error => { console.error(error); alert("Error creating subject."); });
+        });
     </script>
 </body>
 </html>
