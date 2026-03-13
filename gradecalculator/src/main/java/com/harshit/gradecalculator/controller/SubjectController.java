@@ -91,6 +91,7 @@ public class SubjectController {
             @RequestParam Integer id,
             @RequestParam String name,
             @RequestParam String code,
+            @RequestParam(required = false) Integer credits,
             @RequestParam String termSeason,
             @RequestParam Integer termYear,
             @RequestParam(required = false) String gradingScale,
@@ -101,6 +102,7 @@ public class SubjectController {
         Subject s = loadOwnedSubject(id, userDetails);
         s.setSubjectName(name);
         s.setSubjectCode(code);
+        if (credits != null) s.setCredits(credits);
         s.setTermSeason(termSeason);
         s.setTermYear(termYear);
         s.setGradingScale(gradingScale);
