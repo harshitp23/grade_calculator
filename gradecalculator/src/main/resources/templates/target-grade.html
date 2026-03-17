@@ -35,7 +35,7 @@
         .icon-btn:hover { color: var(--primary); }
 
         .main-content { flex: 1; padding: 40px; overflow-y: auto; }
-        .container { max-width: 1100px; }
+        .container { }
 
         /* ===== PAGE HEADER ===== */
         .page-header { margin-bottom: 28px; }
@@ -147,6 +147,39 @@
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 900; }
             .mobile-overlay.active { display: block; }
         }
+
+        /* ===== POLISHED GETTING STARTED MODAL ===== */
+        .gs-modal { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; width: 580px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .gs-hero { background: linear-gradient(135deg, var(--primary), #7c3aed); padding: 32px 32px 28px; border-radius: 20px 20px 0 0; position: relative; overflow: hidden; }
+        .gs-hero::before { content: ''; position: absolute; top: -40px; right: -20px; width: 120px; height: 120px; background: rgba(255,255,255,0.08); border-radius: 50%; }
+        .gs-hero::after { content: ''; position: absolute; bottom: -30px; left: 40px; width: 80px; height: 80px; background: rgba(255,255,255,0.05); border-radius: 50%; }
+        [data-theme="badger"] .gs-hero { background: linear-gradient(135deg, #c5050c, #ff4b52); }
+        [data-theme="ocean"] .gs-hero { background: linear-gradient(135deg, #0284c7, #0369a1); }
+        .gs-hero-content { position: relative; z-index: 1; }
+        .gs-hero-close { position: absolute; top: 16px; right: 16px; z-index: 2; background: rgba(255,255,255,0.15); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .gs-hero-close:hover { background: rgba(255,255,255,0.3); }
+        .gs-hero h2 { color: white; font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+        .gs-hero p { color: rgba(255,255,255,0.75); font-size: 13px; }
+        .gs-body { padding: 28px 32px 32px; }
+        .gs-step { display: flex; gap: 16px; margin-bottom: 22px; padding: 14px; border-radius: 12px; transition: background 0.2s; }
+        .gs-step:hover { background: rgba(128,128,128,0.05); }
+        .gs-step:last-of-type { margin-bottom: 0; }
+        .gs-step-num { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+        .gs-step-num.s1 { background: rgba(79,70,229,0.12); color: var(--primary); }
+        .gs-step-num.s2 { background: rgba(16,185,129,0.12); color: #10b981; }
+        .gs-step-num.s3 { background: rgba(245,158,11,0.12); color: #f59e0b; }
+        .gs-step-num.s4 { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .gs-step-num.s5 { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+        .gs-step-num.s6 { background: rgba(6,182,212,0.12); color: #06b6d4; }
+        [data-theme="badger"] .gs-step-num.s1 { background: rgba(197,5,12,0.12); color: #ff4b52; }
+        .gs-step-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+        .gs-step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+        .gs-step-desc a { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .gs-step-desc a:hover { text-decoration: underline; }
+        .gs-footer { padding: 0 32px 28px; }
+        .gs-footer-btn { width: 100%; padding: 13px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s; }
+        .gs-footer-btn:hover { opacity: 0.9; }
+        @media (max-width: 768px) { .gs-modal { width: 95%; } }
     </style>
 
     <script>
@@ -342,21 +375,25 @@
         </div>
     </div>
 
-    <!-- Help Modal -->
+    <!-- Polished Getting Started Modal -->
     <div id="helpModal" class="modal" onclick="if(event.target.id==='helpModal') this.style.display='none'">
-        <div class="modal-content" style="width: 550px; max-height: 85vh; overflow-y: auto;">
-            <div class="modal-header"><h2 style="margin: 0;">Getting Started</h2><span style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('helpModal').style.display='none'">&times;</span></div>
-            <div style="line-height: 1.6; color: var(--text-main);">
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">1. Syncing with Canvas</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">Install <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank" style="color: var(--primary); font-weight: 600; text-decoration: none;">GradeCalc Sync Pro</a> from the Chrome Web Store. Pin it, open Canvas, and click "Update Synced Grades" to import your classes.</p>
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">2. Building Your Transcript</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">Click <b>Add Old Subjects</b> to manually enter classes from previous semesters not in Canvas.</p>
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">3. Grade Simulator</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">Select an active class, type in hypothetical scores to see how your final percentage changes.</p>
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">4. Target Calculator</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">The <b>Target Calculator</b> tells you exactly what score you need on your next exam/assignment to hit your goal.</p>
+        <div class="gs-modal">
+            <div class="gs-hero">
+                <button class="gs-hero-close" onclick="document.getElementById('helpModal').style.display='none'">&times;</button>
+                <div class="gs-hero-content">
+                    <h2>Getting Started</h2>
+                    <p>Everything you need to know to track your grades like a pro.</p>
+                </div>
             </div>
-            <button class="btn-save" onclick="document.getElementById('helpModal').style.display='none'">Got it!</button>
+            <div class="gs-body">
+                <div class="gs-step"><div class="gs-step-num s1"><i class="fa-brands fa-chrome"></i></div><div><div class="gs-step-title">Sync with Canvas</div><div class="gs-step-desc">Install <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank">GradeCalc Sync Pro</a> from the Chrome Web Store. Pin it, open Canvas, and click <strong>Update Synced Grades</strong>.</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s2"><i class="fa-solid fa-plus"></i></div><div><div class="gs-step-title">Build Your Transcript</div><div class="gs-step-desc">Click <strong>Add Old Subjects</strong> in the sidebar to manually enter past classes not synced from Canvas.</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s3"><i class="fa-solid fa-flask"></i></div><div><div class="gs-step-title">Grade Simulator</div><div class="gs-step-desc">Select an active class and enter hypothetical scores to see exactly how your final grade changes.</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s4"><i class="fa-solid fa-bullseye"></i></div><div><div class="gs-step-title">Target Calculator</div><div class="gs-step-desc">Find out exactly what you need on your next exam to hit your goal grade.</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s5"><i class="fa-solid fa-gear"></i></div><div><div class="gs-step-title">Custom Grading Scales</div><div class="gs-step-desc">Click the gear icon next to any subject to set a custom scale (e.g. A = 94%, AB = 89%).</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s6"><i class="fa-solid fa-arrow-trend-up"></i></div><div><div class="gs-step-title">Curve Adjustments</div><div class="gs-step-desc">Click the trending-up arrow on completed classes to apply a professor curve to your final grade.</div></div></div>
+            </div>
+            <div class="gs-footer"><button class="gs-footer-btn" onclick="document.getElementById('helpModal').style.display='none'">Got it!</button></div>
         </div>
     </div>
 
@@ -480,7 +517,7 @@
             }
         }
 
-        // EXACT ORIGINAL CALCULATION LOGIC — handles weighted and points modes
+        // FIXED CALCULATION — normalizes by graded weights (matching Canvas behavior)
         function calculate() {
             const g = parseFloat(document.getElementById('goalInput').value);
             const p = parseFloat(document.getElementById('ptsInput').value);
@@ -502,26 +539,43 @@
 
                 compName = comp.name;
 
-                // Sum up current weighted contributions from ALL components
-                let currentTotalWeightedPercent = 0;
+                // Canvas normalizes by graded weight:
+                // displayScore = (sum of (score/total)*weight for graded components) / (sum of graded weights) * 100
+                //
+                // When we add X points to a component with p new possible points:
+                // - If component had no grades before, it NOW becomes graded (weight gets added to denominator)
+                // - newScore = (otherWeightedSum + ((comp.score + X) / (comp.totalPoints + p)) * comp.weight) 
+                //             / newGradedWeight * 100
+                // Solve for X where newScore = g (target %)
+
+                // Step 1: Calculate current weighted contributions
+                let otherWeightedSum = 0;  // sum of (score/total)*weight for all OTHER graded components
+                let otherGradedWeight = 0; // sum of weights for all OTHER graded components
+
                 sd.components.forEach(c => {
+                    if (c.id == compId) return; // skip selected component
                     if (c.totalPoints > 0) {
-                        currentTotalWeightedPercent += (c.score / c.totalPoints) * c.weight;
+                        otherWeightedSum += (c.score / c.totalPoints) * c.weight;
+                        otherGradedWeight += c.weight;
                     }
                 });
 
-                // Isolate the selected component's current contribution
-                let compCurrentContribution = (comp.totalPoints > 0) ? (comp.score / comp.totalPoints) * comp.weight : 0;
+                // Step 2: After adding the assignment, selected component WILL be graded
+                // so new total graded weight = otherGradedWeight + comp.weight
+                let newGradedWeight = otherGradedWeight + comp.weight;
 
-                // Everything else stays the same
-                let otherComponentsPercent = currentTotalWeightedPercent - compCurrentContribution;
+                // Step 3: Solve for X
+                // g/100 = (otherWeightedSum + ((comp.score + X) / (comp.totalPoints + p)) * comp.weight) / newGradedWeight
+                // g/100 * newGradedWeight = otherWeightedSum + ((comp.score + X) / (comp.totalPoints + p)) * comp.weight
+                // (g/100 * newGradedWeight - otherWeightedSum) / comp.weight = (comp.score + X) / (comp.totalPoints + p)
+                // ((g/100 * newGradedWeight - otherWeightedSum) / comp.weight) * (comp.totalPoints + p) = comp.score + X
+                // X = ((g/100 * newGradedWeight - otherWeightedSum) / comp.weight) * (comp.totalPoints + p) - comp.score
 
-                // Solve: g = otherComponentsPercent + ((comp.score + X) / (comp.totalPoints + p)) * comp.weight
-                // X = ((g - otherComponentsPercent) / comp.weight) * (comp.totalPoints + p) - comp.score
-                targetPointsNeeded = (((g - otherComponentsPercent) / comp.weight) * (comp.totalPoints + p)) - comp.score;
+                let neededRaw = (g / 100) * newGradedWeight;
+                targetPointsNeeded = (((neededRaw - otherWeightedSum) / comp.weight) * (comp.totalPoints + p)) - comp.score;
 
             } else {
-                // --- TOTAL POINTS MODE ---
+                // --- TOTAL POINTS MODE (unchanged) ---
                 let totalEarned = 0;
                 let totalPossible = 0;
 
@@ -533,7 +587,6 @@
                 compName = 'Total Points';
 
                 // Solve: g/100 = (totalEarned + X) / (totalPossible + p)
-                // X = (g/100) * (totalPossible + p) - totalEarned
                 targetPointsNeeded = ((g / 100) * (totalPossible + p)) - totalEarned;
             }
 
