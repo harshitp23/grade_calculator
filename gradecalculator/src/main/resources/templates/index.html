@@ -71,6 +71,8 @@
 
         /* ===== GPA GOAL TRACKER ===== */
         .goal-tracker { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px 24px; margin-bottom: 28px; display: none; }
+        #goalSetPrompt { transition: border-color 0.2s; }
+        #goalSetPrompt:hover { border-color: var(--primary); }
         .goal-tracker-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
         .goal-tracker-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
         .goal-tracker-title i { color: var(--primary); }
@@ -293,6 +295,16 @@
         </div>
 
         <!-- GPA Goal Tracker -->
+        <div class="goal-tracker" id="goalSetPrompt" style="display:none; cursor:pointer;" onclick="openGoalModal()">
+            <div style="display:flex; align-items:center; gap:14px;">
+                <div style="width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; background:rgba(79,70,229,0.12); color:var(--primary); flex-shrink:0;"><i class="fa-solid fa-bullseye"></i></div>
+                <div style="flex:1;">
+                    <div style="font-size:14px; font-weight:700;">Set a GPA Goal</div>
+                    <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Track your progress toward a target GPA with a visual progress bar.</div>
+                </div>
+                <div style="font-size:14px; color:var(--primary); font-weight:700;"><i class="fa-solid fa-plus"></i></div>
+            </div>
+        </div>
         <div class="goal-tracker" id="goalTracker">
             <div class="goal-tracker-header">
                 <div class="goal-tracker-title"><i class="fa-solid fa-bullseye"></i> GPA Goal Tracker</div>
@@ -589,14 +601,17 @@
                 userGpaGoal = 0;
                 document.getElementById('goalModal').style.display = 'none';
                 document.getElementById('goalTracker').style.display = 'none';
+                document.getElementById('goalSetPrompt').style.display = 'block';
             } catch(e) {}
         }
 
         function updateGoalTracker(currentGpa) {
             if (userGpaGoal <= 0) {
                 document.getElementById('goalTracker').style.display = 'none';
+                document.getElementById('goalSetPrompt').style.display = 'block';
                 return;
             }
+            document.getElementById('goalSetPrompt').style.display = 'none';
             document.getElementById('goalTracker').style.display = 'block';
             const pct = Math.min((currentGpa / userGpaGoal) * 100, 100);
             const bar = document.getElementById('goalBarFill');
@@ -647,6 +662,7 @@
         // ===== MAIN FETCH =====
         window.onload = async function() {
             await loadGpaGoal();
+            updateGoalTracker(0); // Show prompt or tracker immediately
             fetchSubjects();
         };
 
