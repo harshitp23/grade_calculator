@@ -181,6 +181,111 @@
             table { min-width: 550px; }
             .term-body { overflow-x: auto; }
         }
+        /* ===== ONBOARDING TUTORIAL ===== */
+        .onboard-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); z-index: 2000; align-items: center; justify-content: center; }
+        .onboard-overlay.show { display: flex; }
+        .onboard-modal { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; width: 640px; max-height: 90vh; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+        .onboard-progress { display: flex; gap: 4px; padding: 20px 28px 0; }
+        .onboard-progress-dot { flex: 1; height: 3px; border-radius: 3px; background: var(--border-color); transition: background 0.3s; }
+        .onboard-progress-dot.active { background: var(--primary); }
+        .onboard-progress-dot.done { background: var(--success); }
+        .onboard-slide { padding: 28px 32px; flex: 1; overflow-y: auto; display: none; flex-direction: column; }
+        .onboard-slide.active { display: flex; }
+        .onboard-visual { width: 100%; height: 220px; border-radius: 14px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .vis-welcome { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%); }
+        [data-theme="badger"] .vis-welcome { background: linear-gradient(135deg, #c5050c, #ff4b52, #f59e0b); }
+        [data-theme="ocean"] .vis-welcome { background: linear-gradient(135deg, #0284c7, #0369a1, #06b6d4); }
+        .vis-welcome::before { content: ''; position: absolute; top: -40px; right: -20px; width: 140px; height: 140px; background: rgba(255,255,255,0.06); border-radius: 50%; }
+        .vis-welcome::after { content: ''; position: absolute; bottom: -30px; left: 30px; width: 100px; height: 100px; background: rgba(255,255,255,0.04); border-radius: 50%; }
+        .vis-welcome-content { text-align: center; z-index: 1; }
+        .vis-welcome-content .big-icon { font-size: 48px; margin-bottom: 12px; }
+        .vis-welcome-content h3 { color: white; font-size: 24px; font-weight: 800; }
+        .vis-welcome-content p { color: rgba(255,255,255,0.7); font-size: 13px; margin-top: 4px; }
+        .vis-sync { background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid var(--border-color); }
+        .vis-sync-inner { display: flex; align-items: center; gap: 20px; padding: 0 30px; }
+        .vis-sync-icon { width: 64px; height: 64px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+        .vis-sync-arrow { font-size: 24px; color: var(--success); animation: pulseArrow 1.5s ease infinite; }
+        @keyframes pulseArrow { 0%, 100% { opacity: 0.4; transform: translateX(0); } 50% { opacity: 1; transform: translateX(6px); } }
+        .vis-dashboard { background: var(--bg-color); border: 1px solid var(--border-color); padding: 16px; }
+        .vis-dash-kpis { display: flex; gap: 8px; margin-bottom: 10px; }
+        .vis-dash-kpi { flex: 1; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; text-align: center; }
+        .vis-dash-kpi-val { font-size: 18px; font-weight: 800; color: var(--primary); }
+        .vis-dash-kpi-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+        .vis-dash-bar { height: 14px; background: var(--card-bg); border-radius: 7px; overflow: hidden; margin-bottom: 6px; border: 1px solid var(--border-color); }
+        .vis-dash-bar-fill { height: 100%; border-radius: 7px; background: linear-gradient(90deg, var(--primary), #818cf8); width: 0%; }
+        .vis-dash-bar-fill.animate { animation: fillBar 2s ease forwards; }
+        @keyframes fillBar { from { width: 0; } to { width: 85%; } }
+        .vis-dash-row { display: flex; gap: 6px; }
+        .vis-dash-row div { flex: 1; height: 28px; background: var(--card-bg); border-radius: 6px; border: 1px solid var(--border-color); }
+        .vis-ready { background: linear-gradient(135deg, #10b981, #059669, #047857); }
+        [data-theme="badger"] .vis-ready { background: linear-gradient(135deg, #c5050c, #ff4b52); }
+        [data-theme="ocean"] .vis-ready { background: linear-gradient(135deg, #0284c7, #0369a1); }
+        .vis-ready-content { text-align: center; }
+        .vis-ready-content .check-circle { width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px; color: white; }
+        .vis-ready-content .check-circle.animate { animation: scaleIn 0.5s ease; }
+        @keyframes scaleIn { from { transform: scale(0); } to { transform: scale(1); } }
+        .vis-ready-content h3 { color: white; font-size: 22px; font-weight: 800; }
+        .vis-ready-content p { color: rgba(255,255,255,0.7); font-size: 13px; margin-top: 4px; }
+        .onboard-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+        .onboard-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; }
+        .onboard-desc strong { color: var(--text-main); }
+        .onboard-tip { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: rgba(79,70,229,0.06); border: 1px solid rgba(79,70,229,0.15); border-radius: 10px; margin-bottom: 8px; }
+        [data-theme="badger"] .onboard-tip { background: rgba(197,5,12,0.06); border-color: rgba(197,5,12,0.15); }
+        [data-theme="ocean"] .onboard-tip { background: rgba(2,132,199,0.06); border-color: rgba(2,132,199,0.15); }
+        .onboard-tip-icon { color: var(--primary); font-size: 14px; margin-top: 2px; flex-shrink: 0; }
+        .onboard-tip-text { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+        .onboard-tip-text strong { color: var(--text-main); }
+        .onboard-ext-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: none; font-family: 'Inter', sans-serif; transition: 0.2s; margin-top: 10px; }
+        .onboard-ext-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .onboard-nav { display: flex; align-items: center; justify-content: space-between; padding: 0 32px 24px; gap: 12px; }
+        .onboard-nav-btn { padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s; border: none; }
+        .onboard-nav-btn.ob-secondary { background: transparent; color: var(--text-muted); border: 1px solid var(--border-color); }
+        .onboard-nav-btn.ob-secondary:hover { border-color: var(--primary); color: var(--primary); }
+        .onboard-nav-btn.ob-primary { background: var(--primary); color: white; flex: 1; }
+        .onboard-nav-btn.ob-primary:hover { opacity: 0.9; }
+        .onboard-skip { font-size: 12px; color: var(--text-muted); cursor: pointer; text-align: center; padding: 8px; }
+        .onboard-skip:hover { color: var(--primary); }
+
+        /* ===== POLISHED GETTING STARTED MODAL ===== */
+        .gs-modal { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; width: 580px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .gs-hero { background: linear-gradient(135deg, var(--primary), #7c3aed); padding: 32px 32px 28px; border-radius: 20px 20px 0 0; position: relative; overflow: hidden; }
+        .gs-hero::before { content: ''; position: absolute; top: -40px; right: -20px; width: 120px; height: 120px; background: rgba(255,255,255,0.08); border-radius: 50%; }
+        .gs-hero::after { content: ''; position: absolute; bottom: -30px; left: 40px; width: 80px; height: 80px; background: rgba(255,255,255,0.05); border-radius: 50%; }
+        [data-theme="badger"] .gs-hero { background: linear-gradient(135deg, #c5050c, #ff4b52); }
+        [data-theme="ocean"] .gs-hero { background: linear-gradient(135deg, #0284c7, #0369a1); }
+        .gs-hero-content { position: relative; z-index: 1; }
+        .gs-hero-close { position: absolute; top: 16px; right: 16px; z-index: 2; background: rgba(255,255,255,0.15); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .gs-hero-close:hover { background: rgba(255,255,255,0.3); }
+        .gs-hero h2 { color: white; font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+        .gs-hero p { color: rgba(255,255,255,0.75); font-size: 13px; }
+        .gs-body { padding: 28px 32px 32px; }
+        .gs-step { display: flex; gap: 16px; margin-bottom: 22px; padding: 14px; border-radius: 12px; transition: background 0.2s; }
+        .gs-step:hover { background: rgba(128,128,128,0.05); }
+        .gs-step:last-of-type { margin-bottom: 0; }
+        .gs-step-num { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+        .gs-step-num.s1 { background: rgba(79,70,229,0.12); color: var(--primary); }
+        .gs-step-num.s2 { background: rgba(16,185,129,0.12); color: #10b981; }
+        .gs-step-num.s3 { background: rgba(245,158,11,0.12); color: #f59e0b; }
+        .gs-step-num.s4 { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .gs-step-num.s5 { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+        .gs-step-num.s6 { background: rgba(6,182,212,0.12); color: #06b6d4; }
+        [data-theme="badger"] .gs-step-num.s1 { background: rgba(197,5,12,0.12); color: #ff4b52; }
+        .gs-step-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+        .gs-step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+        .gs-step-desc a { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .gs-step-desc a:hover { text-decoration: underline; }
+        .gs-footer { padding: 0 32px 28px; }
+        .gs-footer-btn { width: 100%; padding: 13px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s; }
+        .gs-footer-btn:hover { opacity: 0.9; }
+
+        @media (max-width: 768px) {
+            .onboard-modal { width: 95%; max-height: 95vh; }
+            .onboard-visual { height: 180px; }
+            .vis-sync-inner { flex-direction: column; gap: 10px; }
+            .onboard-slide { padding: 20px; }
+            .onboard-nav { padding: 0 20px 20px; }
+            .gs-modal { width: 95%; }
+        }
     </style>
 
     <script>
@@ -460,27 +565,163 @@
     </div>
 
     <!-- Help Modal -->
+    <!-- Polished Getting Started Modal -->
     <div id="helpModal" class="modal" onclick="if(event.target.id==='helpModal') this.style.display='none'">
-        <div class="modal-content" style="width:550px; max-height:85vh; overflow-y:auto;">
-            <div class="modal-header">
-                <h2 style="margin:0;">Getting Started 🚀</h2>
-                <span style="cursor:pointer; font-size:24px; color:var(--text-muted);" onclick="document.getElementById('helpModal').style.display='none'">&times;</span>
+        <div class="gs-modal">
+            <div class="gs-hero">
+                <button class="gs-hero-close" onclick="document.getElementById('helpModal').style.display='none'">&times;</button>
+                <div class="gs-hero-content">
+                    <h2>Getting Started</h2>
+                    <p>Everything you need to know to track your grades like a pro.</p>
+                </div>
             </div>
-            <div style="line-height:1.6; color:var(--text-main);">
-                <h4 style="margin:0 0 10px 0; color:var(--primary);">1. Syncing with Canvas</h4>
-                <p style="font-size:14px; margin-bottom:20px; color:var(--text-muted);">Install <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank" style="color:var(--primary); font-weight:600; text-decoration:none;">GradeCalc Sync Pro</a> from the Chrome Web Store, pin it, log into Canvas, and click <b>Update Synced Grades</b>.</p>
-                <h4 style="margin:0 0 10px 0; color:var(--primary);">2. Building Your Transcript</h4>
-                <p style="font-size:14px; margin-bottom:20px; color:var(--text-muted);">Click <b>Add Old Subjects</b> to manually enter past classes and keep your GPA accurate.</p>
-                <h4 style="margin:0 0 10px 0; color:var(--primary);">3. Grade Simulator</h4>
-                <p style="font-size:14px; margin-bottom:20px; color:var(--text-muted);">Enter hypothetical scores to see how your final grade will change.</p>
-                <h4 style="margin:0 0 10px 0; color:var(--primary);">4. Target Calculator</h4>
-                <p style="font-size:14px; margin-bottom:20px; color:var(--text-muted);">Find out exactly what you need on your next exam to hit your goal grade.</p>
-                <h4 style="margin:0 0 10px 0; color:var(--primary);">5. Custom Grading Scales</h4>
-                <p style="font-size:14px; margin-bottom:20px; color:var(--text-muted);">Click the gear icon to set a custom scale for any class.</p>
-                <h4 style="margin:0 0 10px 0; color:var(--primary);">6. Curve Adjustments</h4>
-                <p style="font-size:14px; margin-bottom:20px; color:var(--text-muted);">Click the trending-up arrow on completed classes to apply a professor curve.</p>
+            <div class="gs-body">
+                <div class="gs-step">
+                    <div class="gs-step-num s1"><i class="fa-brands fa-chrome"></i></div>
+                    <div>
+                        <div class="gs-step-title">Sync with Canvas</div>
+                        <div class="gs-step-desc">Install <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank">GradeCalc Sync Pro</a> from the Chrome Web Store. Pin it, open Canvas, and click <strong>Update Synced Grades</strong>.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num s2"><i class="fa-solid fa-plus"></i></div>
+                    <div>
+                        <div class="gs-step-title">Build Your Transcript</div>
+                        <div class="gs-step-desc">Click <strong>Add Old Subjects</strong> in the sidebar to manually enter past classes not synced from Canvas.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num s3"><i class="fa-solid fa-flask"></i></div>
+                    <div>
+                        <div class="gs-step-title">Grade Simulator</div>
+                        <div class="gs-step-desc">Select an active class and enter hypothetical scores to see exactly how your final grade changes.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num s4"><i class="fa-solid fa-bullseye"></i></div>
+                    <div>
+                        <div class="gs-step-title">Target Calculator</div>
+                        <div class="gs-step-desc">Find out exactly what you need on your next exam to hit your goal grade.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num s5"><i class="fa-solid fa-gear"></i></div>
+                    <div>
+                        <div class="gs-step-title">Custom Grading Scales</div>
+                        <div class="gs-step-desc">Click the gear icon next to any subject to set a custom scale (e.g. A = 94%, AB = 89%).</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num s6"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                    <div>
+                        <div class="gs-step-title">Curve Adjustments</div>
+                        <div class="gs-step-desc">Click the trending-up arrow on completed classes to apply a professor curve to your final grade.</div>
+                    </div>
+                </div>
             </div>
-            <button class="btn-save" onclick="document.getElementById('helpModal').style.display='none'">Got it!</button>
+            <div class="gs-footer">
+                <button class="gs-footer-btn" onclick="document.getElementById('helpModal').style.display='none'">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- First-Time Onboarding Tutorial -->
+    <div class="onboard-overlay" id="onboardOverlay">
+        <div class="onboard-modal">
+            <div class="onboard-progress" id="onboardProgress">
+                <div class="onboard-progress-dot"></div>
+                <div class="onboard-progress-dot"></div>
+                <div class="onboard-progress-dot"></div>
+                <div class="onboard-progress-dot"></div>
+            </div>
+
+            <!-- SLIDE 1: Welcome -->
+            <div class="onboard-slide active" data-slide="0">
+                <div class="onboard-visual vis-welcome">
+                    <div class="vis-welcome-content">
+                        <div class="big-icon">🎓</div>
+                        <h3>Welcome to GradeCalc</h3>
+                        <p>Your smart grade tracking companion</p>
+                    </div>
+                </div>
+                <div class="onboard-title">Let's get you set up!</div>
+                <div class="onboard-desc">GradeCalc helps you track every class, simulate grade outcomes, and hit your GPA goals. Here's a quick tour of how everything works.</div>
+            </div>
+
+            <!-- SLIDE 2: Import -->
+            <div class="onboard-slide" data-slide="1">
+                <div class="onboard-visual vis-sync">
+                    <div class="vis-sync-inner">
+                        <div class="vis-sync-icon" style="background:rgba(79,70,229,0.15); color:var(--primary);"><i class="fa-brands fa-chrome"></i></div>
+                        <div class="vis-sync-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                        <div class="vis-sync-icon" style="background:rgba(197,5,12,0.15); color:#ef4444;"><i class="fa-solid fa-school"></i></div>
+                        <div class="vis-sync-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                        <div class="vis-sync-icon" style="background:rgba(16,185,129,0.15); color:#10b981;"><i class="fa-solid fa-graduation-cap"></i></div>
+                    </div>
+                </div>
+                <div class="onboard-title">Import Your Classes</div>
+                <div class="onboard-desc">Install the <strong>GradeCalc Sync Pro</strong> Chrome extension to automatically import all your current classes, assignments, and scores from Canvas in one click.</div>
+                <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank" class="onboard-ext-btn">
+                    <i class="fa-brands fa-chrome"></i> Get the Chrome Extension
+                </a>
+                <div style="height:12px;"></div>
+                <div class="onboard-tip">
+                    <i class="fa-solid fa-lightbulb onboard-tip-icon"></i>
+                    <div class="onboard-tip-text">For classes <strong>not on Canvas</strong> (previous semesters, transfer credits, etc.), use the <strong>Add Old Subjects</strong> page in the sidebar to manually add them to your transcript.</div>
+                </div>
+            </div>
+
+            <!-- SLIDE 3: Dashboard & Features -->
+            <div class="onboard-slide" data-slide="2">
+                <div class="onboard-visual vis-dashboard">
+                    <div class="vis-dash-kpis">
+                        <div class="vis-dash-kpi"><div class="vis-dash-kpi-val">3.75</div><div class="vis-dash-kpi-label">GPA</div></div>
+                        <div class="vis-dash-kpi"><div class="vis-dash-kpi-val" style="color:#10b981;">4.00</div><div class="vis-dash-kpi-label">Highest</div></div>
+                        <div class="vis-dash-kpi"><div class="vis-dash-kpi-val" style="color:#f59e0b;">45</div><div class="vis-dash-kpi-label">Credits</div></div>
+                        <div class="vis-dash-kpi"><div class="vis-dash-kpi-val" style="color:#8b5cf6;">96%</div><div class="vis-dash-kpi-label">Best</div></div>
+                    </div>
+                    <div class="vis-dash-bar"><div class="vis-dash-bar-fill" id="dashBarFill"></div></div>
+                    <div class="vis-dash-row"><div></div><div></div><div></div></div>
+                </div>
+                <div class="onboard-title">Your Dashboard & Tools</div>
+                <div class="onboard-desc">See your <strong>cumulative GPA</strong>, semester trends, and grade distribution all in one place. Set a <strong>GPA Goal</strong> to track your progress with a visual bar.</div>
+                <div class="onboard-tip">
+                    <i class="fa-solid fa-gear onboard-tip-icon"></i>
+                    <div class="onboard-tip-text">Click the <strong>gear icon</strong> on any subject to customize its <strong>grading scale</strong>, change <strong>credits</strong> (default is 3 — Canvas doesn't sync credits, so update them manually), or adjust the term/status.</div>
+                </div>
+                <div style="height:6px;"></div>
+                <div class="onboard-tip">
+                    <i class="fa-solid fa-arrow-trend-up onboard-tip-icon"></i>
+                    <div class="onboard-tip-text">If a professor curves your final grade, click the <strong>curve icon</strong> on completed classes to override the calculated letter grade with the actual one you received.</div>
+                </div>
+            </div>
+
+            <!-- SLIDE 4: Ready -->
+            <div class="onboard-slide" data-slide="3">
+                <div class="onboard-visual vis-ready">
+                    <div class="vis-ready-content">
+                        <div class="check-circle" id="readyCheck"><i class="fa-solid fa-check"></i></div>
+                        <h3>You're All Set!</h3>
+                        <p>Start tracking your grades</p>
+                    </div>
+                </div>
+                <div class="onboard-title">Ready to go!</div>
+                <div class="onboard-desc">Your dashboard is waiting. Start by syncing your Canvas classes or adding subjects manually. Use the <strong>Grade Simulator</strong> to test hypothetical scores and the <strong>Target Calculator</strong> to find out exactly what you need on your next exam.</div>
+                <div class="onboard-tip">
+                    <i class="fa-solid fa-book-open onboard-tip-icon"></i>
+                    <div class="onboard-tip-text">You can revisit this guide anytime from <strong>Getting Started</strong> in the sidebar.</div>
+                </div>
+            </div>
+
+            <div class="onboard-nav">
+                <button class="onboard-nav-btn ob-secondary" id="onboardBack" onclick="onboardPrev()" style="display:none;">
+                    <i class="fa-solid fa-arrow-left" style="margin-right:6px;"></i> Back
+                </button>
+                <button class="onboard-nav-btn ob-primary" id="onboardNext" onclick="onboardNext()">
+                    Next <i class="fa-solid fa-arrow-right" style="margin-left:6px;"></i>
+                </button>
+            </div>
+            <div class="onboard-skip" onclick="closeOnboarding()">Skip tutorial</div>
         </div>
     </div>
 
@@ -659,11 +900,74 @@
             }
         }
 
+        // ===== ONBOARDING TUTORIAL =====
+        let onboardSlide = 0;
+        const onboardTotal = 4;
+
+        function showOnboarding() {
+            onboardSlide = 0;
+            updateOnboardSlide();
+            document.getElementById('onboardOverlay').classList.add('show');
+        }
+
+        function closeOnboarding() {
+            document.getElementById('onboardOverlay').classList.remove('show');
+            localStorage.setItem('gradecalc_onboarding_done', 'true');
+        }
+
+        function onboardNext() {
+            if (onboardSlide < onboardTotal - 1) {
+                onboardSlide++;
+                updateOnboardSlide();
+            } else {
+                closeOnboarding();
+            }
+        }
+
+        function onboardPrev() {
+            if (onboardSlide > 0) {
+                onboardSlide--;
+                updateOnboardSlide();
+            }
+        }
+
+        function updateOnboardSlide() {
+            document.querySelectorAll('.onboard-slide').forEach((slide, i) => {
+                slide.classList.toggle('active', i === onboardSlide);
+            });
+            document.querySelectorAll('.onboard-progress-dot').forEach((dot, i) => {
+                dot.classList.remove('active', 'done');
+                if (i === onboardSlide) dot.classList.add('active');
+                else if (i < onboardSlide) dot.classList.add('done');
+            });
+            const backBtn = document.getElementById('onboardBack');
+            const nextBtn = document.getElementById('onboardNext');
+            backBtn.style.display = onboardSlide === 0 ? 'none' : 'block';
+            if (onboardSlide === onboardTotal - 1) {
+                nextBtn.innerHTML = '<i class="fa-solid fa-rocket" style="margin-right:6px;"></i> Let\'s Go!';
+                document.getElementById('readyCheck').classList.add('animate');
+            } else {
+                nextBtn.innerHTML = 'Next <i class="fa-solid fa-arrow-right" style="margin-left:6px;"></i>';
+            }
+            // Trigger dashboard bar animation on slide 3
+            if (onboardSlide === 2) {
+                const bar = document.getElementById('dashBarFill');
+                bar.classList.remove('animate');
+                void bar.offsetWidth;
+                bar.classList.add('animate');
+            }
+        }
+
         // ===== MAIN FETCH =====
         window.onload = async function() {
             await loadGpaGoal();
-            updateGoalTracker(0); // Show prompt or tracker immediately
+            updateGoalTracker(0);
             fetchSubjects();
+
+            // Show onboarding tutorial on first visit only
+            if (!localStorage.getItem('gradecalc_onboarding_done')) {
+                showOnboarding();
+            }
         };
 
         function fetchSubjects() {
