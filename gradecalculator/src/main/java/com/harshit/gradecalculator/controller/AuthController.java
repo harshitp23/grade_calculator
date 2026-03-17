@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.ServletException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
@@ -21,6 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -69,14 +74,14 @@ public class AuthController {
 
         // Send email
         try {
+            log.info("Attempting to send OTP to: {}", email.trim());
             emailService.sendOtpEmail(email.trim(), otp);
+            log.info("OTP email sent successfully to: {}", email.trim());
         } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("=== OTP EMAIL FAILED ===");
-            System.err.println("Error type: " + e.getClass().getName());
-            System.err.println("Message: " + e.getMessage());
+            log.error("=== OTP EMAIL FAILED ===", e);
+            log.error("Error type: {} | Message: {}", e.getClass().getName(), e.getMessage());
             if (e.getCause() != null) {
-                System.err.println("Cause: " + e.getCause().getClass().getName() + " - " + e.getCause().getMessage());
+                log.error("Cause: {} | {}", e.getCause().getClass().getName(), e.getCause().getMessage());
             }
             otpStore.remove(email.trim().toLowerCase());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send verification email. Please try again.");
@@ -172,6 +177,21 @@ public class AuthController {
             return "Success-NoLogin";
         }
         return "Success";
+    }
+
+    // ===== TEST EMAIL (remove after debugging) =====
+    @GetMapping("/test-email")
+    public ResponseEntity<String> testEmail(@RequestParam String to) {
+        try {
+            log.info("Testing email to: {}", to);
+            emailService.sendOtpEmail(to, "123456");
+            log.info("Test email sent successfully!");
+            return ResponseEntity.ok("Email sent to " + to);
+        } catch (Exception e) {
+            log.error("Test email FAILED", e);
+            return ResponseEntity.status(500).body("FAILED: " + e.getClass().getName() + " - " + e.getMessage() 
+                + (e.getCause() != null ? " | Cause: " + e.getCause().getMessage() : ""));
+        }
     }
 
     // ===== OTP ENTRY HELPER CLASS =====
