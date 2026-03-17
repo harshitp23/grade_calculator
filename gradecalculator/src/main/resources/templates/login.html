@@ -4,38 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Grade Calculator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* Shared Core Theme Configuration */
-        :root { --primary: #4f46e5; --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
-        [data-theme="light"] { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --border-color: #e5e7eb; }
-        [data-theme="badger"] { --primary: #c5050c; --bg-color: #000000; --card-bg: #171717; --text-main: #ffffff; --text-muted: #a1a1aa; --border-color: #333333; }
-        [data-theme="ocean"] { --primary: #0284c7; --bg-color: #082f49; --card-bg: #0c4a6e; --text-main: #f0f9ff; --text-muted: #7dd3fc; --border-color: #0369a1; }
+        :root { --primary: #4f46e5; --primary-hover: #4338ca; --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; --success: #10b981; --danger: #ef4444; }
+        [data-theme="light"] { --primary: #4f46e5; --primary-hover: #4338ca; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --border-color: #d1d5db; }
+        [data-theme="badger"] { --primary: #c5050c; --primary-hover: #9a0409; --bg-color: #000000; --card-bg: #171717; --text-main: #ffffff; --text-muted: #a1a1aa; --border-color: #333333; }
+        [data-theme="ocean"] { --primary: #0284c7; --primary-hover: #0369a1; --bg-color: #082f49; --card-bg: #0c4a6e; --text-main: #f0f9ff; --text-muted: #7dd3fc; --border-color: #0369a1; }
 
+        input { background-color: var(--bg-color) !important; color: var(--text-main) !important; border-color: var(--border-color) !important; }
+
+        * { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: var(--text-main); transition: background-color 0.3s ease; }
 
-        /* Fix for input text visibility in all dark variants */
-        input { background-color: var(--bg-color) !important; color: var(--text-main) !important; border-color: var(--border-color) !important; }
-        
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; }
         .card { background: var(--card-bg); padding: 40px; border-radius: 16px; width: 360px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; border: 1px solid var(--border-color); }
         h1 { margin-bottom: 8px; font-weight: 700; font-size: 24px; }
         .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
-        input { width: 100%; padding: 12px 16px; margin: 8px 0; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+        input { width: 100%; padding: 12px 16px; margin: 8px 0; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif; }
         input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         .password-container { position: relative; width: 100%; margin-bottom: 5px; }
         .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); font-size: 14px; }
-        .remember-me-container { text-align: left; margin: 10px 0 20px 0; font-size: 14px; display: flex; align-items: center; }
-        .remember-me-container input { width: 16px; height: 16px; margin-right: 8px; accent-color: var(--primary); cursor: pointer; }
-        button { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: background-color 0.2s; }
-        button:hover { opacity: 0.9; }
+        .remember-row { display: flex; align-items: center; justify-content: space-between; margin: 10px 0 20px 0; font-size: 14px; }
+        .remember-row label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .remember-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer; margin: 0; }
+        .forgot-link { color: var(--primary); font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; background: none; border: none; font-family: 'Inter', sans-serif; padding: 0; }
+        .forgot-link:hover { text-decoration: underline; }
+        button[type="submit"], .btn-primary { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+        button[type="submit"]:hover, .btn-primary:hover { background-color: var(--primary-hover); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
         .error { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 20px; display: none; border: 1px solid #ef4444; }
+        .success-msg { background-color: rgba(16, 185, 129, 0.1); color: #10b981; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 20px; display: none; border: 1px solid #10b981; }
         a { display: block; margin-top: 20px; color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
         a:hover { color: var(--primary); }
 
-        /* Dropdown UI */
+        /* Theme Dropdown */
         .theme-dropdown-container { position: absolute; top: 20px; right: 20px; }
         .theme-toggle { background: var(--card-bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--text-main); font-size: 18px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .theme-toggle:hover { transform: scale(1.1); }
@@ -46,6 +49,50 @@
         .theme-option:hover { background: rgba(128,128,128,0.1); color: var(--primary); }
         .theme-option:last-child { border-radius: 0 0 8px 8px; margin-bottom: 5px; }
         .active-indicator { display: none; color: var(--primary); font-size: 14px; }
+
+        /* ===== FORGOT PASSWORD OVERLAY ===== */
+        .fp-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
+        .fp-overlay.show { display: flex; }
+        .fp-card { background: var(--card-bg); padding: 36px; border-radius: 16px; width: 400px; border: 1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.4); text-align: center; }
+        .fp-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 20px; background: rgba(79,70,229,0.12); color: var(--primary); }
+        [data-theme="badger"] .fp-icon { background: rgba(197,5,12,0.12); color: #ff4b52; }
+        [data-theme="ocean"] .fp-icon { background: rgba(2,132,199,0.12); color: #38bdf8; }
+        .fp-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+        .fp-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+        .fp-desc strong { color: var(--text-main); }
+        .fp-input { width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; background: var(--bg-color) !important; color: var(--text-main) !important; outline: none; margin-bottom: 12px; }
+        .fp-input:focus { border-color: var(--primary) !important; }
+        .fp-error { color: var(--danger); font-size: 12px; font-weight: 600; margin-bottom: 10px; min-height: 16px; }
+        .fp-success { color: var(--success); font-size: 12px; font-weight: 600; margin-bottom: 10px; min-height: 16px; }
+        .fp-btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .fp-btn:hover { opacity: 0.9; }
+        .fp-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .fp-back { font-size: 12px; color: var(--text-muted); cursor: pointer; margin-top: 16px; }
+        .fp-back:hover { color: var(--primary); }
+
+        /* OTP Inputs */
+        .fp-otp-inputs { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+        .fp-otp-inputs input { width: 46px !important; height: 52px; text-align: center; font-size: 22px; font-weight: 800; padding: 0 !important; margin: 0 !important; border-radius: 10px; border: 2px solid var(--border-color) !important; background: var(--bg-color) !important; color: var(--text-main) !important; caret-color: var(--primary); }
+        .fp-otp-inputs input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(79,70,229,0.15); }
+        .fp-otp-inputs input.error { border-color: var(--danger) !important; }
+        .fp-otp-inputs input.success { border-color: var(--success) !important; }
+
+        .fp-resend { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+        .fp-resend a { display: inline; margin: 0; font-size: 12px; color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: none; }
+        .fp-resend a.disabled { color: var(--text-muted); pointer-events: none; opacity: 0.5; }
+
+        /* Password fields in reset step */
+        .fp-pw-container { position: relative; margin-bottom: 12px; }
+        .fp-pw-container input { width: 100%; padding: 12px 40px 12px 16px; }
+        .fp-pw-toggle { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); font-size: 14px; }
+
+        .btn-spinner { display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 480px) {
+            .card { width: 90%; padding: 30px; }
+            .fp-card { width: 90%; padding: 28px; }
+        }
     </style>
 
     <script>
@@ -68,72 +115,322 @@
         </div>
     </div>
 
-<div class="card">
-    <h1>Welcome Back 👋</h1>
-    <p class="subtitle">Enter your credentials to access your account.</p>
-    
-    <div id="error-msg" class="error">Invalid username or password</div>
+    <div class="card">
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Enter your credentials to access your account.</p>
 
-    <form action="/login" method="post">
-        <input type="text" name="username" placeholder="Username" required>
-        
-        <div class="password-container">
-            <input type="password" id="password" name="password" placeholder="Password" required style="padding-right: 40px;">
-            <i class="fa fa-eye toggle-password" id="togglePassword"></i>
+        <div id="error-msg" class="error">Invalid username or password</div>
+        <div id="success-msg" class="success-msg">Password reset successfully! Please log in.</div>
+
+        <form action="/login" method="post">
+            <input type="text" name="username" placeholder="Username" required>
+
+            <div class="password-container">
+                <input type="password" id="password" name="password" placeholder="Password" required style="padding-right: 40px;">
+                <i class="fa fa-eye toggle-password" id="togglePassword"></i>
+            </div>
+
+            <div class="remember-row">
+                <label>
+                    <input type="checkbox" id="remember-me" name="remember-me">
+                    Remember me
+                </label>
+                <button type="button" class="forgot-link" onclick="openForgotPassword()">Forgot password?</button>
+            </div>
+
+            <button type="submit">Sign In</button>
+        </form>
+
+        <a href="register.html">Don't have an account? <span style="color:var(--primary); font-weight:600;">Sign Up</span></a>
+    </div>
+
+    <!-- ===== FORGOT PASSWORD OVERLAY ===== -->
+    <div class="fp-overlay" id="fpOverlay">
+        <div class="fp-card">
+
+            <!-- Step 1: Enter Email -->
+            <div id="fpStep1">
+                <div class="fp-icon"><i class="fa-solid fa-envelope"></i></div>
+                <div class="fp-title">Forgot Password?</div>
+                <div class="fp-desc">Enter the email address associated with your account. We'll send you a verification code.</div>
+                <input type="email" class="fp-input" id="fpEmail" placeholder="Enter your email address">
+                <div class="fp-error" id="fpError1"></div>
+                <button class="fp-btn" id="fpSendBtn" onclick="fpSendOtp()">
+                    <i class="fa-solid fa-paper-plane"></i> Send Code
+                    <span class="btn-spinner" id="fpSpinner1"></span>
+                </button>
+                <div class="fp-back" onclick="closeForgotPassword()"><i class="fa-solid fa-arrow-left" style="margin-right:4px;"></i> Back to login</div>
+            </div>
+
+            <!-- Step 2: Enter OTP -->
+            <div id="fpStep2" style="display:none;">
+                <div class="fp-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="fp-title">Enter Code</div>
+                <div class="fp-desc">We sent a 6-digit code to<br><strong id="fpEmailDisplay">—</strong></div>
+                <div class="fp-otp-inputs" id="fpOtpInputs">
+                    <input type="text" maxlength="1" inputmode="numeric" autocomplete="off">
+                    <input type="text" maxlength="1" inputmode="numeric" autocomplete="off">
+                    <input type="text" maxlength="1" inputmode="numeric" autocomplete="off">
+                    <input type="text" maxlength="1" inputmode="numeric" autocomplete="off">
+                    <input type="text" maxlength="1" inputmode="numeric" autocomplete="off">
+                    <input type="text" maxlength="1" inputmode="numeric" autocomplete="off">
+                </div>
+                <div class="fp-error" id="fpError2"></div>
+                <div class="fp-resend">
+                    Didn't receive it? <a id="fpResendLink" onclick="fpResendOtp()">Resend code</a>
+                    <span id="fpResendTimer"></span>
+                </div>
+                <button class="fp-btn" id="fpVerifyBtn" onclick="fpVerifyOtp()" disabled>
+                    <i class="fa-solid fa-check-circle"></i> Verify Code
+                    <span class="btn-spinner" id="fpSpinner2"></span>
+                </button>
+                <div class="fp-back" onclick="fpGoToStep(1)"><i class="fa-solid fa-arrow-left" style="margin-right:4px;"></i> Change email</div>
+            </div>
+
+            <!-- Step 3: New Password -->
+            <div id="fpStep3" style="display:none;">
+                <div class="fp-icon" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-lock-open"></i></div>
+                <div class="fp-title">Set New Password</div>
+                <div class="fp-desc">Choose a strong new password for your account.</div>
+                <div class="fp-pw-container">
+                    <input type="password" class="fp-input" id="fpNewPw" placeholder="New password" style="margin-bottom:0;">
+                    <i class="fa fa-eye fp-pw-toggle" onclick="fpTogglePw('fpNewPw', this)"></i>
+                </div>
+                <div class="fp-pw-container">
+                    <input type="password" class="fp-input" id="fpConfirmPw" placeholder="Confirm new password" style="margin-bottom:0;">
+                    <i class="fa fa-eye fp-pw-toggle" onclick="fpTogglePw('fpConfirmPw', this)"></i>
+                </div>
+                <div class="fp-error" id="fpError3"></div>
+                <button class="fp-btn" id="fpResetBtn" onclick="fpResetPassword()">
+                    <i class="fa-solid fa-key"></i> Reset Password
+                    <span class="btn-spinner" id="fpSpinner3"></span>
+                </button>
+                <div class="fp-back" onclick="closeForgotPassword()"><i class="fa-solid fa-arrow-left" style="margin-right:4px;"></i> Back to login</div>
+            </div>
+
         </div>
+    </div>
 
-        <div class="remember-me-container">
-            <input type="checkbox" id="remember-me" name="remember-me">
-            <label for="remember-me">Remember me</label>
-        </div>
-
-        <button type="submit">Sign In</button>
-    </form>
-    
-    <a href="register.html">Don't have an account? <span style="color:var(--primary); font-weight:600;">Sign Up</span></a>
-</div>
-
-<script>
-    // Theme logic
-    function toggleThemeMenu() { document.getElementById('themeDropdown').classList.toggle('show'); }
-    
-    function setTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-        updateActiveThemeIndicator(theme);
-        document.getElementById('themeDropdown').classList.remove('show');
-    }
-
-    function updateActiveThemeIndicator(theme) {
-        document.querySelectorAll('.active-indicator').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('.check-' + theme).forEach(el => el.style.display = 'inline-block');
-    }
-
-    window.addEventListener('click', function(e) {
-        if (!e.target.closest('.theme-dropdown-container')) {
-            const dropdown = document.getElementById('themeDropdown');
-            if(dropdown) dropdown.classList.remove('show');
+    <script>
+        // ===== THEME =====
+        function toggleThemeMenu() { document.getElementById('themeDropdown').classList.toggle('show'); }
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            updateActiveThemeIndicator(theme);
+            document.getElementById('themeDropdown').classList.remove('show');
         }
-    });
+        function updateActiveThemeIndicator(theme) {
+            document.querySelectorAll('.active-indicator').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.check-' + theme).forEach(el => el.style.display = 'inline-block');
+        }
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.theme-dropdown-container')) {
+                const dropdown = document.getElementById('themeDropdown');
+                if (dropdown) dropdown.classList.remove('show');
+            }
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            updateActiveThemeIndicator(localStorage.getItem('theme') || 'dark');
+        });
 
-    document.addEventListener('DOMContentLoaded', () => {
-        updateActiveThemeIndicator(localStorage.getItem('theme') || 'dark');
-    });
+        // ===== PASSWORD TOGGLE (login form) =====
+        document.querySelector('#togglePassword').addEventListener('click', function() {
+            const pwd = document.querySelector('#password');
+            pwd.type = pwd.type === 'password' ? 'text' : 'password';
+            this.classList.toggle('fa-eye-slash');
+        });
 
-    // Password Toggle
-    const togglePassword = document.querySelector('#togglePassword');
-    const password = document.querySelector('#password');
-    togglePassword.addEventListener('click', function (e) {
-        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-        password.setAttribute('type', type);
-        this.classList.toggle('fa-eye-slash');
-    });
+        // ===== URL PARAMS =====
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('error')) document.getElementById('error-msg').style.display = 'block';
+        if (urlParams.has('reset')) document.getElementById('success-msg').style.display = 'block';
 
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('error')) {
-        document.getElementById('error-msg').style.display = 'block';
-    }
-</script>
+        // ===== FORGOT PASSWORD STATE =====
+        let fpEmailVal = '';
+        let fpOtpVal = '';
+        let fpResendCooldown = 0;
+        let fpResendInterval = null;
 
+        function openForgotPassword() {
+            fpGoToStep(1);
+            document.getElementById('fpEmail').value = '';
+            document.getElementById('fpError1').textContent = '';
+            document.getElementById('fpOverlay').classList.add('show');
+        }
+
+        function closeForgotPassword() {
+            document.getElementById('fpOverlay').classList.remove('show');
+            if (fpResendInterval) clearInterval(fpResendInterval);
+        }
+
+        function fpGoToStep(step) {
+            document.getElementById('fpStep1').style.display = step === 1 ? 'block' : 'none';
+            document.getElementById('fpStep2').style.display = step === 2 ? 'block' : 'none';
+            document.getElementById('fpStep3').style.display = step === 3 ? 'block' : 'none';
+            if (step === 1) { document.getElementById('fpError1').textContent = ''; }
+            if (step === 2) { document.getElementById('fpError2').textContent = ''; fpClearOtp(); }
+            if (step === 3) { document.getElementById('fpError3').textContent = ''; document.getElementById('fpNewPw').value = ''; document.getElementById('fpConfirmPw').value = ''; }
+        }
+
+        // ===== STEP 1: SEND OTP =====
+        async function fpSendOtp() {
+            fpEmailVal = document.getElementById('fpEmail').value.trim();
+            if (!fpEmailVal) return document.getElementById('fpError1').textContent = 'Please enter your email.';
+
+            const btn = document.getElementById('fpSendBtn');
+            const spinner = document.getElementById('fpSpinner1');
+            btn.disabled = true; spinner.style.display = 'inline-block';
+            document.getElementById('fpError1').textContent = '';
+
+            try {
+                const res = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: fpEmailVal })
+                });
+                const msg = await res.text();
+                if (res.ok) {
+                    document.getElementById('fpEmailDisplay').textContent = fpEmailVal;
+                    fpGoToStep(2);
+                    fpStartResendCooldown();
+                    setTimeout(() => document.querySelector('#fpOtpInputs input').focus(), 100);
+                } else {
+                    document.getElementById('fpError1').textContent = msg || 'Failed to send code.';
+                }
+            } catch (e) {
+                document.getElementById('fpError1').textContent = 'Error sending code. Try again.';
+            } finally {
+                btn.disabled = false; spinner.style.display = 'none';
+            }
+        }
+
+        // ===== STEP 2: OTP INPUT =====
+        const fpOtpInputs = document.querySelectorAll('#fpOtpInputs input');
+        fpOtpInputs.forEach((input, index) => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                this.classList.remove('error');
+                if (this.value && index < fpOtpInputs.length - 1) fpOtpInputs[index + 1].focus();
+                fpCheckOtpComplete();
+            });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !this.value && index > 0) fpOtpInputs[index - 1].focus();
+                if (e.key === 'Enter') { e.preventDefault(); if (fpGetOtp().length === 6) fpVerifyOtp(); }
+            });
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+                if (pasted.length >= 6) {
+                    for (let i = 0; i < 6; i++) fpOtpInputs[i].value = pasted[i];
+                    fpOtpInputs[5].focus();
+                    fpCheckOtpComplete();
+                }
+            });
+        });
+
+        function fpGetOtp() { return Array.from(fpOtpInputs).map(i => i.value).join(''); }
+        function fpCheckOtpComplete() { document.getElementById('fpVerifyBtn').disabled = fpGetOtp().length !== 6; }
+        function fpClearOtp() { fpOtpInputs.forEach(i => { i.value = ''; i.classList.remove('error', 'success'); }); document.getElementById('fpVerifyBtn').disabled = true; }
+
+        function fpStartResendCooldown() {
+            fpResendCooldown = 60;
+            const link = document.getElementById('fpResendLink');
+            const timer = document.getElementById('fpResendTimer');
+            link.classList.add('disabled');
+            if (fpResendInterval) clearInterval(fpResendInterval);
+            fpResendInterval = setInterval(() => {
+                fpResendCooldown--;
+                timer.textContent = `(${fpResendCooldown}s)`;
+                if (fpResendCooldown <= 0) { clearInterval(fpResendInterval); link.classList.remove('disabled'); timer.textContent = ''; }
+            }, 1000);
+        }
+
+        async function fpResendOtp() {
+            if (fpResendCooldown > 0) return;
+            document.getElementById('fpError2').textContent = '';
+            fpClearOtp();
+            try {
+                const res = await fetch('/api/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: fpEmailVal })
+                });
+                if (res.ok) fpStartResendCooldown();
+                else { const msg = await res.text(); document.getElementById('fpError2').textContent = msg || 'Failed to resend.'; }
+            } catch (e) { document.getElementById('fpError2').textContent = 'Error resending code.'; }
+        }
+
+        async function fpVerifyOtp() {
+            fpOtpVal = fpGetOtp();
+            if (fpOtpVal.length !== 6) return;
+
+            const btn = document.getElementById('fpVerifyBtn');
+            const spinner = document.getElementById('fpSpinner2');
+            btn.disabled = true; spinner.style.display = 'inline-block';
+            document.getElementById('fpError2').textContent = '';
+
+            try {
+                const res = await fetch('/api/auth/verify-reset-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: fpEmailVal, otp: fpOtpVal })
+                });
+                const msg = await res.text();
+                if (res.ok) {
+                    fpOtpInputs.forEach(i => i.classList.add('success'));
+                    setTimeout(() => fpGoToStep(3), 300);
+                } else {
+                    fpOtpInputs.forEach(i => i.classList.add('error'));
+                    document.getElementById('fpError2').textContent = msg || 'Invalid code.';
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                document.getElementById('fpError2').textContent = 'Error verifying code.';
+                btn.disabled = false;
+            } finally {
+                spinner.style.display = 'none';
+            }
+        }
+
+        // ===== STEP 3: RESET PASSWORD =====
+        function fpTogglePw(inputId, icon) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+            icon.classList.toggle('fa-eye-slash');
+        }
+
+        async function fpResetPassword() {
+            const newPw = document.getElementById('fpNewPw').value;
+            const confirmPw = document.getElementById('fpConfirmPw').value;
+
+            if (!newPw || newPw.length < 4) return document.getElementById('fpError3').textContent = 'Password must be at least 4 characters.';
+            if (newPw !== confirmPw) return document.getElementById('fpError3').textContent = 'Passwords do not match.';
+
+            const btn = document.getElementById('fpResetBtn');
+            const spinner = document.getElementById('fpSpinner3');
+            btn.disabled = true; spinner.style.display = 'inline-block';
+            document.getElementById('fpError3').textContent = '';
+
+            try {
+                const res = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: fpEmailVal, otp: fpOtpVal, newPassword: newPw })
+                });
+                const msg = await res.text();
+                if (res.ok) {
+                    closeForgotPassword();
+                    window.location.href = '/login.html?reset';
+                } else {
+                    document.getElementById('fpError3').textContent = msg || 'Failed to reset password.';
+                }
+            } catch (e) {
+                document.getElementById('fpError3').textContent = 'Error resetting password.';
+            } finally {
+                btn.disabled = false; spinner.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>
