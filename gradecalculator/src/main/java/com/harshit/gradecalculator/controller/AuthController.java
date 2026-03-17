@@ -1,209 +1,90 @@
-package com.harshit.gradecalculator.controller;
-
-import com.harshit.gradecalculator.model.User;
-import com.harshit.gradecalculator.repository.UserRepository;
-import com.harshit.gradecalculator.service.EmailService;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.ServletException;
+package com.harshit.gradecalculator.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 
-@RestController
-@RequestMapping("/api/auth")
-public class AuthController {
+@Service
+public class EmailService {
 
-    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
-    @Autowired
-    private UserRepository userRepository;
+    @Value("${brevo.api.key:}")
+    private String brevoApiKey;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Value("${brevo.sender.email:gradecalc.noreply@gmail.com}")
+    private String senderEmail;
 
-    @Autowired
-    private EmailService emailService;
+    @Value("${brevo.sender.name:GradeCalc}")
+    private String senderName;
 
-    // In-memory OTP store: email -> { otp, expiresAt }
-    // For production at scale, use Redis or a database table instead
-    private static final ConcurrentHashMap<String, OtpEntry> otpStore = new ConcurrentHashMap<>();
+    private final HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10))
+            .build();
 
-    // ===== SEND OTP =====
-    @PostMapping("/send-otp")
-    public ResponseEntity<String> sendOtp(@RequestBody Map<String, String> body) {
-        String username = body.get("username");
-        String email = body.get("email");
-
-        if (username == null || email == null || username.isBlank() || email.isBlank()) {
-            return ResponseEntity.badRequest().body("Username and email are required.");
+    public void sendOtpEmail(String toEmail, String otp) throws Exception {
+        if (brevoApiKey == null || brevoApiKey.isBlank()) {
+            throw new RuntimeException("Brevo API key is not configured. Set BREVO_API_KEY environment variable.");
         }
 
-        // Check if email already registered
-        if (userRepository.existsByEmail(email.trim())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Email already in use!");
-        }
+        String htmlContent = "<div style=\"font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;\">"
+            + "<div style=\"text-align: center; margin-bottom: 32px;\">"
+            + "<div style=\"display: inline-block; background: #4f46e5; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;\">"
+            + "<span style=\"color: white; font-size: 20px; font-weight: 800;\">GradeCalc</span>"
+            + "</div>"
+            + "<h1 style=\"margin: 0; font-size: 24px; color: #111827;\">Verify Your Email</h1>"
+            + "<p style=\"color: #6b7280; font-size: 14px; margin-top: 8px;\">Enter this code to complete your registration:</p>"
+            + "</div>"
+            + "<div style=\"background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;\">"
+            + "<div style=\"font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #4f46e5; font-family: 'Courier New', monospace;\">"
+            + otp
+            + "</div>"
+            + "</div>"
+            + "<p style=\"color: #6b7280; font-size: 13px; text-align: center; margin-bottom: 8px;\">"
+            + "This code expires in <strong style=\"color: #111827;\">10 minutes</strong>."
+            + "</p>"
+            + "<p style=\"color: #9ca3af; font-size: 12px; text-align: center;\">"
+            + "If you didn't request this, you can safely ignore this email."
+            + "</p>"
+            + "<hr style=\"border: none; border-top: 1px solid #e5e7eb; margin: 32px 0 16px;\">"
+            + "<p style=\"color: #9ca3af; font-size: 11px; text-align: center;\">"
+            + "GradeCalc - Smart Grade Tracking for Students"
+            + "</p>"
+            + "</div>";
 
-        // Check if username already taken
-        if (userRepository.findByUsername(username.trim()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Username is already taken! Please choose another.");
-        }
+        // Build JSON manually to avoid escaping issues
+        String jsonBody = "{"
+            + "\"sender\":{\"name\":\"" + senderName + "\",\"email\":\"" + senderEmail + "\"},"
+            + "\"to\":[{\"email\":\"" + toEmail + "\"}],"
+            + "\"subject\":\"GradeCalc - Verify Your Email\","
+            + "\"htmlContent\":\"" + htmlContent.replace("\"", "\\\"") + "\""
+            + "}";
 
-        // Rate limit: don't send a new OTP if one was sent less than 30 seconds ago
-        OtpEntry existing = otpStore.get(email.trim().toLowerCase());
-        if (existing != null && existing.createdAt.plusSeconds(30).isAfter(Instant.now())) {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Please wait before requesting a new code.");
-        }
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
+                .header("accept", "application/json")
+                .header("content-type", "application/json")
+                .header("api-key", brevoApiKey)
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .timeout(Duration.ofSeconds(15))
+                .build();
 
-        // Generate 6-digit OTP
-        String otp = String.valueOf(100000 + (int)(Math.random() * 900000));
+        log.info("Sending OTP email to {} via Brevo API...", toEmail);
 
-        // Store OTP with 10-minute expiry
-        otpStore.put(email.trim().toLowerCase(), new OtpEntry(otp, Instant.now().plusSeconds(600), Instant.now()));
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-        // Send email
-        try {
-            log.info("Attempting to send OTP to: {}", email.trim());
-            emailService.sendOtpEmail(email.trim(), otp);
-            log.info("OTP email sent successfully to: {}", email.trim());
-        } catch (Exception e) {
-            log.error("=== OTP EMAIL FAILED ===", e);
-            log.error("Error type: {} | Message: {}", e.getClass().getName(), e.getMessage());
-            if (e.getCause() != null) {
-                log.error("Cause: {} | {}", e.getCause().getClass().getName(), e.getCause().getMessage());
-            }
-            otpStore.remove(email.trim().toLowerCase());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send verification email. Please try again.");
-        }
-
-        return ResponseEntity.ok("OTP sent successfully.");
-    }
-
-    // ===== VERIFY OTP & REGISTER =====
-    @PostMapping("/verify-otp")
-    public ResponseEntity<String> verifyOtpAndRegister(@RequestBody Map<String, String> body, HttpServletRequest request) {
-        String username = body.get("username");
-        String email = body.get("email");
-        String password = body.get("password");
-        String otp = body.get("otp");
-
-        if (username == null || email == null || password == null || otp == null) {
-            return ResponseEntity.badRequest().body("All fields are required.");
-        }
-
-        String emailKey = email.trim().toLowerCase();
-
-        // Look up OTP
-        OtpEntry entry = otpStore.get(emailKey);
-        if (entry == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No verification code found. Please request a new one.");
-        }
-
-        // Check expiry
-        if (Instant.now().isAfter(entry.expiresAt)) {
-            otpStore.remove(emailKey);
-            return ResponseEntity.status(HttpStatus.GONE).body("Verification code expired. Please request a new one.");
-        }
-
-        // Check OTP value
-        if (!entry.otp.equals(otp.trim())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid verification code. Please try again.");
-        }
-
-        // OTP valid — remove it so it can't be reused
-        otpStore.remove(emailKey);
-
-        // Double-check uniqueness (race condition protection)
-        if (userRepository.existsByEmail(email.trim())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Email already in use!");
-        }
-        if (userRepository.findByUsername(username.trim()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error: Username is already taken!");
-        }
-
-        // Create the user
-        User newUser = new User();
-        newUser.setUsername(username.trim());
-        newUser.setEmail(email.trim());
-        newUser.setPasswordHash(passwordEncoder.encode(password));
-        newUser.setApiToken(UUID.randomUUID().toString());
-
-        userRepository.save(newUser);
-
-        // Auto-login
-        try {
-            request.login(username.trim(), password);
-            return ResponseEntity.ok("Success");
-        } catch (ServletException e) {
-            return ResponseEntity.ok("Success-NoLogin");
-        }
-    }
-
-    // ===== LEGACY REGISTER (keep for backward compatibility, can remove later) =====
-    @PostMapping("/register")
-    public String registerUser(@RequestParam String username,
-                               @RequestParam String email,
-                               @RequestParam String password,
-                               HttpServletRequest request) {
-        if (userRepository.existsByEmail(email)) {
-            return "Error: Email already in use!";
-        }
-        if (userRepository.findByUsername(username).isPresent()) {
-            return "Error: Username is already taken! Please choose another.";
-        }
-
-        User newUser = new User();
-        newUser.setUsername(username.trim());
-        newUser.setEmail(email.trim());
-        newUser.setPasswordHash(passwordEncoder.encode(password));
-        newUser.setApiToken(UUID.randomUUID().toString());
-
-        userRepository.save(newUser);
-
-        try {
-            request.login(username, password);
-        } catch (ServletException e) {
-            return "Success-NoLogin";
-        }
-        return "Success";
-    }
-
-    // ===== TEST EMAIL (remove after debugging) =====
-    @GetMapping("/test-email")
-    public ResponseEntity<String> testEmail(@RequestParam String to) {
-        try {
-            log.info("Testing email to: {}", to);
-            emailService.sendOtpEmail(to, "123456");
-            log.info("Test email sent successfully!");
-            return ResponseEntity.ok("Email sent to " + to);
-        } catch (Exception e) {
-            log.error("Test email FAILED", e);
-            return ResponseEntity.status(500).body("FAILED: " + e.getClass().getName() + " - " + e.getMessage() 
-                + (e.getCause() != null ? " | Cause: " + e.getCause().getMessage() : ""));
-        }
-    }
-
-    // ===== OTP ENTRY HELPER CLASS =====
-    private static class OtpEntry {
-        final String otp;
-        final Instant expiresAt;
-        final Instant createdAt;
-
-        OtpEntry(String otp, Instant expiresAt, Instant createdAt) {
-            this.otp = otp;
-            this.expiresAt = expiresAt;
-            this.createdAt = createdAt;
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            log.info("Brevo API success: {}", response.body());
+        } else {
+            log.error("Brevo API failed with status {}: {}", response.statusCode(), response.body());
+            throw new RuntimeException("Brevo API error (status " + response.statusCode() + "): " + response.body());
         }
     }
 }
