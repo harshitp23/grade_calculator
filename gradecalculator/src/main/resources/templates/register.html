@@ -4,19 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Grade Calculator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* Shared Core Theme Configuration */
-        :root { --primary: #4f46e5; --primary-hover: #4338ca; --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; }
+        :root { --primary: #4f46e5; --primary-hover: #4338ca; --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; --success: #10b981; --danger: #ef4444; }
         [data-theme="light"] { --primary: #4f46e5; --primary-hover: #4338ca; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --border-color: #d1d5db; }
         [data-theme="badger"] { --primary: #c5050c; --primary-hover: #9a0409; --bg-color: #000000; --card-bg: #171717; --text-main: #ffffff; --text-muted: #a1a1aa; --border-color: #333333; }
         [data-theme="ocean"] { --primary: #0284c7; --primary-hover: #0369a1; --bg-color: #082f49; --card-bg: #0c4a6e; --text-main: #f0f9ff; --text-muted: #7dd3fc; --border-color: #0369a1; }
 
-        /* Fix for input text visibility in all variants */
         input { background-color: var(--bg-color) !important; color: var(--text-main) !important; border-color: var(--border-color) !important; }
 
+        * { box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-color); 
@@ -32,16 +31,16 @@
         .card { background: var(--card-bg); padding: 40px; border-radius: 16px; width: 360px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3), 0 8px 10px -6px rgba(0,0,0,0.1); text-align: center; border: 1px solid var(--border-color); }
         h1 { color: var(--text-main); margin-bottom: 8px; font-weight: 700; font-size: 24px; }
         .subtitle { color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
-        input { width: 100%; padding: 12px 16px; margin: 8px 0; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+        input { width: 100%; padding: 12px 16px; margin: 8px 0; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; font-family: 'Inter', sans-serif; }
         input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
         .password-container { position: relative; width: 100%; margin-bottom: 20px; }
         .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); font-size: 14px; }
-        button { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: background-color 0.2s; margin-top: 10px; }
+        button { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: all 0.2s; margin-top: 10px; font-family: 'Inter', sans-serif; }
         button:hover { background-color: var(--primary-hover); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; }
         a { display: block; margin-top: 20px; color: var(--text-muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
         a:hover { color: var(--primary); }
 
-        /* Dropdown UI */
         .theme-dropdown-container { position: absolute; top: 20px; right: 20px; }
         .theme-toggle { background: var(--card-bg); border: 1px solid var(--border-color); padding: 10px; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--text-main); font-size: 18px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
         .theme-toggle:hover { transform: scale(1.1); }
@@ -52,6 +51,39 @@
         .theme-option:hover { background: rgba(128,128,128,0.1); color: var(--primary); }
         .theme-option:last-child { border-radius: 0 0 8px 8px; margin-bottom: 5px; }
         .active-indicator { display: none; color: var(--primary); font-size: 14px; }
+
+        /* ===== OTP MODAL ===== */
+        .otp-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; }
+        .otp-overlay.show { display: flex; }
+        .otp-card { background: var(--card-bg); padding: 36px; border-radius: 16px; width: 380px; border: 1px solid var(--border-color); box-shadow: 0 10px 40px rgba(0,0,0,0.4); text-align: center; }
+        .otp-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 20px; background: rgba(79,70,229,0.12); color: var(--primary); }
+        [data-theme="badger"] .otp-icon { background: rgba(197,5,12,0.12); color: #ff4b52; }
+        [data-theme="ocean"] .otp-icon { background: rgba(2,132,199,0.12); color: #38bdf8; }
+        .otp-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+        .otp-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5; }
+        .otp-desc strong { color: var(--text-main); }
+
+        .otp-inputs { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .otp-inputs input {
+            width: 46px !important; height: 52px; text-align: center; font-size: 22px; font-weight: 800;
+            padding: 0 !important; margin: 0 !important; border-radius: 10px;
+            border: 2px solid var(--border-color) !important;
+            background: var(--bg-color) !important; color: var(--text-main) !important;
+            caret-color: var(--primary);
+        }
+        .otp-inputs input:focus { border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(79,70,229,0.15); }
+        .otp-inputs input.error { border-color: var(--danger) !important; }
+        .otp-inputs input.success { border-color: var(--success) !important; }
+
+        .otp-error { color: var(--danger); font-size: 12px; font-weight: 600; margin-bottom: 12px; min-height: 18px; }
+        .otp-resend { font-size: 12px; color: var(--text-muted); margin-top: 16px; }
+        .otp-resend a { display: inline; margin: 0; font-size: 12px; color: var(--primary); font-weight: 600; cursor: pointer; }
+        .otp-resend a.disabled { color: var(--text-muted); pointer-events: none; opacity: 0.5; }
+        .otp-back { font-size: 12px; color: var(--text-muted); margin-top: 12px; cursor: pointer; }
+        .otp-back:hover { color: var(--primary); }
+
+        .btn-spinner { display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; margin-left: 8px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 
     <script>
@@ -74,75 +106,282 @@
         </div>
     </div>
 
-<div class="card">
-    <h1>Create Account 🚀</h1>
-    <p class="subtitle">Start tracking your grades today.</p>
-    
-    <form id="registerForm">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="email" name="email" placeholder="Email (e.g. user@gmail.com)" required>
+    <div class="card">
+        <h1>Create Account</h1>
+        <p class="subtitle">Start tracking your grades today.</p>
         
-        <div class="password-container">
-            <input type="password" id="password" name="password" placeholder="Password" required style="padding-right: 40px;">
-            <i class="fa fa-eye toggle-password" id="togglePassword"></i>
+        <form id="registerForm">
+            <input type="text" id="regUsername" name="username" placeholder="Username" required>
+            <input type="email" id="regEmail" name="email" placeholder="Email (e.g. user@wisc.edu)" required>
+            
+            <div class="password-container">
+                <input type="password" id="password" name="password" placeholder="Password" required style="padding-right: 40px;">
+                <i class="fa fa-eye toggle-password" id="togglePassword"></i>
+            </div>
+
+            <button type="submit" id="registerBtn">
+                Create Account <span class="btn-spinner" id="regSpinner"></span>
+            </button>
+        </form>
+        
+        <a href="login.html">Already have an account? <span style="color:var(--primary); font-weight:600;">Login</span></a>
+    </div>
+
+    <!-- OTP Verification Modal -->
+    <div class="otp-overlay" id="otpOverlay">
+        <div class="otp-card">
+            <div class="otp-icon"><i class="fa-solid fa-envelope-circle-check"></i></div>
+            <div class="otp-title">Verify Your Email</div>
+            <div class="otp-desc">We sent a 6-digit code to<br><strong id="otpEmailDisplay">—</strong></div>
+
+            <div class="otp-inputs" id="otpInputs">
+                <input type="text" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input type="text" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input type="text" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input type="text" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input type="text" maxlength="1" inputmode="numeric" autocomplete="off">
+                <input type="text" maxlength="1" inputmode="numeric" autocomplete="off">
+            </div>
+
+            <div class="otp-error" id="otpError"></div>
+
+            <button id="verifyBtn" onclick="verifyOtp()" disabled>
+                Verify & Create Account <span class="btn-spinner" id="verifySpinner"></span>
+            </button>
+
+            <div class="otp-resend">
+                Didn't receive it? <a id="resendLink" onclick="resendOtp()">Resend code</a>
+                <span id="resendTimer"></span>
+            </div>
+            <div class="otp-back" onclick="closeOtpModal()"><i class="fa-solid fa-arrow-left" style="margin-right:4px;"></i> Back to registration</div>
         </div>
+    </div>
 
-        <button type="submit">Create Account</button>
-    </form>
-    
-    <a href="login.html">Already have an account? <span style="color:var(--primary); font-weight:600;">Login</span></a>
-</div>
-
-<script>
-    // 1. Theme Logic
-    function toggleThemeMenu() { document.getElementById('themeDropdown').classList.toggle('show'); }
-    
-    function setTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-        updateActiveThemeIndicator(theme);
-        document.getElementById('themeDropdown').classList.remove('show');
-    }
-
-    function updateActiveThemeIndicator(theme) {
-        document.querySelectorAll('.active-indicator').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('.check-' + theme).forEach(el => el.style.display = 'inline-block');
-    }
-
-    window.addEventListener('click', function(e) {
-        if (!e.target.closest('.theme-dropdown-container')) {
-            const dropdown = document.getElementById('themeDropdown');
-            if(dropdown) dropdown.classList.remove('show');
+    <script>
+        // ===== THEME =====
+        function toggleThemeMenu() { document.getElementById('themeDropdown').classList.toggle('show'); }
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            updateActiveThemeIndicator(theme);
+            document.getElementById('themeDropdown').classList.remove('show');
         }
-    });
+        function updateActiveThemeIndicator(theme) {
+            document.querySelectorAll('.active-indicator').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.check-' + theme).forEach(el => el.style.display = 'inline-block');
+        }
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.theme-dropdown-container')) {
+                const dropdown = document.getElementById('themeDropdown');
+                if (dropdown) dropdown.classList.remove('show');
+            }
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            updateActiveThemeIndicator(localStorage.getItem('theme') || 'dark');
+        });
 
-    document.addEventListener('DOMContentLoaded', () => {
-        updateActiveThemeIndicator(localStorage.getItem('theme') || 'dark');
-    });
+        // ===== PASSWORD TOGGLE =====
+        document.querySelector('#togglePassword').addEventListener('click', function() {
+            const pwd = document.querySelector('#password');
+            pwd.type = pwd.type === 'password' ? 'text' : 'password';
+            this.classList.toggle('fa-eye-slash');
+        });
 
-    // 2. Password Logic
-    const togglePassword = document.querySelector('#togglePassword');
-    const password = document.querySelector('#password');
-    togglePassword.addEventListener('click', function (e) {
-        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-        password.setAttribute('type', type);
-        this.classList.toggle('fa-eye-slash');
-    });
+        // ===== STATE =====
+        let pendingUsername = '';
+        let pendingEmail = '';
+        let pendingPassword = '';
+        let resendCooldown = 0;
+        let resendInterval = null;
 
-    // 3. Register Logic
-    document.getElementById('registerForm').addEventListener('submit', function(e) {
-        e.preventDefault(); 
-        const formData = new FormData(this);
-        fetch('/api/auth/register', { method: 'POST', body: formData })
-        .then(response => response.text())
-        .then(message => {
-            if (message === "Success") window.location.href = "/index.html";
-            else if (message === "Success-NoLogin") { alert("Account created! Login."); window.location.href = "/login.html"; }
-            else alert(message);
-        })
-        .catch(error => { console.error('Error:', error); alert("Error. Try again."); });
-    });
-</script>
+        // ===== REGISTER FORM SUBMIT → SEND OTP =====
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
+            pendingUsername = document.getElementById('regUsername').value.trim();
+            pendingEmail = document.getElementById('regEmail').value.trim();
+            pendingPassword = document.getElementById('password').value;
+
+            if (!pendingUsername || !pendingEmail || !pendingPassword) return;
+
+            const btn = document.getElementById('registerBtn');
+            const spinner = document.getElementById('regSpinner');
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+
+            try {
+                const res = await fetch('/api/auth/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: pendingUsername, email: pendingEmail, password: pendingPassword })
+                });
+                const data = await res.text();
+
+                if (res.ok) {
+                    // Show OTP modal
+                    document.getElementById('otpEmailDisplay').textContent = pendingEmail;
+                    document.getElementById('otpOverlay').classList.add('show');
+                    document.getElementById('otpError').textContent = '';
+                    clearOtpInputs();
+                    startResendCooldown();
+                    // Focus first input
+                    setTimeout(() => document.querySelector('#otpInputs input').focus(), 100);
+                } else {
+                    alert(data || 'Failed to send verification code.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error sending verification code. Please try again.');
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        });
+
+        // ===== OTP INPUT BEHAVIOR =====
+        const otpInputs = document.querySelectorAll('#otpInputs input');
+
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                this.classList.remove('error');
+                if (this.value && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+                checkOtpComplete();
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !this.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (getOtpValue().length === 6) verifyOtp();
+                }
+            });
+
+            // Handle paste
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+                if (pasted.length >= 6) {
+                    for (let i = 0; i < 6; i++) {
+                        otpInputs[i].value = pasted[i];
+                    }
+                    otpInputs[5].focus();
+                    checkOtpComplete();
+                }
+            });
+        });
+
+        function getOtpValue() {
+            return Array.from(otpInputs).map(i => i.value).join('');
+        }
+
+        function checkOtpComplete() {
+            document.getElementById('verifyBtn').disabled = getOtpValue().length !== 6;
+        }
+
+        function clearOtpInputs() {
+            otpInputs.forEach(i => { i.value = ''; i.classList.remove('error', 'success'); });
+            document.getElementById('verifyBtn').disabled = true;
+        }
+
+        // ===== VERIFY OTP =====
+        async function verifyOtp() {
+            const otp = getOtpValue();
+            if (otp.length !== 6) return;
+
+            const btn = document.getElementById('verifyBtn');
+            const spinner = document.getElementById('verifySpinner');
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+            document.getElementById('otpError').textContent = '';
+
+            try {
+                const res = await fetch('/api/auth/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: pendingUsername, email: pendingEmail, password: pendingPassword, otp: otp })
+                });
+                const data = await res.text();
+
+                if (res.ok) {
+                    // Success animation
+                    otpInputs.forEach(i => i.classList.add('success'));
+
+                    if (data === 'Success') {
+                        window.location.href = '/index.html';
+                    } else if (data === 'Success-NoLogin') {
+                        alert('Account created! Please log in.');
+                        window.location.href = '/login.html';
+                    } else {
+                        window.location.href = '/index.html';
+                    }
+                } else {
+                    // Show error
+                    otpInputs.forEach(i => i.classList.add('error'));
+                    document.getElementById('otpError').textContent = data || 'Invalid code. Please try again.';
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                console.error(err);
+                document.getElementById('otpError').textContent = 'Error verifying code. Please try again.';
+                btn.disabled = false;
+            } finally {
+                spinner.style.display = 'none';
+            }
+        }
+
+        // ===== RESEND OTP =====
+        function startResendCooldown() {
+            resendCooldown = 60;
+            const link = document.getElementById('resendLink');
+            const timer = document.getElementById('resendTimer');
+            link.classList.add('disabled');
+
+            if (resendInterval) clearInterval(resendInterval);
+            resendInterval = setInterval(() => {
+                resendCooldown--;
+                timer.textContent = `(${resendCooldown}s)`;
+                if (resendCooldown <= 0) {
+                    clearInterval(resendInterval);
+                    link.classList.remove('disabled');
+                    timer.textContent = '';
+                }
+            }, 1000);
+        }
+
+        async function resendOtp() {
+            if (resendCooldown > 0) return;
+
+            document.getElementById('otpError').textContent = '';
+            clearOtpInputs();
+
+            try {
+                const res = await fetch('/api/auth/send-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: pendingUsername, email: pendingEmail, password: pendingPassword })
+                });
+
+                if (res.ok) {
+                    startResendCooldown();
+                    document.getElementById('otpError').textContent = '';
+                } else {
+                    const msg = await res.text();
+                    document.getElementById('otpError').textContent = msg || 'Failed to resend.';
+                }
+            } catch (err) {
+                document.getElementById('otpError').textContent = 'Error resending code.';
+            }
+        }
+
+        function closeOtpModal() {
+            document.getElementById('otpOverlay').classList.remove('show');
+            if (resendInterval) clearInterval(resendInterval);
+        }
+    </script>
 </body>
 </html>
