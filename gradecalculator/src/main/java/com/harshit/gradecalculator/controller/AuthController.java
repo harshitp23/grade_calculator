@@ -71,7 +71,13 @@ public class AuthController {
         try {
             emailService.sendOtpEmail(email.trim(), otp);
         } catch (Exception e) {
-            System.err.println("Failed to send OTP email: " + e.getMessage());
+            e.printStackTrace();
+            System.err.println("=== OTP EMAIL FAILED ===");
+            System.err.println("Error type: " + e.getClass().getName());
+            System.err.println("Message: " + e.getMessage());
+            if (e.getCause() != null) {
+                System.err.println("Cause: " + e.getCause().getClass().getName() + " - " + e.getCause().getMessage());
+            }
             otpStore.remove(email.trim().toLowerCase());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send verification email. Please try again.");
         }
