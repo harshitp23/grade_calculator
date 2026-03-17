@@ -179,19 +179,112 @@ public class AuthController {
         return "Success";
     }
 
-    // ===== TEST EMAIL (remove after debugging) =====
-    @GetMapping("/test-email")
-    public ResponseEntity<String> testEmail(@RequestParam String to) {
-        try {
-            log.info("Testing email to: {}", to);
-            emailService.sendOtpEmail(to, "123456");
-            log.info("Test email sent successfully!");
-            return ResponseEntity.ok("Email sent to " + to);
-        } catch (Exception e) {
-            log.error("Test email FAILED", e);
-            return ResponseEntity.status(500).body("FAILED: " + e.getClass().getName() + " - " + e.getMessage() 
-                + (e.getCause() != null ? " | Cause: " + e.getCause().getMessage() : ""));
+    // ===== FORGOT PASSWORD: SEND OTP =====
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.badRequest().body("Email is required.");
         }
+
+        String emailKey = email.trim().toLowerCase();
+
+        // Check if email exists
+        if (!userRepository.existsByEmail(email.trim())) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No account found with this email address.");
+        }
+
+        // Rate limit
+        OtpEntry existing = otpStore.get("reset:" + emailKey);
+        if (existing != null && existing.createdAt.plusSeconds(30).isAfter(Instant.now())) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Please wait before requesting a new code.");
+        }
+
+        // Generate OTP
+        String otp = String.valueOf(100000 + (int)(Math.random() * 900000));
+        otpStore.put("reset:" + emailKey, new OtpEntry(otp, Instant.now().plusSeconds(600), Instant.now()));
+
+        try {
+            log.info("Sending password reset OTP to: {}", email.trim());
+            emailService.sendOtpEmail(email.trim(), otp);
+            log.info("Password reset OTP sent successfully to: {}", email.trim());
+        } catch (Exception e) {
+            log.error("Failed to send password reset OTP", e);
+            otpStore.remove("reset:" + emailKey);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send verification email. Please try again.");
+        }
+
+        return ResponseEntity.ok("Code sent successfully.");
+    }
+
+    // ===== FORGOT PASSWORD: VERIFY OTP ONLY =====
+    @PostMapping("/verify-reset-otp")
+    public ResponseEntity<String> verifyResetOtp(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String otp = body.get("otp");
+
+        if (email == null || otp == null) {
+            return ResponseEntity.badRequest().body("Email and code are required.");
+        }
+
+        String emailKey = "reset:" + email.trim().toLowerCase();
+        OtpEntry entry = otpStore.get(emailKey);
+
+        if (entry == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No verification code found. Please request a new one.");
+        }
+        if (Instant.now().isAfter(entry.expiresAt)) {
+            otpStore.remove(emailKey);
+            return ResponseEntity.status(HttpStatus.GONE).body("Code expired. Please request a new one.");
+        }
+        if (!entry.otp.equals(otp.trim())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid code. Please try again.");
+        }
+
+        // OTP is valid — DON'T remove it yet (we need it for the reset step)
+        return ResponseEntity.ok("Code verified.");
+    }
+
+    // ===== FORGOT PASSWORD: RESET PASSWORD =====
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String otp = body.get("otp");
+        String newPassword = body.get("newPassword");
+
+        if (email == null || otp == null || newPassword == null || newPassword.isBlank()) {
+            return ResponseEntity.badRequest().body("All fields are required.");
+        }
+
+        String emailKey = "reset:" + email.trim().toLowerCase();
+        OtpEntry entry = otpStore.get(emailKey);
+
+        if (entry == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No verification code found. Please start over.");
+        }
+        if (Instant.now().isAfter(entry.expiresAt)) {
+            otpStore.remove(emailKey);
+            return ResponseEntity.status(HttpStatus.GONE).body("Code expired. Please start over.");
+        }
+        if (!entry.otp.equals(otp.trim())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid code.");
+        }
+
+        // OTP valid — remove it
+        otpStore.remove(emailKey);
+
+        // Find user and update password
+        var userOpt = userRepository.findByEmail(email.trim());
+        if (userOpt == null || userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No account found with this email.");
+        }
+
+        User user = userOpt.get();
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        log.info("Password reset successfully for: {}", email.trim());
+        return ResponseEntity.ok("Password reset successfully.");
     }
 
     // ===== OTP ENTRY HELPER CLASS =====
