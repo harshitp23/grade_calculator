@@ -43,7 +43,7 @@
         .page-header p { color: var(--text-muted); font-size: 14px; margin: 0; }
 
         /* ===== FORM CARD ===== */
-        .form-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 32px; max-width: 960px; }
+        .form-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 32px; }
         .form-card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
         .form-card-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; background: rgba(79,70,229,0.12); color: var(--primary); }
         [data-theme="badger"] .form-card-icon { background: rgba(197,5,12,0.12); color: #ff4b52; }
@@ -80,7 +80,7 @@
         [data-theme="ocean"] .btn-submit:hover { box-shadow: 0 6px 20px rgba(2,132,199,0.3); }
 
         /* ===== RECENTLY ADDED ===== */
-        .recent-section { margin-top: 28px; max-width: 960px; display: none; }
+        .recent-section { margin-top: 28px; display: none; }
         .recent-header { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
         .recent-item { display: flex; align-items: center; gap: 14px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 14px 18px; margin-bottom: 8px; transition: transform 0.2s; }
         .recent-item:hover { transform: translateX(4px); }
@@ -126,6 +126,39 @@
             .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 900; }
             .mobile-overlay.active { display: block; }
         }
+
+        /* ===== POLISHED GETTING STARTED MODAL ===== */
+        .gs-modal { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; width: 580px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .gs-hero { background: linear-gradient(135deg, var(--primary), #7c3aed); padding: 32px 32px 28px; border-radius: 20px 20px 0 0; position: relative; overflow: hidden; }
+        .gs-hero::before { content: ''; position: absolute; top: -40px; right: -20px; width: 120px; height: 120px; background: rgba(255,255,255,0.08); border-radius: 50%; }
+        .gs-hero::after { content: ''; position: absolute; bottom: -30px; left: 40px; width: 80px; height: 80px; background: rgba(255,255,255,0.05); border-radius: 50%; }
+        [data-theme="badger"] .gs-hero { background: linear-gradient(135deg, #c5050c, #ff4b52); }
+        [data-theme="ocean"] .gs-hero { background: linear-gradient(135deg, #0284c7, #0369a1); }
+        .gs-hero-content { position: relative; z-index: 1; }
+        .gs-hero-close { position: absolute; top: 16px; right: 16px; z-index: 2; background: rgba(255,255,255,0.15); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .gs-hero-close:hover { background: rgba(255,255,255,0.3); }
+        .gs-hero h2 { color: white; font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+        .gs-hero p { color: rgba(255,255,255,0.75); font-size: 13px; }
+        .gs-body { padding: 28px 32px 32px; }
+        .gs-step { display: flex; gap: 16px; margin-bottom: 22px; padding: 14px; border-radius: 12px; transition: background 0.2s; }
+        .gs-step:hover { background: rgba(128,128,128,0.05); }
+        .gs-step:last-of-type { margin-bottom: 0; }
+        .gs-step-num { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+        .gs-step-num.s1 { background: rgba(79,70,229,0.12); color: var(--primary); }
+        .gs-step-num.s2 { background: rgba(16,185,129,0.12); color: #10b981; }
+        .gs-step-num.s3 { background: rgba(245,158,11,0.12); color: #f59e0b; }
+        .gs-step-num.s4 { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .gs-step-num.s5 { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+        .gs-step-num.s6 { background: rgba(6,182,212,0.12); color: #06b6d4; }
+        [data-theme="badger"] .gs-step-num.s1 { background: rgba(197,5,12,0.12); color: #ff4b52; }
+        .gs-step-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+        .gs-step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+        .gs-step-desc a { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .gs-step-desc a:hover { text-decoration: underline; }
+        .gs-footer { padding: 0 32px 28px; }
+        .gs-footer-btn { width: 100%; padding: 13px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s; }
+        .gs-footer-btn:hover { opacity: 0.9; }
+        @media (max-width: 768px) { .gs-modal { width: 95%; } }
     </style>
 
     <script>
@@ -304,6 +337,28 @@
             </div>
             
             <button class="btn-save" style="background:var(--danger); color:white; border:none; margin-top: 10px;" onclick="deleteAccount()">Delete Account</button>
+        </div>
+    </div>
+
+    <!-- Polished Getting Started Modal -->
+    <div id="helpModal" class="modal" onclick="if(event.target.id==='helpModal') this.style.display='none'">
+        <div class="gs-modal">
+            <div class="gs-hero">
+                <button class="gs-hero-close" onclick="document.getElementById('helpModal').style.display='none'">&times;</button>
+                <div class="gs-hero-content">
+                    <h2>Getting Started</h2>
+                    <p>Everything you need to know to track your grades like a pro.</p>
+                </div>
+            </div>
+            <div class="gs-body">
+                <div class="gs-step"><div class="gs-step-num s1"><i class="fa-brands fa-chrome"></i></div><div><div class="gs-step-title">Sync with Canvas</div><div class="gs-step-desc">Install <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank">GradeCalc Sync Pro</a> from the Chrome Web Store. Pin it, open Canvas, and click <strong>Update Synced Grades</strong>.</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s2"><i class="fa-solid fa-plus"></i></div><div><div class="gs-step-title">Build Your Transcript</div><div class="gs-step-desc">Click <strong>Add Old Subjects</strong> in the sidebar to manually enter past classes not synced from Canvas.</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s3"><i class="fa-solid fa-flask"></i></div><div><div class="gs-step-title">Grade Simulator</div><div class="gs-step-desc">Select an active class and enter hypothetical scores to see exactly how your final grade changes.</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s4"><i class="fa-solid fa-bullseye"></i></div><div><div class="gs-step-title">Target Calculator</div><div class="gs-step-desc">Find out exactly what you need on your next exam to hit your goal grade.</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s5"><i class="fa-solid fa-gear"></i></div><div><div class="gs-step-title">Custom Grading Scales</div><div class="gs-step-desc">Click the gear icon next to any subject to set a custom scale (e.g. A = 94%, AB = 89%).</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s6"><i class="fa-solid fa-arrow-trend-up"></i></div><div><div class="gs-step-title">Curve Adjustments</div><div class="gs-step-desc">Click the trending-up arrow on completed classes to apply a professor curve to your final grade.</div></div></div>
+            </div>
+            <div class="gs-footer"><button class="gs-footer-btn" onclick="document.getElementById('helpModal').style.display='none'">Got it!</button></div>
         </div>
     </div>
 
