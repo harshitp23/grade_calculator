@@ -4,18 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subject Details - GradeCalc</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Shared Core Theme Configuration */
         :root { --primary: #4f46e5; --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f3f4f6; --text-muted: #94a3b8; --border-color: #334155; --danger: #ef4444; --sidebar-width: 260px; }
         [data-theme="light"] { --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff; --text-main: #111827; --text-muted: #6b7280; --border-color: #e5e7eb; }
         [data-theme="badger"] { --primary: #c5050c; --bg-color: #000000; --card-bg: #171717; --text-main: #ffffff; --text-muted: #a1a1aa; --border-color: #333333; }
         [data-theme="ocean"] { --primary: #0284c7; --bg-color: #082f49; --card-bg: #0c4a6e; --text-main: #f0f9ff; --text-muted: #7dd3fc; --border-color: #0369a1; }
 
+        * { box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-main); display: flex; height: 100vh; overflow: hidden; transition: background-color 0.3s ease; }
         
-        /* Dropdown Theme Menu CSS */
         .theme-dropdown-container { position: relative; display: inline-block; margin: 0; }
         .theme-dropdown { position: absolute; right: 0; top: 100%; margin-top: 10px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 160px; z-index: 1000; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s ease; }
         .theme-dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
@@ -25,10 +24,10 @@
         .theme-option:last-child { border-radius: 0 0 8px 8px; margin-bottom: 5px; }
         .active-indicator { display: none; color: var(--primary); font-size: 14px; }
 
-        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; transition: transform 0.3s ease; }
+        .sidebar { width: var(--sidebar-width); background-color: var(--card-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 24px; z-index: 50; transition: transform 0.3s ease; flex-shrink: 0; }
         .logo { font-size: 20px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--text-muted); text-decoration: none; border-radius: 8px; margin-bottom: 8px; font-weight: 500; transition: all 0.2s; }
-        .nav-link:hover { background-color: rgba(79, 70, 229, 0.1); color: var(--primary); }
+        .nav-link:hover { background-color: rgba(128,128,128,0.1); color: var(--primary); }
         .spacer { flex: 1; }
         .user-profile { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
         .icon-btn { cursor: pointer; color: var(--text-muted); transition: 0.2s; font-size: 16px; background: none; border: none; padding: 5px; }
@@ -46,13 +45,48 @@
         .active-row .expand-icon { transform: rotate(90deg); }
         .nested-row { display: none; background: rgba(0,0,0,0.02); }
         
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
-        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; }
-        .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px;}
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px); align-items: center; justify-content: center; }
+        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 16px; width: 450px; border: 1px solid var(--border-color); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn-save { padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; width: 100%; margin-top:10px; font-family: 'Inter', sans-serif; }
+        .btn-save:hover { opacity: 0.9; }
 
-        /* Header Alignment Class */
         .page-header { display:flex; justify-content:space-between; align-items:center; }
         .header-score-text { font-size:32px; font-weight:800; color:var(--primary); }
+        .back-btn { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; padding: 10px 20px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; color: var(--text-muted); background: none; font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; transition: 0.2s; }
+        .back-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* ===== POLISHED GETTING STARTED MODAL ===== */
+        .gs-modal { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 20px; width: 580px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .gs-hero { background: linear-gradient(135deg, var(--primary), #7c3aed); padding: 32px 32px 28px; border-radius: 20px 20px 0 0; position: relative; overflow: hidden; }
+        .gs-hero::before { content: ''; position: absolute; top: -40px; right: -20px; width: 120px; height: 120px; background: rgba(255,255,255,0.08); border-radius: 50%; }
+        .gs-hero::after { content: ''; position: absolute; bottom: -30px; left: 40px; width: 80px; height: 80px; background: rgba(255,255,255,0.05); border-radius: 50%; }
+        [data-theme="badger"] .gs-hero { background: linear-gradient(135deg, #c5050c, #ff4b52); }
+        [data-theme="ocean"] .gs-hero { background: linear-gradient(135deg, #0284c7, #0369a1); }
+        .gs-hero-content { position: relative; z-index: 1; }
+        .gs-hero-close { position: absolute; top: 16px; right: 16px; z-index: 2; background: rgba(255,255,255,0.15); border: none; color: white; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .gs-hero-close:hover { background: rgba(255,255,255,0.3); }
+        .gs-hero h2 { color: white; font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+        .gs-hero p { color: rgba(255,255,255,0.75); font-size: 13px; }
+        .gs-body { padding: 28px 32px 32px; }
+        .gs-step { display: flex; gap: 16px; margin-bottom: 22px; padding: 14px; border-radius: 12px; transition: background 0.2s; }
+        .gs-step:hover { background: rgba(128,128,128,0.05); }
+        .gs-step:last-of-type { margin-bottom: 0; }
+        .gs-step-num { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
+        .gs-step-num.s1 { background: rgba(79,70,229,0.12); color: var(--primary); }
+        .gs-step-num.s2 { background: rgba(16,185,129,0.12); color: #10b981; }
+        .gs-step-num.s3 { background: rgba(245,158,11,0.12); color: #f59e0b; }
+        .gs-step-num.s4 { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .gs-step-num.s5 { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+        .gs-step-num.s6 { background: rgba(6,182,212,0.12); color: #06b6d4; }
+        [data-theme="badger"] .gs-step-num.s1 { background: rgba(197,5,12,0.12); color: #ff4b52; }
+        .gs-step-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+        .gs-step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+        .gs-step-desc a { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .gs-step-desc a:hover { text-decoration: underline; }
+        .gs-footer { padding: 0 32px 28px; }
+        .gs-footer-btn { width: 100%; padding: 13px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s; }
+        .gs-footer-btn:hover { opacity: 0.9; }
 
         .mobile-nav { display: none; }
         .mobile-overlay { display: none; }
@@ -64,21 +98,18 @@
             .sidebar { position: fixed; top: 0; left: 0; height: 100%; transform: translateX(-100%); width: 260px; box-shadow: 0 0 15px rgba(0,0,0,0.1); z-index: 999; }
             .sidebar.active { transform: translateX(0); }
             .mobile-close-sidebar { display: block; position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-muted); cursor: pointer; }
-            
             .main-content { padding: 15px; width: 100%; box-sizing: border-box; }
-            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900; }
+            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 900; }
             .mobile-overlay.active { display: block; }
-
             .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
             .page-header > div:last-child { text-align: left; display: flex; align-items: baseline; gap: 10px; }
             .container h1 { font-size: 22px !important; }
             .header-score-text { font-size: 24px !important; }
-
             .card { margin-top: 15px; }
             th, td { padding: 10px 12px; font-size: 13px; }
             .nested-row td { padding-left: 25px !important; }
-            
             .modal-content { width: 90%; padding: 20px; }
+            .gs-modal { width: 95%; }
         }
     </style>
 
@@ -94,7 +125,6 @@
             <div class="logo" style="margin:0; font-size:18px;"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         </div>
         <div style="display:flex; gap:15px; align-items:center;">
-            
             <div class="theme-dropdown-container">
                 <button class="icon-btn" onclick="toggleThemeMenu('mobile')"><i class="fa-solid fa-palette"></i></button>
                 <div class="theme-dropdown" id="themeDropdown-mobile" style="top: 100%; right: 0;">
@@ -105,7 +135,6 @@
                     <div class="theme-option" onclick="setTheme('ocean')">🌊 Ocean <i class="fa-solid fa-circle-dot active-indicator check-ocean"></i></div>
                 </div>
             </div>
-
             <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
             <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
         </div>
@@ -116,7 +145,7 @@
         <div class="logo"><i class="fa-solid fa-graduation-cap"></i> GradeCalc</div>
         <nav>
             <a th:href="@{/}" class="nav-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects(Not in Canvas)</a>
+            <a th:href="@{/add-subject}" class="nav-link"><i class="fa-solid fa-plus-circle"></i> Add Old Subjects</a>
             <a th:href="@{/simulator}" class="nav-link"><i class="fa-solid fa-flask"></i> Grade Simulator</a>
             <a th:href="@{/target-grade}" class="nav-link"><i class="fa-solid fa-bullseye"></i> Target Calculator</a>
             <a href="#" onclick="document.getElementById('helpModal').style.display='flex'" class="nav-link"><i class="fa-solid fa-book-open"></i> Getting Started</a>
@@ -125,7 +154,6 @@
         <div class="user-profile">
             <span style="font-size:12px; color:var(--text-muted); display:block; margin-bottom:5px;">Signed in as <strong sec:authentication="name" style="color:var(--text-main)">Student</strong></span>
             <div style="display:flex; gap:10px; align-items:center;">
-                
                 <div class="theme-dropdown-container">
                     <button class="icon-btn" onclick="toggleThemeMenu('desktop')"><i class="fa-solid fa-palette"></i></button>
                     <div class="theme-dropdown" id="themeDropdown-desktop" style="bottom: 100%; top: auto; right: 0; margin-bottom: 10px; margin-top: 0;">
@@ -136,7 +164,6 @@
                         <div class="theme-option" onclick="setTheme('ocean')">🌊 Ocean <i class="fa-solid fa-circle-dot active-indicator check-ocean"></i></div>
                     </div>
                 </div>
-
                 <button class="icon-btn" onclick="openGlobalSettings()"><i class="fa-solid fa-gear"></i></button>
                 <form th:action="@{/logout}" method="post" style="margin:0;"><button class="icon-btn"><i class="fa-solid fa-right-from-bracket"></i></button></form>
             </div>
@@ -183,216 +210,107 @@
                     </table>
                 </div>
             </div>
-            <button class="icon-btn" style="margin-top:20px; padding:10px 20px; border:1px solid var(--border-color); border-radius:8px;" onclick="window.location.href='/'">Back to Dashboard</button>
+            <button class="back-btn" onclick="window.location.href='/'"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
         </div>
     </main>
 
+    <!-- Global Settings Modal -->
     <div id="globalSettingsModal" class="modal" onclick="if(event.target.id==='globalSettingsModal') this.style.display='none'">
         <div class="modal-content" style="width: 500px; max-height: 90vh; overflow-y: auto;">
-            <div class="modal-header"><h2 class="modal-title" style="margin:0;">Account Settings</h2><span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
-            
+            <div class="modal-header"><h2 style="margin:0;">Account Settings</h2><span style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('globalSettingsModal').style.display='none'">&times;</span></div>
             <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Profile Details</h4>
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Username</label>
                 <input type="text" id="settings-username" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
-                
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Email</label>
                 <input type="email" id="settings-email" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); margin-bottom: 10px; box-sizing: border-box;">
-                
                 <button class="btn-save" onclick="saveProfileChanges()">Save Profile Changes</button>
             </div>
-
             <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Change Password</h4>
-                
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Current Password</label>
-                <div style="position: relative; margin-bottom: 10px;">
-                    <input type="password" id="settings-old-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
-                    <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-old-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
-                </div>
-                
+                <div style="position: relative; margin-bottom: 10px;"><input type="password" id="settings-old-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;"><i class="fa fa-eye" onclick="toggleSettingsPwd('settings-old-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i></div>
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">New Password</label>
-                <div style="position: relative; margin-bottom: 10px;">
-                    <input type="password" id="settings-new-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;">
-                    <i class="fa fa-eye" onclick="toggleSettingsPwd('settings-new-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i>
-                </div>
-                
+                <div style="position: relative; margin-bottom: 10px;"><input type="password" id="settings-new-password" style="width: 100%; padding: 10px; padding-right: 40px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: var(--text-main); box-sizing: border-box;"><i class="fa fa-eye" onclick="toggleSettingsPwd('settings-new-password', this)" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted);"></i></div>
                 <button class="btn-save" onclick="updatePassword()">Reset Password</button>
             </div>
-
             <div style="margin-bottom:15px;">
                 <h4 style="margin: 0 0 10px 0; color: var(--text-main);">Canvas Sync</h4>
                 <label style="display:block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-muted);">Canvas API Token</label>
-                <input type="text" id="canvasApiToken" readonly style="width:100%; padding:10px; border-radius:8px; background:var(--bg-color); color:var(--text-main); box-sizing: border-box; margin-bottom:10px;">
+                <input type="text" id="canvasApiToken" readonly style="width:100%; padding:10px; border-radius:8px; background:var(--bg-color); color:var(--text-main); box-sizing: border-box; margin-bottom:10px; border:1px solid var(--border-color);">
                 <button class="btn-save" style="margin-top:0;" onclick="resetCanvasToken()">Regenerate Token</button>
             </div>
-            
-            <button class="btn-save" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca; margin-top: 10px;" onclick="deleteAccount()">Delete Account</button>
+            <button class="btn-save" style="background:var(--danger); color:white; border:none; margin-top: 10px;" onclick="deleteAccount()">Delete Account</button>
         </div>
     </div>
 
+    <!-- Polished Getting Started Modal -->
     <div id="helpModal" class="modal" onclick="if(event.target.id==='helpModal') this.style.display='none'">
-        <div class="modal-content" style="width: 550px; max-height: 85vh; overflow-y: auto;">
-            <div class="modal-header">
-                <h2 class="modal-title" style="margin: 0;">Getting Started 🚀</h2>
-                <span class="close-btn" style="cursor:pointer; font-size: 24px; color: var(--text-muted);" onclick="document.getElementById('helpModal').style.display='none'">&times;</span>
+        <div class="gs-modal">
+            <div class="gs-hero">
+                <button class="gs-hero-close" onclick="document.getElementById('helpModal').style.display='none'">&times;</button>
+                <div class="gs-hero-content">
+                    <h2>Getting Started</h2>
+                    <p>Everything you need to know to track your grades like a pro.</p>
+                </div>
             </div>
-            
-            <div style="line-height: 1.6; color: var(--text-main);">
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">1. Syncing with Canvas</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
-                    The easiest way to get your grades into GradeCalc is using our Chrome Extension. 
-                    <br><br>
-                    • Install <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank" style="color: var(--primary); font-weight: 600; text-decoration: none;">GradeCalc Sync Pro</a> from the Chrome Web Store.<br>
-                    • Pin the extension to your browser toolbar.<br>
-                    • Log into your university's Canvas page.<br>
-                    • If it is a new semester, use the extension to quickly set up and add your new subjects.<br>
-                    • Click the extension icon and hit <b>Update Synced Grades</b> to instantly import your active classes and assignments!
-                </p>
-
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">2. Building Your Transcript</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
-                    Your dashboard tracks your Cumulative GPA. To make it accurate, click <b>Add Old Subjects</b> in the sidebar to manually enter classes you completed in previous semesters which is not in canvas. Your GPA trend graph will automatically update!
-                </p>
-
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">3. Grade Simulator</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
-                    Wondering how a bad test score will affect your final grade? Go to the <b>Grade Simulator</b>, select an active class, and type in hypothetical scores to see exactly how your final percentage changes.
-                </p>
-
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">4. Target Calculator</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
-                    If you want to keep an 'A', the <b>Target Calculator</b> tells you exactly what score you need on your next exam/assignment to hit your goal. It handles all the complex weighted math for you.
-                </p>
-
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">5. Custom Grading Scales</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
-                    Not every class uses the standard 90-80-70 scale. Click the <b>gear icon</b> next to any subject on your dashboard to set a custom grading scale (e.g., 93 for an 'A') so your GPA is calculated perfectly.
-                </p>
-
-                <h4 style="margin: 0 0 10px 0; color: var(--primary);">6. Curve Adjustments</h4>
-                <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-muted);">
-                    Did your professor curve the final class grade? For any completed class, click the <b>trending up arrow</b> icon to apply a manual curve adjustment, overriding the calculated percentage with your official final letter grade.
-                </p>
+            <div class="gs-body">
+                <div class="gs-step"><div class="gs-step-num s1"><i class="fa-brands fa-chrome"></i></div><div><div class="gs-step-title">Sync with Canvas</div><div class="gs-step-desc">Install <a href="https://chromewebstore.google.com/detail/gradecalc-sync-pro/pikjpnkfllfeijggeeaeepcnjjgknphd" target="_blank">GradeCalc Sync Pro</a> from the Chrome Web Store. Pin it, open Canvas, and click <strong>Update Synced Grades</strong>.</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s2"><i class="fa-solid fa-plus"></i></div><div><div class="gs-step-title">Build Your Transcript</div><div class="gs-step-desc">Click <strong>Add Old Subjects</strong> in the sidebar to manually enter past classes not synced from Canvas.</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s3"><i class="fa-solid fa-flask"></i></div><div><div class="gs-step-title">Grade Simulator</div><div class="gs-step-desc">Select an active class and enter hypothetical scores to see exactly how your final grade changes.</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s4"><i class="fa-solid fa-bullseye"></i></div><div><div class="gs-step-title">Target Calculator</div><div class="gs-step-desc">Find out exactly what you need on your next exam to hit your goal grade.</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s5"><i class="fa-solid fa-gear"></i></div><div><div class="gs-step-title">Custom Grading Scales</div><div class="gs-step-desc">Click the gear icon next to any subject to set a custom scale (e.g. A = 94%, AB = 89%).</div></div></div>
+                <div class="gs-step"><div class="gs-step-num s6"><i class="fa-solid fa-arrow-trend-up"></i></div><div><div class="gs-step-title">Curve Adjustments</div><div class="gs-step-desc">Click the trending-up arrow on completed classes to apply a professor curve to your final grade.</div></div></div>
             </div>
-
-            <button class="btn-save" onclick="document.getElementById('helpModal').style.display='none'">Got it!</button>
+            <div class="gs-footer"><button class="gs-footer-btn" onclick="document.getElementById('helpModal').style.display='none'">Got it!</button></div>
         </div>
     </div>
 
     <script>
-        // --- NEW THEME SCRIPT LOGIC ---
-        function toggleThemeMenu(menuId) {
-            document.getElementById('themeDropdown-' + menuId).classList.toggle('show');
-        }
-
+        function toggleThemeMenu(menuId) { document.getElementById('themeDropdown-' + menuId).classList.toggle('show'); }
         function setTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('theme', theme);
             updateActiveThemeIndicator(theme);
             document.querySelectorAll('.theme-dropdown').forEach(d => d.classList.remove('show'));
         }
-
         function updateActiveThemeIndicator(theme) {
             document.querySelectorAll('.active-indicator').forEach(el => el.style.display = 'none');
             document.querySelectorAll('.check-' + theme).forEach(el => el.style.display = 'inline-block');
         }
-
-        // Close dropdown when clicking outside
-        window.addEventListener('click', function(e) {
-            if (!e.target.closest('.theme-dropdown-container')) {
-                document.querySelectorAll('.theme-dropdown').forEach(d => d.classList.remove('show'));
-            }
-        });
-
-        // Init indicators on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            updateActiveThemeIndicator(localStorage.getItem('theme') || 'dark');
-        });
-        // -----------------------------
+        window.addEventListener('click', function(e) { if (!e.target.closest('.theme-dropdown-container')) document.querySelectorAll('.theme-dropdown').forEach(d => d.classList.remove('show')); });
+        document.addEventListener('DOMContentLoaded', () => { updateActiveThemeIndicator(localStorage.getItem('theme') || 'dark'); });
 
         function toggleSidebar() { document.querySelector('.sidebar').classList.toggle('active'); document.querySelector('.mobile-overlay').classList.toggle('active'); }
         
         function openGlobalSettings() { document.getElementById('globalSettingsModal').style.display = 'flex'; loadCanvasToken(); loadUserProfile(); }
         async function loadCanvasToken() { const r = await fetch('/api/account/token'); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
         async function resetCanvasToken() { const r = await fetch('/api/account/token/reset', {method:'POST'}); const d = await r.json(); document.getElementById('canvasApiToken').value = d.token; }
-
         function toggleSettingsPwd(inputId, icon) {
             const input = document.getElementById(inputId);
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
+            if (input.type === 'password') { input.type = 'text'; icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
+            else { input.type = 'password'; icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
         }
-
         async function loadUserProfile() {
-            try {
-                const res = await fetch('/api/user/profile');
-                if(res.ok) {
-                    const data = await res.json();
-                    document.getElementById('settings-username').value = data.username || '';
-                    document.getElementById('settings-email').value = data.email || '';
-                }
-            } catch(e) { console.error(e); }
+            try { const res = await fetch('/api/user/profile'); if(res.ok) { const data = await res.json(); document.getElementById('settings-username').value = data.username || ''; document.getElementById('settings-email').value = data.email || ''; } } catch(e) { console.error(e); }
         }
-
         async function saveProfileChanges() {
             const username = document.getElementById('settings-username').value;
             const email = document.getElementById('settings-email').value;
-            try {
-                const res = await fetch('/api/user/profile', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email })
-                });
-                const data = await res.json();
-                if (res.ok) alert(data.message || 'Profile updated successfully!');
-                else alert(data.error || 'Failed to update profile.');
-            } catch (err) { console.error(err); alert('Error updating profile'); }
+            try { const res = await fetch('/api/user/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email }) }); const data = await res.json(); if (res.ok) alert(data.message || 'Profile updated!'); else alert(data.error || 'Failed.'); } catch (err) { alert('Error updating profile'); }
         }
-
         async function updatePassword() {
             const oldPassword = document.getElementById('settings-old-password').value;
             const newPassword = document.getElementById('settings-new-password').value;
             if (!oldPassword || !newPassword) return alert('Please fill in both password fields.');
-            try {
-                const res = await fetch('/api/user/password', {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ oldPassword, newPassword })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    alert(data.message || 'Password updated successfully!');
-                    document.getElementById('settings-old-password').value = '';
-                    document.getElementById('settings-new-password').value = '';
-                } else alert(data.error || 'Failed to update password.');
-            } catch (err) { console.error(err); alert('Error updating password'); }
+            try { const res = await fetch('/api/user/password', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ oldPassword, newPassword }) }); const data = await res.json(); if (res.ok) { alert(data.message || 'Password updated!'); document.getElementById('settings-old-password').value = ''; document.getElementById('settings-new-password').value = ''; } else alert(data.error || 'Failed.'); } catch (err) { alert('Error updating password'); }
         }
-        
         async function deleteAccount() {
             if (!confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
-            try {
-                const res = await fetch('/api/account/delete', { method: 'DELETE' });
-                if (res.ok) {
-                    window.location.href = '/login.html?deleted';
-                } else {
-                    alert('Failed to delete account.');
-                }
-            } catch (e) {
-                alert('Error deleting account.');
-            }
+            try { const res = await fetch('/api/account/delete', { method: 'DELETE' }); if (res.ok) window.location.href = '/login.html?deleted'; else alert('Failed to delete account.'); } catch (e) { alert('Error deleting account.'); }
         }
-
 
         function toggle(row) { row.classList.toggle('active-row'); const next = row.nextElementSibling; next.style.display = next.style.display === 'table-row' ? 'none' : 'table-row'; }
     </script>
 </body>
 </html>
-
-
