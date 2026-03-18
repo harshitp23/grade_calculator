@@ -29,12 +29,9 @@ public class EmailService {
             .connectTimeout(Duration.ofSeconds(10))
             .build();
 
+    // ===== SIGNUP VERIFICATION EMAIL =====
     public void sendOtpEmail(String toEmail, String otp) throws Exception {
-        if (brevoApiKey == null || brevoApiKey.isBlank()) {
-            throw new RuntimeException("Brevo API key is not configured. Set BREVO_API_KEY environment variable.");
-        }
-
-        String htmlContent = "<div style=\"font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;\">"
+        String html = "<div style=\"font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;\">"
             + "<div style=\"text-align: center; margin-bottom: 32px;\">"
             + "<div style=\"display: inline-block; background: #4f46e5; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;\">"
             + "<span style=\"color: white; font-size: 20px; font-weight: 800;\">GradeCalc</span>"
@@ -42,28 +39,67 @@ public class EmailService {
             + "<h1 style=\"margin: 0; font-size: 24px; color: #111827;\">Verify Your Email</h1>"
             + "<p style=\"color: #6b7280; font-size: 14px; margin-top: 8px;\">Enter this code to complete your registration:</p>"
             + "</div>"
-            + "<div style=\"background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;\">"
-            + "<div style=\"font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #4f46e5; font-family: 'Courier New', monospace;\">"
-            + otp
-            + "</div>"
-            + "</div>"
+            + otpBlock(otp)
             + "<p style=\"color: #6b7280; font-size: 13px; text-align: center; margin-bottom: 8px;\">"
             + "This code expires in <strong style=\"color: #111827;\">10 minutes</strong>."
             + "</p>"
             + "<p style=\"color: #9ca3af; font-size: 12px; text-align: center;\">"
-            + "If you didn't request this, you can safely ignore this email."
+            + "If you didn't create a GradeCalc account, you can safely ignore this email."
             + "</p>"
-            + "<hr style=\"border: none; border-top: 1px solid #e5e7eb; margin: 32px 0 16px;\">"
+            + footer();
+
+        sendEmail(toEmail, "GradeCalc - Verify Your Email", html);
+    }
+
+    // ===== PASSWORD RESET EMAIL =====
+    public void sendPasswordResetEmail(String toEmail, String otp) throws Exception {
+        String html = "<div style=\"font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 20px;\">"
+            + "<div style=\"text-align: center; margin-bottom: 32px;\">"
+            + "<div style=\"display: inline-block; background: #4f46e5; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;\">"
+            + "<span style=\"color: white; font-size: 20px; font-weight: 800;\">GradeCalc</span>"
+            + "</div>"
+            + "<h1 style=\"margin: 0; font-size: 24px; color: #111827;\">Reset Your Password</h1>"
+            + "<p style=\"color: #6b7280; font-size: 14px; margin-top: 8px;\">We received a request to reset your password. Enter this code to continue:</p>"
+            + "</div>"
+            + otpBlock(otp)
+            + "<p style=\"color: #6b7280; font-size: 13px; text-align: center; margin-bottom: 8px;\">"
+            + "This code expires in <strong style=\"color: #111827;\">10 minutes</strong>."
+            + "</p>"
+            + "<p style=\"color: #9ca3af; font-size: 12px; text-align: center;\">"
+            + "If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged."
+            + "</p>"
+            + footer();
+
+        sendEmail(toEmail, "GradeCalc - Reset Your Password", html);
+    }
+
+    // ===== SHARED COMPONENTS =====
+    private String otpBlock(String otp) {
+        return "<div style=\"background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 24px;\">"
+            + "<div style=\"font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #4f46e5; font-family: 'Courier New', monospace;\">"
+            + otp
+            + "</div>"
+            + "</div>";
+    }
+
+    private String footer() {
+        return "<hr style=\"border: none; border-top: 1px solid #e5e7eb; margin: 32px 0 16px;\">"
             + "<p style=\"color: #9ca3af; font-size: 11px; text-align: center;\">"
             + "GradeCalc - Smart Grade Tracking for Students"
             + "</p>"
             + "</div>";
+    }
 
-        // Build JSON manually to avoid escaping issues
+    // ===== SEND VIA BREVO API =====
+    private void sendEmail(String toEmail, String subject, String htmlContent) throws Exception {
+        if (brevoApiKey == null || brevoApiKey.isBlank()) {
+            throw new RuntimeException("Brevo API key is not configured. Set BREVO_API_KEY environment variable.");
+        }
+
         String jsonBody = "{"
             + "\"sender\":{\"name\":\"" + senderName + "\",\"email\":\"" + senderEmail + "\"},"
             + "\"to\":[{\"email\":\"" + toEmail + "\"}],"
-            + "\"subject\":\"GradeCalc - Verify Your Email\","
+            + "\"subject\":\"" + subject + "\","
             + "\"htmlContent\":\"" + htmlContent.replace("\"", "\\\"") + "\""
             + "}";
 
@@ -76,7 +112,7 @@ public class EmailService {
                 .timeout(Duration.ofSeconds(15))
                 .build();
 
-        log.info("Sending OTP email to {} via Brevo API...", toEmail);
+        log.info("Sending email to {} via Brevo API [{}]...", toEmail, subject);
 
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
