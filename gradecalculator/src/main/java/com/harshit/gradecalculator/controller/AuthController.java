@@ -206,7 +206,7 @@ public class AuthController {
 
         try {
             log.info("Sending password reset OTP to: {}", email.trim());
-            emailService.sendOtpEmail(email.trim(), otp);
+            emailService.sendPasswordResetEmail(email.trim(), otp);
             log.info("Password reset OTP sent successfully to: {}", email.trim());
         } catch (Exception e) {
             log.error("Failed to send password reset OTP", e);
