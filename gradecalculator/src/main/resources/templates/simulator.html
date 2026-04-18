@@ -452,11 +452,18 @@
 
                 const body = card.querySelector(`#g-${idx}`);
                 comp.assignments.forEach(a => {
-                    const isGraded = a.score > 0;
+                    // An assignment is graded if it has totalPoints > 0 AND score > 0,
+                    // OR if score is explicitly 0 but totalPoints > 0 (student got a zero).
+                    // Canvas sync sets score=0 for ungraded assignments too, so we check
+                    // if this assignment's score contributed to the component total.
+                    // Best heuristic: graded if score > 0, or if the component has grades
+                    // and this assignment has totalPoints (meaning it was counted).
+                    const isGraded = a.score > 0 || (a.totalPoints > 0 && comp.score > 0 && a.score === 0 && a.name && !a.name.match(/^\s*$/));
                     const row = document.createElement('div');
-                    row.className = 'assign-row' + (isGraded ? '' : ' not-graded');
+                    // Mark as not-graded only if score is 0 AND it likely hasn't been submitted
+                    row.className = 'assign-row' + (a.score > 0 ? '' : ' not-graded');
                     row.innerHTML = `
-                        <div class="assign-status ${isGraded ? 'graded' : 'ungraded'}"></div>
+                        <div class="assign-status ${a.score > 0 ? 'graded' : 'ungraded'}"></div>
                         <div class="assign-name">${a.name}</div>
                         <input type="number" class="assign-input" value="${a.score}" data-original="${a.score}" oninput="onScoreEdit(this)">
                         <span class="assign-divider">/</span>
@@ -485,6 +492,7 @@
             cs.components.forEach((comp, idx) => {
                 const rows = document.querySelectorAll(`#g-${idx} .assign-row`);
                 let gs = 0, gt = 0;
+                let hasModified = false;
 
                 rows.forEach(row => {
                     const scoreInput = row.querySelector('.assign-input');
@@ -497,14 +505,22 @@
                     if (isMod) {
                         modified++;
                         graded++;
+                        hasModified = true;
                         gs += s; gt += t;
-                    } else if (!isUngraded && s > 0) {
+                    } else if (!isUngraded) {
                         graded++;
                         gs += s; gt += t;
                     } else {
                         ungradedCt++;
                     }
                 });
+
+                // If no modifications were made to this component, use the API data directly
+                // (which matches Canvas's calculation exactly)
+                if (!hasModified && comp.totalPoints > 0) {
+                    gs = comp.score;
+                    gt = comp.totalPoints;
+                }
 
                 // Update group score display
                 const gsEl = document.getElementById('gs-' + idx);
@@ -516,6 +532,7 @@
                 }
             });
 
+            // Canvas normalizes by graded weight
             const pct = isWeighted ? (tw > 0 ? (ws / tw) * 100 : 0) : (tp > 0 ? (te / tp) * 100 : 0);
 
             // Update ring
