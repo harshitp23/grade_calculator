@@ -574,6 +574,23 @@
                 let neededRaw = (g / 100) * newGradedWeight;
                 targetPointsNeeded = (((neededRaw - otherWeightedSum) / comp.weight) * (comp.totalPoints + p)) - comp.score;
 
+                // Debug logging - remove after fixing
+                console.log('=== TARGET CALC DEBUG ===');
+                console.log('Target %:', g);
+                console.log('Selected component:', comp.name, 'weight:', comp.weight, 'score:', comp.score, 'totalPoints:', comp.totalPoints);
+                console.log('New assignment points possible:', p);
+                console.log('Other components:');
+                sd.components.forEach(c => {
+                    if (c.id == compId) return;
+                    console.log('  ', c.name, 'w:', c.weight, 's:', c.score, 'tp:', c.totalPoints, 'graded:', c.totalPoints > 0);
+                });
+                console.log('otherWeightedSum:', otherWeightedSum);
+                console.log('otherGradedWeight:', otherGradedWeight);
+                console.log('newGradedWeight:', newGradedWeight);
+                console.log('neededRaw:', neededRaw);
+                console.log('targetPointsNeeded:', targetPointsNeeded);
+                console.log('percentageNeeded:', (targetPointsNeeded / p) * 100);
+
             } else {
                 // --- TOTAL POINTS MODE (unchanged) ---
                 let totalEarned = 0;
