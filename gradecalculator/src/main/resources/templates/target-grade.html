@@ -539,57 +539,134 @@
 
                 compName = comp.name;
 
-                // Canvas normalizes by graded weight:
-                // displayScore = (sum of (score/total)*weight for graded components) / (sum of graded weights) * 100
+                // Canvas uses: displayScore = rawWeightedSum / gradedWeightSum * 100
+                // where rawWeightedSum = sum of (componentPct * componentWeight) for graded components
+                // and gradedWeightSum = sum of weights of graded components
                 //
-                // When we add X points to a component with p new possible points:
-                // - If component had no grades before, it NOW becomes graded (weight gets added to denominator)
-                // - newScore = (otherWeightedSum + ((comp.score + X) / (comp.totalPoints + p)) * comp.weight) 
-                //             / newGradedWeight * 100
-                // Solve for X where newScore = g (target %)
+                // IMPORTANT: Component score/totalPoints from the API may NOT reproduce
+                // Canvas's currentScore because of dropLowest rules. Canvas drops the
+                // lowest N assignments before computing the component percentage, but the
+                // API returns raw totals including all assignments.
+                //
+                // So we use Canvas's currentScore directly and work backwards to find
+                // the contribution of the selected component.
 
-                // Step 1: Calculate current weighted contributions
-                let otherWeightedSum = 0;  // sum of (score/total)*weight for all OTHER graded components
-                let otherGradedWeight = 0; // sum of weights for all OTHER graded components
-
+                // Step 1: Determine graded weights
+                let gradedWeightSum = 0;
                 sd.components.forEach(c => {
-                    if (c.id == compId) return; // skip selected component
-                    if (c.totalPoints > 0) {
-                        otherWeightedSum += (c.score / c.totalPoints) * c.weight;
-                        otherGradedWeight += c.weight;
-                    }
+                    if (c.totalPoints > 0) gradedWeightSum += c.weight;
                 });
 
-                // Step 2: After adding the assignment, selected component WILL be graded
-                // so new total graded weight = otherGradedWeight + comp.weight
-                let newGradedWeight = otherGradedWeight + comp.weight;
+                // If the selected component has no grades yet, it will become graded
+                let compAlreadyGraded = comp.totalPoints > 0;
+                let newGradedWeight = compAlreadyGraded ? gradedWeightSum : gradedWeightSum + comp.weight;
 
-                // Step 3: Solve for X
-                // g/100 = (otherWeightedSum + ((comp.score + X) / (comp.totalPoints + p)) * comp.weight) / newGradedWeight
-                // g/100 * newGradedWeight = otherWeightedSum + ((comp.score + X) / (comp.totalPoints + p)) * comp.weight
-                // (g/100 * newGradedWeight - otherWeightedSum) / comp.weight = (comp.score + X) / (comp.totalPoints + p)
-                // ((g/100 * newGradedWeight - otherWeightedSum) / comp.weight) * (comp.totalPoints + p) = comp.score + X
-                // X = ((g/100 * newGradedWeight - otherWeightedSum) / comp.weight) * (comp.totalPoints + p) - comp.score
+                // Step 2: Use Canvas's currentScore to get the current rawWeightedSum
+                let currentRawSum = (sd.currentScore / 100) * gradedWeightSum;
 
-                let neededRaw = (g / 100) * newGradedWeight;
-                targetPointsNeeded = (((neededRaw - otherWeightedSum) / comp.weight) * (comp.totalPoints + p)) - comp.score;
-
-                // Debug logging - remove after fixing
-                console.log('=== TARGET CALC DEBUG ===');
-                console.log('Target %:', g);
-                console.log('Selected component:', comp.name, 'weight:', comp.weight, 'score:', comp.score, 'totalPoints:', comp.totalPoints);
-                console.log('New assignment points possible:', p);
-                console.log('Other components:');
+                // Step 3: The selected component's ACTUAL contribution (as Canvas calculates it,
+                // including dropLowest) is whatever makes currentScore correct.
+                // compActualContribution = currentRawSum - otherComponents
+                // But we don't know other components' actual contributions either (they may have dropLowest too).
+                //
+                // Instead, we use a different approach:
+                // Canvas score after adding X points to selected component:
+                //
+                // The new assignment adds to the component's raw score and total.
+                // Canvas will recalculate that component's percentage with the new assignment included.
+                // The component's current Canvas-percentage = compCanvasPct
+                // We can derive compCanvasPct from currentScore and other components.
+                //
+                // Actually, the simplest correct approach:
+                // Let compCanvasPct = the component's percentage AS CANVAS SEES IT (with drops applied)
+                // currentScore/100 = (sum of compCanvasPct_i * weight_i) / gradedWeightSum
+                //
+                // We know currentScore. We need compCanvasPct for the selected component.
+                // compCanvasPct * comp.weight = currentRawSum - sum of (otherCompCanvasPct_i * weight_i)
+                //
+                // But we don't know otherCompCanvasPct either if they have drops...
+                // HOWEVER: for OTHER components, we're not changing them, so their contribution
+                // stays the same after we add an assignment to the SELECTED component.
+                //
+                // Let otherContribution = currentRawSum - selectedComponentContribution
+                // After adding X: newScore = (otherContribution + newSelectedContribution) / newGradedWeight * 100
+                //
+                // We need selectedComponentContribution. We can derive it:
+                // selectedComponentContribution = compCanvasPct * comp.weight / 100... no, that's circular.
+                //
+                // CLEANEST APPROACH: 
+                // After adding X points (out of P possible) to the selected component:
+                // - The component's new score = comp.score + X, new total = comp.totalPoints + P
+                // - Canvas recalculates that component with dropLowest applied
+                // - But we don't know what Canvas will drop
+                //
+                // PRACTICAL SOLUTION:
+                // Since we can't replicate Canvas's exact dropLowest logic, we approximate:
+                // The new assignment is ADDITIONAL work — Canvas adds it to the pool and
+                // may drop different assignments. For a reasonable approximation, we assume
+                // the new assignment won't be dropped (it's the one you're about to take).
+                //
+                // Use the API's currentScore to anchor the calculation:
+                // currentScore = knownTruth (from Canvas)
+                // After adding X/P to selected component:
+                // newCompPct = (comp.score + X) / (comp.totalPoints + P) 
+                //   (approximate — ignores drop changes, but close for non-dropped assignments)
+                // 
+                // We need: the OTHER components' total contribution stays the same.
+                // otherContribution = (currentScore/100) * gradedWeightSum - compCurrentContribution
+                // where compCurrentContribution = compCanvasPct * comp.weight
+                //
+                // We can solve for compCanvasPct from the API:
+                // If we trust that Canvas's currentScore = weighted avg, and we know all
+                // component raw scores, the discrepancy tells us the drop effect.
+                
+                // Compute what the score WOULD be without drops (from raw component data)
+                let rawSum = 0;
                 sd.components.forEach(c => {
-                    if (c.id == compId) return;
-                    console.log('  ', c.name, 'w:', c.weight, 's:', c.score, 'tp:', c.totalPoints, 'graded:', c.totalPoints > 0);
+                    if (c.totalPoints > 0) rawSum += (c.score / c.totalPoints) * c.weight;
                 });
-                console.log('otherWeightedSum:', otherWeightedSum);
-                console.log('otherGradedWeight:', otherGradedWeight);
-                console.log('newGradedWeight:', newGradedWeight);
-                console.log('neededRaw:', neededRaw);
-                console.log('targetPointsNeeded:', targetPointsNeeded);
-                console.log('percentageNeeded:', (targetPointsNeeded / p) * 100);
+                let rawScore = gradedWeightSum > 0 ? (rawSum / gradedWeightSum) * 100 : 0;
+
+                // The difference between Canvas score and raw score is the "drop bonus"
+                // distributed across components with dropLowest > 0
+                // For the selected component, its effective Canvas percentage is:
+                // compCanvasPct = (comp.score / comp.totalPoints) + dropAdjustment
+                // We can derive the selected component's actual Canvas contribution:
+                
+                // Total drop bonus in raw weighted sum terms:
+                let dropBonus = (sd.currentScore / 100) * gradedWeightSum - rawSum;
+                
+                // Attribute the drop bonus proportionally to components that have dropLowest
+                let totalDropWeight = 0;
+                sd.components.forEach(c => {
+                    if (c.totalPoints > 0 && c.dropLowest > 0) totalDropWeight += c.weight;
+                });
+
+                let compDropBonus = 0;
+                if (totalDropWeight > 0 && comp.dropLowest > 0 && comp.totalPoints > 0) {
+                    compDropBonus = dropBonus * (comp.weight / totalDropWeight);
+                }
+
+                // Selected component's effective contribution (as Canvas sees it)
+                let compEffectiveContribution = comp.totalPoints > 0 
+                    ? (comp.score / comp.totalPoints) * comp.weight + compDropBonus 
+                    : 0;
+
+                // Other components' contribution (everything minus selected)
+                let otherContribution = (sd.currentScore / 100) * gradedWeightSum - compEffectiveContribution;
+
+                // After adding assignment: newScore = (otherContribution + newCompContribution) / newGradedWeight * 100
+                // where newCompContribution = ((comp.score + X) / (comp.totalPoints + p)) * comp.weight + compDropBonus
+                // (assuming drop bonus stays roughly the same — the new assignment likely won't be dropped)
+                //
+                // Solve: g/100 = (otherContribution + ((comp.score + X) / (comp.totalPoints + p)) * comp.weight + compDropBonus) / newGradedWeight
+                // g/100 * newGradedWeight = otherContribution + ((comp.score + X) / (comp.totalPoints + p)) * comp.weight + compDropBonus
+                // g/100 * newGradedWeight - otherContribution - compDropBonus = ((comp.score + X) / (comp.totalPoints + p)) * comp.weight
+                // (g/100 * newGradedWeight - otherContribution - compDropBonus) / comp.weight = (comp.score + X) / (comp.totalPoints + p)
+                // X = ((g/100 * newGradedWeight - otherContribution - compDropBonus) / comp.weight) * (comp.totalPoints + p) - comp.score
+
+                let goalRaw = (g / 100) * newGradedWeight;
+                targetPointsNeeded = (((goalRaw - otherContribution - compDropBonus) / comp.weight) * (comp.totalPoints + p)) - comp.score;
 
             } else {
                 // --- TOTAL POINTS MODE (unchanged) ---
