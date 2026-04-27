@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Map;
 
 @RestController
@@ -120,5 +121,16 @@ public class UserController {
         } catch (NumberFormatException e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid number format."));
         }
+    }
+
+    // ===== LAST SYNCED =====
+    @GetMapping("/last-synced")
+    public Map<String, Object> getLastSynced(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = userRepository.findByUsername(userDetails.getUsername()).orElseThrow();
+        Instant lastSynced = user.getLastSyncedAt();
+        if (lastSynced != null) {
+            return Map.of("lastSyncedAt", lastSynced.toString());
+        }
+        return Map.of("lastSyncedAt", "");
     }
 }
