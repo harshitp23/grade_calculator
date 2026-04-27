@@ -3,6 +3,7 @@ package com.harshit.gradecalculator.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 
 @Entity
@@ -29,7 +30,9 @@ public class User {
     @Column(name = "target_gpa", precision = 3, scale = 2)
     private BigDecimal targetGpa;
 
-    // Link to Subjects: One User has Many Subjects
+    @Column(name = "last_synced_at")
+    private Instant lastSyncedAt;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Subject> subjects;
 
@@ -51,6 +54,9 @@ public class User {
 
     public BigDecimal getTargetGpa() { return targetGpa; }
     public void setTargetGpa(BigDecimal targetGpa) { this.targetGpa = targetGpa; }
+
+    public Instant getLastSyncedAt() { return lastSyncedAt; }
+    public void setLastSyncedAt(Instant lastSyncedAt) { this.lastSyncedAt = lastSyncedAt; }
 
     public List<Subject> getSubjects() { return subjects; }
     public void setSubjects(List<Subject> subjects) { this.subjects = subjects; }
