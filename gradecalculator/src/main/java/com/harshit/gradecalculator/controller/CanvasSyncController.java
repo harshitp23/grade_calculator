@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Optional;
 
 @RestController
@@ -36,45 +37,34 @@ public class CanvasSyncController {
 
             if (existing.isPresent()) {
                 subject = existing.get();
-                // Store previous score to show ↑/↓ on dashboard
                 if (subject.getCurrentScore() != null) subject.setPreviousScore(subject.getCurrentScore());
-                
-                // Safely update score if available
                 if (coursePayload.getCurrentScore() != null) {
                     subject.setCurrentScore(BigDecimal.valueOf(coursePayload.getCurrentScore()));
                 }
-                
-                // Update status and grade if the class was moved to completed
                 if (coursePayload.getStatus() != null) subject.setStatus(coursePayload.getStatus());
                 if (coursePayload.getLetterGrade() != null) subject.setLetterGrade(coursePayload.getLetterGrade());
-                
             } else {
                 subject = new Subject();
                 subject.setUser(user);
                 subject.setSubjectName(coursePayload.getName());
                 subject.setSubjectCode(coursePayload.getCode());
-                
-                // USE DYNAMIC DATA FROM EXTENSION
                 subject.setCredits(coursePayload.getCredits() != null ? coursePayload.getCredits() : 3);
                 subject.setStatus(coursePayload.getStatus() != null ? coursePayload.getStatus() : "In Progress");
                 subject.setTermSeason(coursePayload.getTermSeason() != null ? coursePayload.getTermSeason() : "Spring");
                 subject.setTermYear(coursePayload.getTermYear() != null ? coursePayload.getTermYear() : 2026);
-                subject.setLetterGrade(coursePayload.getLetterGrade()); // Can be null for active classes
-                
+                subject.setLetterGrade(coursePayload.getLetterGrade());
                 if (coursePayload.getCurrentScore() != null) {
                     subject.setCurrentScore(BigDecimal.valueOf(coursePayload.getCurrentScore()));
                 }
-                
                 subject.setIncludeInGpa(true);
             }
-            
+
             subjectRepository.save(subject);
             subjectsUpdated++;
 
-            // Only update assignments if the extension sent them (Past classes skip this)
             if (coursePayload.getComponents() != null && !coursePayload.getComponents().isEmpty()) {
                 componentRepository.deleteBySubject(subject);
-                
+
                 for (CanvasComponentPayload compPayload : coursePayload.getComponents()) {
                     Component comp = new Component();
                     comp.setSubject(subject);
@@ -100,6 +90,11 @@ public class CanvasSyncController {
                 }
             }
         }
+
+        // Update last synced timestamp
+        user.setLastSyncedAt(Instant.now());
+        userRepository.save(user);
+
         return new CanvasSyncResponse(subjectsUpdated, componentsUpdated);
     }
 }
