@@ -269,6 +269,8 @@
         .gs-step-num.s4 { background: rgba(239,68,68,0.12); color: #ef4444; }
         .gs-step-num.s5 { background: rgba(139,92,246,0.12); color: #8b5cf6; }
         .gs-step-num.s6 { background: rgba(6,182,212,0.12); color: #06b6d4; }
+        .gs-step-num.s7 { background: rgba(249,115,22,0.12); color: #f97316; }
+        .gs-step-num.s8 { background: rgba(236,72,153,0.12); color: #ec4899; }
         [data-theme="badger"] .gs-step-num.s1 { background: rgba(197,5,12,0.12); color: #ff4b52; }
         .gs-step-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
         .gs-step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
@@ -601,6 +603,13 @@
                     </div>
                 </div>
                 <div class="gs-step">
+                    <div class="gs-step-num s7"><i class="fa-solid fa-bolt"></i></div>
+                    <div>
+                        <div class="gs-step-title">Auto-Sync</div>
+                        <div class="gs-step-desc">Toggle <strong>Auto-Sync</strong> in the extension popup and your grades update automatically every time you visit Canvas — no clicking needed.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
                     <div class="gs-step-num s2"><i class="fa-solid fa-plus"></i></div>
                     <div>
                         <div class="gs-step-title">Build Your Transcript</div>
@@ -618,7 +627,14 @@
                     <div class="gs-step-num s4"><i class="fa-solid fa-bullseye"></i></div>
                     <div>
                         <div class="gs-step-title">Target Calculator</div>
-                        <div class="gs-step-desc">Find out exactly what you need on your next exam to hit your goal grade.</div>
+                        <div class="gs-step-desc">Find out exactly what you need on your next exam to hit your goal grade. Available on the dashboard and as a <strong>floating widget inside Canvas</strong> — click the 🎯 button on any Canvas page.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num s8"><i class="fa-solid fa-crosshairs"></i></div>
+                    <div>
+                        <div class="gs-step-title">In-Canvas Calculator</div>
+                        <div class="gs-step-desc">A draggable 🎯 button appears on every Canvas page. Click it to open a mini Target Calculator — it auto-detects your course so you can calculate scores without leaving Canvas.</div>
                     </div>
                 </div>
                 <div class="gs-step">
@@ -646,6 +662,8 @@
     <div class="onboard-overlay" id="onboardOverlay">
         <div class="onboard-modal">
             <div class="onboard-progress" id="onboardProgress">
+                <div class="onboard-progress-dot"></div>
+                <div class="onboard-progress-dot"></div>
                 <div class="onboard-progress-dot"></div>
                 <div class="onboard-progress-dot"></div>
                 <div class="onboard-progress-dot"></div>
@@ -688,8 +706,69 @@
                 </div>
             </div>
 
-            <!-- SLIDE 3: Dashboard & Features -->
+            <!-- SLIDE 3: Auto-Sync -->
             <div class="onboard-slide" data-slide="2">
+                <div class="onboard-visual" style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid var(--border-color);">
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px;">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(79,70,229,0.15); display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--primary);">
+                                <i class="fa-brands fa-chrome"></i>
+                            </div>
+                            <div style="font-size: 28px; color: var(--success); animation: pulseArrow 1.5s ease infinite;">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </div>
+                            <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(16,185,129,0.15); display: flex; align-items: center; justify-content: center; font-size: 24px; color: #10b981;">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 16px;">
+                            <i class="fa-solid fa-bolt" style="color: #10b981; font-size: 14px;"></i>
+                            <span style="font-size: 13px; font-weight: 600; color: var(--text-main);">Auto-Sync</span>
+                            <div style="width: 36px; height: 18px; background: var(--primary); border-radius: 18px; position: relative; margin-left: 8px;">
+                                <div style="width: 12px; height: 12px; background: white; border-radius: 50%; position: absolute; top: 3px; right: 3px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="onboard-title">Auto-Sync Your Grades</div>
+                <div class="onboard-desc">Toggle <strong>Auto-Sync</strong> in the extension popup and your grades update automatically every time you open Canvas. No clicking, no manual syncing — just always-fresh data.</div>
+                <div class="onboard-tip">
+                    <i class="fa-solid fa-bolt onboard-tip-icon"></i>
+                    <div class="onboard-tip-text">Find the <strong>Auto-Sync toggle</strong> in the extension popup, right below the "Add New" and "Past Semesters" buttons. It's on by default!</div>
+                </div>
+            </div>
+
+            <!-- SLIDE 4: In-Canvas Calculator -->
+            <div class="onboard-slide" data-slide="3">
+                <div class="onboard-visual" style="background: linear-gradient(135deg, #1e293b, #334155); border: 1px solid var(--border-color);">
+                    <div style="position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                        <div style="width: 200px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; text-align: left;">
+                            <div style="font-size: 9px; color: var(--text-muted); margin-bottom: 4px;">SP26 COMPSCI 540 001</div>
+                            <div style="display: flex; gap: 4px; margin-bottom: 6px;">
+                                <div style="flex:1; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; text-align: center;">
+                                    <div style="font-size: 12px; font-weight: 800; color: var(--primary);">98%</div>
+                                    <div style="font-size: 7px; color: var(--text-muted);">SCORE</div>
+                                </div>
+                                <div style="flex:1; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 4px; padding: 4px; text-align: center;">
+                                    <div style="font-size: 12px; font-weight: 800; color: var(--primary);">A</div>
+                                    <div style="font-size: 7px; color: var(--text-muted);">GRADE</div>
+                                </div>
+                            </div>
+                            <div style="background: var(--primary); color: white; padding: 5px; border-radius: 4px; text-align: center; font-size: 9px; font-weight: 700;">Calculate</div>
+                        </div>
+                        <div style="position: absolute; bottom: 16px; right: 24px; width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #6366f1); display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px rgba(79,70,229,0.4);">🎯</div>
+                    </div>
+                </div>
+                <div class="onboard-title">In-Canvas Target Calculator</div>
+                <div class="onboard-desc">A floating <strong>🎯 button</strong> appears on every Canvas page. Click it to open a mini Target Calculator that <strong>auto-detects your course</strong> — calculate what you need on your next exam without ever leaving Canvas.</div>
+                <div class="onboard-tip">
+                    <i class="fa-solid fa-crosshairs onboard-tip-icon"></i>
+                    <div class="onboard-tip-text">The calculator panel is <strong>draggable</strong> — move it anywhere on the screen. It works across all Canvas pages, even when you switch courses.</div>
+                </div>
+            </div>
+
+            <!-- SLIDE 5: Dashboard & Features -->
+            <div class="onboard-slide" data-slide="4">
                 <div class="onboard-visual vis-dashboard">
                     <div class="vis-dash-kpis">
                         <div class="vis-dash-kpi"><div class="vis-dash-kpi-val">3.75</div><div class="vis-dash-kpi-label">GPA</div></div>
@@ -713,8 +792,8 @@
                 </div>
             </div>
 
-            <!-- SLIDE 4: Ready -->
-            <div class="onboard-slide" data-slide="3">
+            <!-- SLIDE 6: Ready -->
+            <div class="onboard-slide" data-slide="5">
                 <div class="onboard-visual vis-ready">
                     <div class="vis-ready-content">
                         <div class="check-circle" id="readyCheck"><i class="fa-solid fa-check"></i></div>
@@ -919,7 +998,7 @@
 
         // ===== ONBOARDING TUTORIAL =====
         let onboardSlide = 0;
-        const onboardTotal = 4;
+        const onboardTotal = 6;
 
         function showOnboarding() {
             onboardSlide = 0;
@@ -967,7 +1046,7 @@
                 nextBtn.innerHTML = 'Next <i class="fa-solid fa-arrow-right" style="margin-left:6px;"></i>';
             }
             // Trigger dashboard bar animation on slide 3
-            if (onboardSlide === 2) {
+            if (onboardSlide === 4) {
                 const bar = document.getElementById('dashBarFill');
                 bar.classList.remove('animate');
                 void bar.offsetWidth;
