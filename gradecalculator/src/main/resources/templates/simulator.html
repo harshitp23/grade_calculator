@@ -183,6 +183,22 @@
 </head>
 <body>
 
+    <div id="simulator-down-screen" style="
+        display:none;
+        height:100vh;
+        width:100%;
+        align-items:center;
+        justify-content:center;
+        flex-direction:column;
+        text-align:center;
+        ">
+    <h1 style="font-size:28px; font-weight:800; margin-bottom:10px;">
+        Grade Simulator is temporarily down
+    </h1>
+    <p style="color:var(--text-muted); max-width:420px;">
+        I'm currently fixing it. It’ll be back soon — check again in a bit.
+    </p>
+</div>
     <div class="mobile-nav">
         <div style="display:flex; align-items:center; gap:15px;">
             <button class="icon-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars" style="font-size:20px;"></i></button>
@@ -362,6 +378,24 @@
     </div>
 
     <script>
+
+            const SIMULATOR_DOWN = true;
+
+    if (SIMULATOR_DOWN) {
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("simulator-down-screen").style.display = "flex";
+
+            const selector = document.querySelector(".selector-card");
+            const empty = document.getElementById("emptyState");
+            const body = document.getElementById("simBody");
+
+            if (selector) selector.style.display = "none";
+            if (empty) empty.style.display = "none";
+            if (body) body.style.display = "none";
+        });
+
+        throw new Error("Simulator disabled");
+    }
         // --- THEME ---
         function toggleThemeMenu(menuId) { document.getElementById('themeDropdown-' + menuId).classList.toggle('show'); }
         function setTheme(theme) {
